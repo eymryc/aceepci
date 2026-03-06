@@ -1,0 +1,10 @@
+/* Fonts (customize as needed) */
+@import "./styles/fonts.css";
+
+/* Tailwind CSS v4 - scans app/ and project for classes */
+@import "tailwindcss";
+@source "../**/*.{js,ts,jsx,tsx}";
+@import "tw-animate-css";
+
+/* Theme & base styles */
+@import "./styles/theme.css";
