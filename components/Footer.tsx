@@ -174,7 +174,7 @@ export function Footer() {
 
         {/* ── Bottom bar ── */}
         <div className="border-t-2 border-white/40 pt-7 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs font-normal text-white text-center sm:text-left">
+          <p className="text-xs font-normal text-white text-center sm:text-left" suppressHydrationWarning>
             © {new Date().getFullYear()} {siteConfig.name} — Fondée le {siteConfig.founded}. Tous droits réservés.
           </p>
           <p className="flex items-center gap-1.5 text-xs font-normal text-white">
