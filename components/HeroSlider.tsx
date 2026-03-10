@@ -6,6 +6,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { fetchHeroSlides, type HeroSlide } from "@/lib/api";
 
 interface Slide {
   image: string;
@@ -17,7 +18,19 @@ interface Slide {
   secondaryButton: { text: string; link: string };
 }
 
-const slides: Slide[] = [
+function mapApiSlideToSlide(api: HeroSlide): Slide {
+  return {
+    image: api.image ?? "",
+    eyebrow: api.eyebrow ?? api.short_subtitle ?? "",
+    title: api.title,
+    subtitle: api.subtitle ?? "",
+    description: api.description ?? "",
+    primaryButton: { text: "Devenir membre", link: "/members" },
+    secondaryButton: { text: "Faire un don", link: "/payments" },
+  };
+}
+
+const defaultSlides: Slide[] = [
   {
     image: "https://images.unsplash.com/photo-1750284743584-10142975ecd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaHJpc3RpYW4lMjB5b3V0aCUyMHdvcnNoaXAlMjBoYW5kcyUyMHJhaXNlZHxlbnwxfHx8fDE3NzI0NzE0NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
     eyebrow: "ACEEPCI · Depuis 1961",
@@ -48,8 +61,17 @@ const slides: Slide[] = [
 ];
 
 export function HeroSlider() {
+  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    fetchHeroSlides().then((apiSlides) => {
+      if (apiSlides.length > 0) {
+        setSlides(apiSlides.map(mapApiSlideToSlide));
+      }
+    });
+  }, []);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, duration: 25 },
