@@ -80,9 +80,7 @@ export default function Page() {
         background={heroImages.news}
       />
       {/* Featured Article */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-6">
             <span className="w-1 h-1 rounded-full bg-brand-primary" />
@@ -124,19 +122,17 @@ export default function Page() {
       </AnimateSection>
 
       {/* News Grid */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-1 h-1 rounded-full bg-brand-light" />
-                <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">Dernières actualités</p>
-                <span className="w-1 h-1 rounded-full bg-brand-light" />
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
+                <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Dernières actualités</p>
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
               </div>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-white uppercase tracking-tight">
-                Toute l&apos;<em className="not-italic italic text-brand-light">actualité</em>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground uppercase tracking-tight">
+                Toute l&apos;<em className="not-italic italic text-brand-primary">actualité</em>
               </h2>
             </div>
             <div className="flex gap-2">
@@ -145,8 +141,8 @@ export default function Page() {
                   key={filter}
                   className={`px-4 py-2.5 text-sm font-medium rounded-sm border transition-all ${
                     activeFilter === filter
-                      ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-transparent shadow-[0_4px_12px_rgba(24,64,112,0.3)]"
-                      : "bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-brand-primary/30"
+                      ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-transparent shadow-[0_4px_12px_rgba(24,64,112,0.28)]"
+                      : "bg-white border-border text-foreground hover:bg-brand-primary/5 hover:border-brand-primary/30"
                   }`}
                   onClick={() => setActiveFilter(filter)}
                 >
@@ -158,33 +154,33 @@ export default function Page() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredNews.slice(1).map((article) => (
-              <article key={article.id} className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-primary/30 hover:bg-white/8 transition-all duration-300">
+              <article key={article.id} className="group bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_12px_36px_rgba(24,64,112,0.08)] transition-all duration-300">
                 <div className="relative h-48 overflow-hidden">
                   <ImageWithFallback
                     src={article.image}
                     alt={article.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/70 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/50 to-transparent" />
                   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm text-foreground text-[0.65rem] font-medium tracking-[0.1em] uppercase rounded-sm">
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-white/95 backdrop-blur-sm text-foreground text-[0.65rem] font-medium tracking-[0.1em] uppercase rounded-sm">
                     {article.category}
                   </span>
                 </div>
                 <div className="p-6">
-                  <div className="flex items-center text-xs text-white mb-3 gap-3">
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-brand-light" />{article.date}</span>
-                    <span className="flex items-center gap-1"><Eye className="w-3 h-3 text-brand-light" />{article.views}</span>
+                  <div className="flex items-center text-xs text-muted-foreground mb-3 gap-3">
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-brand-primary" />{article.date}</span>
+                    <span className="flex items-center gap-1"><Eye className="w-3 h-3 text-brand-primary" />{article.views}</span>
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-white mb-2 line-clamp-2 leading-snug">
+                  <h3 className="font-serif text-lg font-bold text-foreground mb-2 line-clamp-2 leading-snug">
                     {article.title}
                   </h3>
-                  <p className="text-white text-sm mb-4 line-clamp-3 leading-relaxed">
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3 leading-relaxed">
                     {article.excerpt}
                   </p>
                   <Link
                     href={`/news/${article.id}`}
-                    className="inline-flex items-center gap-1.5 text-brand-light hover:text-brand-accent font-medium text-sm transition-colors group/link"
+                    className="inline-flex items-center gap-1.5 text-brand-primary hover:opacity-90 font-medium text-sm transition-colors group/link"
                   >
                     Lire plus <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5" />
                   </Link>
@@ -202,7 +198,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* Newsletter Subscription */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -234,8 +230,6 @@ export default function Page() {
 
       {/* Media Gallery Preview */}
       <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-2">

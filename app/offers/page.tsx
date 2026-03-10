@@ -80,13 +80,8 @@ export default function Page() {
         background={heroImages.offers}
       />
 
-      {/* ── Stats bar (section claire) ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-16 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
+      {/* ── Stats bar ── */}
+      <AnimateSection className="relative bg-white overflow-hidden py-16 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {categories.slice(1).map(({ id, icon: Icon, name, count }, i) => (
@@ -105,11 +100,8 @@ export default function Page() {
         </div>
       </AnimateSection>
 
-      {/* ── Main content (section sombre) ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-16 px-4 sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute -top-48 -left-48 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
+      {/* ── Main content ── */}
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-16 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
 
         {/* Category filters */}
@@ -121,13 +113,13 @@ export default function Page() {
               className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-sm border transition-all ${
                 selectedCategory === id
                   ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-brand-primary shadow-[0_4px_12px_rgba(24,64,112,0.26)]"
-                  : "bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-brand-primary/35 hover:text-white"
+                  : "bg-white border-border text-foreground hover:bg-brand-primary/5 hover:border-brand-primary/30"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
               {name}
               <span className={`px-1.5 py-0.5 rounded-sm text-[0.65rem] font-medium ${
-                selectedCategory === id ? "bg-white/20" : "bg-white/10"
+                selectedCategory === id ? "bg-white/20" : "bg-brand-subtle"
               }`}>
                 {count}
               </span>
@@ -144,25 +136,22 @@ export default function Page() {
               return (
                 <div
                   key={offer.id}
-                  className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-primary/40 hover:bg-white/10 transition-all duration-300"
+                  className="group bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/30 hover:shadow-[0_12px_36px_rgba(24,64,112,0.1)] transition-all duration-300"
                 >
-                  {/* Top accent on hover */}
-                  <div className="h-[2px] bg-gradient-to-r from-brand-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="h-[2px] bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="p-6">
-                    {/* Badge + title */}
                     <div className="mb-4">
                       <span className={`inline-flex items-center gap-1.5 text-[0.65rem] font-medium tracking-[0.1em] uppercase px-2.5 py-1 rounded-sm border mb-3 ${meta.bg} ${meta.text} ${meta.border}`}>
                         <Icon className="w-3 h-3" />
                         {meta.label}
                       </span>
-                      <h3 className="font-serif text-lg font-bold text-white mb-1.5 leading-snug">{offer.title}</h3>
-                      <div className="flex items-center gap-2 text-xs font-bold text-white">
+                      <h3 className="font-serif text-lg font-bold text-foreground mb-1.5 leading-snug">{offer.title}</h3>
+                      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
                         <Building className="w-3.5 h-3.5 flex-shrink-0" />
                         {offer.organization}
                       </div>
                     </div>
 
-                    {/* Meta details */}
                     <div className="space-y-1.5 mb-4">
                       {[
                         { icon: MapPin,   text: offer.location },
@@ -170,45 +159,42 @@ export default function Page() {
                         ...(offer.salary   ? [{ icon: DollarSign, text: offer.salary }]            : []),
                         ...(offer.duration ? [{ icon: Calendar,   text: `Durée : ${offer.duration}` }] : []),
                       ].map(({ icon: I, text }) => (
-                        <div key={text} className="flex items-center gap-2 text-xs font-bold text-white">
-                          <I className="w-3.5 h-3.5 text-brand-light flex-shrink-0" />
+                        <div key={text} className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                          <I className="w-3.5 h-3.5 text-brand-primary flex-shrink-0" />
                           {text}
                         </div>
                       ))}
                     </div>
 
-                    {/* Description */}
-                    <p className="text-xs font-bold text-white leading-relaxed mb-4 line-clamp-2">
+                    <p className="text-xs font-bold text-muted-foreground leading-relaxed mb-4 line-clamp-2">
                       {offer.description}
                     </p>
 
-                    {/* Requirements preview */}
                     <div className="mb-5">
-                      <p className="text-[0.65rem] font-medium tracking-[0.1em] uppercase text-white mb-2">Exigences</p>
+                      <p className="text-[0.65rem] font-medium tracking-[0.1em] uppercase text-muted-foreground mb-2">Exigences</p>
                       <ul className="space-y-1.5">
                         {offer.requirements.slice(0, 2).map((req) => (
-                          <li key={req} className="flex items-start gap-2 text-xs font-bold text-white">
-                            <ChevronRight className="w-3.5 h-3.5 text-brand-light flex-shrink-0 mt-0.5" />
+                          <li key={req} className="flex items-start gap-2 text-xs font-bold text-muted-foreground">
+                            <ChevronRight className="w-3.5 h-3.5 text-brand-primary flex-shrink-0 mt-0.5" />
                             {req}
                           </li>
                         ))}
                         {offer.requirements.length > 2 && (
-                          <li className="text-[0.65rem] font-bold text-white pl-5">
+                          <li className="text-[0.65rem] font-bold text-muted-foreground pl-5">
                             +{offer.requirements.length - 2} autres exigences
                           </li>
                         )}
                       </ul>
                     </div>
 
-                    {/* Footer */}
-                    <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2 text-xs font-bold text-white">
-                        <Calendar className="w-3.5 h-3.5 text-brand-light" />
-                        Échéance : <span className="font-medium text-brand-light ml-1">{offer.deadline}</span>
+                    <div className="pt-4 border-t border-border flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                        <Calendar className="w-3.5 h-3.5 text-brand-primary" />
+                        Échéance : <span className="font-medium text-brand-primary ml-1">{offer.deadline}</span>
                       </div>
                       <button
                         onClick={() => setSelectedOffer(offer)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-xs font-medium rounded-sm shadow-[0_4px_10px_rgba(24,64,112,0.25)] hover:shadow-[0_4px_16px_rgba(24,64,112,0.4)] hover:-translate-y-px transition-all group/btn flex-shrink-0"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-xs font-medium rounded-sm shadow-[0_4px_10px_rgba(24,64,112,0.25)] hover:opacity-95 hover:-translate-y-px transition-all group/btn flex-shrink-0"
                       >
                         Voir détails
                         <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5" />
@@ -221,11 +207,11 @@ export default function Page() {
           </div>
         ) : (
           <div className="text-center py-20">
-            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
-              <Filter className="w-7 h-7 text-white" />
+            <div className="w-16 h-16 rounded-full bg-brand-subtle border border-border flex items-center justify-center mx-auto mb-4">
+              <Filter className="w-7 h-7 text-brand-primary" />
             </div>
-            <h3 className="font-serif text-xl font-bold text-[white] mb-2">Aucune offre disponible</h3>
-            <p className="text-sm font-bold text-white">Aucune offre ne correspond à votre sélection pour le moment.</p>
+            <h3 className="font-serif text-xl font-bold text-foreground mb-2">Aucune offre disponible</h3>
+            <p className="text-sm font-bold text-muted-foreground">Aucune offre ne correspond à votre sélection pour le moment.</p>
           </div>
         )}
 
@@ -235,7 +221,7 @@ export default function Page() {
             <button
               onClick={() => setCurrentPage((p) => p - 1)}
               disabled={currentPage === 1}
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white/5 border border-white/10 text-white rounded-sm hover:border-brand-primary/40 hover:text-brand-light transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white border border-border text-foreground rounded-sm hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-4 h-4" /> Précédent
             </button>
@@ -246,8 +232,8 @@ export default function Page() {
                   onClick={() => setCurrentPage(n)}
                   className={`w-9 h-9 flex items-center justify-center text-sm font-medium rounded-sm border transition-all ${
                     currentPage === n
-                      ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-brand-primary shadow-[0_4px_10px_rgba(24,64,112,0.35)]"
-                      : "bg-white/5 border-[rgba(245,240,232,0.1)] text-white hover:border-[rgba(24,64,112,0.35)] hover:text-brand-light"
+                      ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-brand-primary shadow-[0_4px_10px_rgba(24,64,112,0.28)]"
+                      : "bg-white border-border text-foreground hover:border-brand-primary/30 hover:bg-brand-primary/5"
                   }`}
                 >
                   {n}
@@ -257,7 +243,7 @@ export default function Page() {
             <button
               onClick={() => setCurrentPage((p) => p + 1)}
               disabled={currentPage === totalPages}
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white/5 border border-white/10 text-white rounded-sm hover:border-brand-primary/40 hover:text-brand-light transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white border border-border text-foreground rounded-sm hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Suivant <ChevronRight className="w-4 h-4" />
             </button>
@@ -267,13 +253,8 @@ export default function Page() {
         </div>
       </AnimateSection>
 
-      {/* ── CTA (section claire) ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
+      {/* ── CTA ── */}
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-3xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="w-1 h-1 rounded-full bg-brand-primary" />

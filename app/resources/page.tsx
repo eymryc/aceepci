@@ -138,8 +138,7 @@ export default function Page() {
         background={heroImages.resources}
       />
       {/* Verse of the Day */}
-      <AnimateSection className="relative py-24 bg-brand-subtle overflow-hidden px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
+      <AnimateSection className="relative py-24 bg-white overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl p-8 md:p-12 text-left border border-border shadow-[0_8px_28px_rgba(24,64,112,0.08)]">
             <div className="flex items-center gap-2 mb-4">
@@ -160,50 +159,49 @@ export default function Page() {
       </AnimateSection>
 
       {/* Devotionals */}
-      <AnimateSection className="relative py-24 bg-brand-primary-dark overflow-hidden px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
+      <AnimateSection className="relative py-24 bg-brand-subtle overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">Méditation</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Méditation</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-2 uppercase tracking-tight">
-              Dévotions <em className="not-italic italic text-brand-light">quotidiennes</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-2 uppercase tracking-tight">
+              Dévotions <em className="not-italic italic text-brand-primary">quotidiennes</em>
             </h2>
-            <p className="text-white">
+            <p className="text-muted-foreground">
               Méditez la Parole de Dieu chaque jour
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {devotionals.map((devotional, index) => (
-              <div key={index} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-primary/30 hover:bg-white/8 transition-all">
+              <div key={index} className="bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_12px_36px_rgba(24,64,112,0.08)] transition-all">
                 <div className="relative h-40">
                   <ImageWithFallback
                     src={devotional.image}
                     alt={devotional.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/70 to-transparent" />
-                  <div className="absolute top-4 left-4 bg-brand-primary/90 text-white text-xs font-semibold px-3 py-1 rounded-sm">
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/50 to-transparent" />
+                  <div className="absolute top-4 left-4 bg-brand-primary/95 text-white text-xs font-semibold px-3 py-1 rounded-sm">
                     {devotional.date}
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-serif text-xl font-bold text-white mb-2">
+                  <h3 className="font-serif text-xl font-bold text-foreground mb-2">
                     {devotional.title}
                   </h3>
-                  <p className="text-sm text-brand-light font-semibold mb-3">
+                  <p className="text-sm text-brand-primary font-semibold mb-3">
                     {devotional.verse}
                   </p>
-                  <p className="text-white text-sm mb-4">
+                  <p className="text-muted-foreground text-sm mb-4">
                     {devotional.excerpt}
                   </p>
                   <Link
                     href={`/devotion/${devotional.id}`}
-                    className="text-brand-light hover:text-brand-accent font-semibold text-sm transition-colors"
+                    className="text-brand-primary hover:opacity-90 font-semibold text-sm transition-colors"
                   >
                     Lire la suite →
                   </Link>
@@ -224,8 +222,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* Sermons & Messages */}
-      <AnimateSection className="relative py-24 bg-brand-subtle overflow-hidden px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
+      <AnimateSection className="relative py-24 bg-white overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
             <div>
@@ -335,36 +332,35 @@ export default function Page() {
       </AnimateSection>
 
       {/* Library */}
-      <AnimateSection className="relative py-24 bg-brand-primary-dark overflow-hidden px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
+      <AnimateSection className="relative py-24 bg-brand-subtle overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">Ressources</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Ressources</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white uppercase tracking-tight">Bibliothèque</h2>
-            <p className="text-white mt-1">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground uppercase tracking-tight">Bibliothèque</h2>
+            <p className="text-muted-foreground mt-1">
               Documents bibliques, guides et ressources téléchargeables
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {documents.map((doc, index) => (
-              <div key={index} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-brand-primary/30 transition-all">
+              <div key={index} className="bg-white border border-border rounded-2xl p-6 hover:border-brand-primary/25 hover:shadow-[0_8px_28px_rgba(24,64,112,0.08)] transition-all">
                 <div className="w-12 h-12 bg-gradient-to-br from-brand-primary to-brand-accent rounded-xl flex items-center justify-center mb-4">
                   <FileText className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-bold text-white mb-2">
+                <h3 className="font-bold text-foreground mb-2">
                   {doc.title}
                 </h3>
-                <p className="text-sm text-white mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   {doc.description}
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-white">{doc.type} • {doc.size}</span>
-                  <button className="text-brand-light hover:text-brand-accent transition-colors">
+                  <span className="text-xs text-muted-foreground">{doc.type} • {doc.size}</span>
+                  <button className="text-brand-primary hover:opacity-90 transition-colors">
                     <Download className="w-5 h-5" />
                   </button>
                 </div>
@@ -381,8 +377,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* Testimonials */}
-      <AnimateSection className="relative py-24 bg-brand-subtle overflow-hidden px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
+      <AnimateSection className="relative py-24 bg-white overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-2">
@@ -449,14 +444,13 @@ export default function Page() {
       </AnimateSection>
 
       {/* CTA */}
-      <AnimateSection className="relative py-24 bg-brand-primary-dark overflow-hidden px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="relative z-10 max-w-4xl mx-auto text-white">
-          <BookOpen className="w-16 h-16 mb-6 text-brand-light/80" />
-          <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4 pl-4 border-l-4 border-brand-light/50 uppercase tracking-tight">
+      <AnimateSection className="relative py-24 bg-brand-subtle overflow-hidden px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <BookOpen className="w-16 h-16 mb-6 text-brand-primary/80" />
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4 pl-4 border-l-4 border-brand-primary/50 uppercase tracking-tight">
             Grandissez spirituellement
           </h2>
-          <p className="text-lg text-white mb-8">
+          <p className="text-lg text-muted-foreground mb-8">
             Explorez nos ressources et nourrissez votre foi quotidiennement
           </p>
           <button className="px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-accent text-white rounded-sm font-semibold hover:opacity-95 transition-opacity">

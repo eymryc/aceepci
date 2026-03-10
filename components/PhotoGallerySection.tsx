@@ -39,14 +39,6 @@ export default function PhotoGallerySection() {
   return (
     <>
       <section className="relative bg-brand-subtle overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
-
-        {/* Subtle dot pattern */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-
         <div className="relative z-10 max-w-7xl mx-auto">
 
           {/* Header */}

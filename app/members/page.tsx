@@ -59,10 +59,7 @@ export default function Page() {
       />
 
       {/* ── Pourquoi devenir membre ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-3">
@@ -80,7 +77,7 @@ export default function Page() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-border rounded-2xl overflow-hidden border border-border">
             {whyJoin.map(({ icon: Icon, title, desc }, i) => (
-              <div key={title} className="group relative bg-brand-subtle flex flex-col items-start gap-4 p-7 hover:bg-white transition-colors duration-300 overflow-hidden">
+              <div key={title} className="group relative bg-brand-subtle/50 flex flex-col items-start gap-4 p-7 hover:bg-white transition-colors duration-300 overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-10 h-[2px] bg-brand-primary transition-all duration-300 rounded-full" />
                 <span className="absolute bottom-3 right-4 font-serif text-[4rem] font-bold leading-none text-brand-primary/[0.07] select-none pointer-events-none">
                   {String(i + 1).padStart(2, "0")}
@@ -99,52 +96,48 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Types d'adhésion ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Formules</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Formules</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-2 uppercase tracking-tight">
-              Types <em className="not-italic italic text-brand-light">d&apos;adhésion</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
+              Types <em className="not-italic italic text-brand-primary">d&apos;adhésion</em>
             </h2>
-            <p className="text-base font-bold text-white">Choisissez la formule qui vous correspond</p>
+            <p className="text-base font-bold text-muted-foreground">Choisissez la formule qui vous correspond</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {membershipTypes.map((type) => (
               <div
                 key={type.num}
-                className={`group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 ${
+                className={`group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 bg-white border ${
                   type.featured
-                    ? "bg-white/10 border border-brand-primary/40 hover:shadow-[0_16px_48px_rgba(24,64,112,0.25)] md:-translate-y-3"
-                    : "bg-white/5 border border-white/10 hover:border-brand-primary/30"
+                    ? "border-brand-primary/30 hover:shadow-[0_16px_48px_rgba(24,64,112,0.15)] md:-translate-y-3"
+                    : "border-border hover:border-brand-primary/25"
                 }`}
               >
                 <div className={`h-[3px] bg-gradient-to-r from-brand-primary to-brand-accent ${type.featured ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-300`} />
-                <span className="absolute top-5 right-5 font-serif text-[4rem] font-bold leading-none text-white/[0.05] select-none pointer-events-none">{type.num}</span>
+                <span className="absolute top-5 right-5 font-serif text-[4rem] font-bold leading-none text-brand-primary/[0.06] select-none pointer-events-none">{type.num}</span>
 
                 <div className="p-8">
                   {type.featured && (
-                    <div className="inline-flex items-center gap-1.5 bg-brand-primary/20 border border-brand-primary/35 text-brand-light text-[0.65rem] font-medium tracking-widest uppercase px-3 py-1 rounded-sm mb-4">
+                    <div className="inline-flex items-center gap-1.5 bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-[0.65rem] font-medium tracking-widest uppercase px-3 py-1 rounded-sm mb-4">
                       Populaire
                     </div>
                   )}
-                  <h3 className="font-serif text-xl font-bold text-white mb-2">{type.name}</h3>
-                  <div className="font-serif text-3xl font-bold text-brand-light mb-1">{type.price}</div>
-                  <p className="text-xs font-bold text-white mb-6">{type.description}</p>
+                  <h3 className="font-serif text-xl font-bold text-foreground mb-2">{type.name}</h3>
+                  <div className="font-serif text-3xl font-bold text-brand-primary mb-1">{type.price}</div>
+                  <p className="text-xs font-bold text-muted-foreground mb-6">{type.description}</p>
                   <div className="w-8 h-[2px] bg-brand-primary/50 mb-6 group-hover:w-14 transition-all duration-300" />
                   <ul className="space-y-3 mb-8">
                     {type.benefits.map((benefit) => (
                       <li key={benefit} className="flex items-start gap-2.5">
-                        <CheckCircle className="w-4 h-4 text-brand-light flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                        <span className="text-xs font-bold text-white leading-relaxed">{benefit}</span>
+                        <CheckCircle className="w-4 h-4 text-brand-primary flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                        <span className="text-xs font-bold text-muted-foreground leading-relaxed">{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -152,8 +145,8 @@ export default function Page() {
                     href={type.link}
                     className={`flex items-center justify-center gap-2 w-full py-3 text-sm font-medium rounded-sm transition-all group/btn ${
                       type.featured
-                        ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white shadow-[0_4px_16px_rgba(24,64,112,0.35)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.5)] hover:-translate-y-px"
-                        : "bg-transparent border border-brand-primary/45 text-brand-light hover:bg-brand-primary hover:text-white hover:border-brand-primary"
+                        ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-px"
+                        : "bg-brand-subtle border border-border text-foreground hover:bg-brand-primary/10 hover:border-brand-primary/30"
                     }`}
                   >
                     Adhérer maintenant
@@ -167,35 +160,31 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Adhésion en ligne ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="relative bg-brand-primary-dark rounded-2xl overflow-hidden border border-brand-primary/25">
-            <div className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.2)_0%,transparent_70%)]" />
+          <div className="relative bg-brand-subtle rounded-2xl overflow-hidden border border-border">
             <div className="h-[3px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
-
             <div className="p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 relative z-10">
               <div className="flex-shrink-0">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_8px_28px_rgba(24,64,112,0.4)] flex items-center justify-center">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_8px_28px_rgba(24,64,112,0.3)] flex items-center justify-center">
                   <UserPlus className="w-10 h-10 text-white" />
                 </div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-1 h-1 rounded-full bg-brand-light" />
-                  <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">En ligne · Sécurisé</p>
-                  <span className="w-1 h-1 rounded-full bg-brand-light" />
+                  <span className="w-1 h-1 rounded-full bg-brand-primary" />
+                  <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">En ligne · Sécurisé</p>
+                  <span className="w-1 h-1 rounded-full bg-brand-primary" />
                 </div>
-                <h2 className="font-serif text-3xl font-bold text-white mb-3 uppercase tracking-tight">
-                  Adhésion <em className="not-italic italic text-brand-light">en ligne</em>
+                <h2 className="font-serif text-3xl font-bold text-foreground mb-3 uppercase tracking-tight">
+                  Adhésion <em className="not-italic italic text-brand-primary">en ligne</em>
                 </h2>
-                <p className="text-sm font-bold text-white leading-relaxed mb-6">
+                <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-6">
                   Remplissez le formulaire d&apos;adhésion en ligne et effectuez votre paiement de manière sécurisée via Orange Money, Wave ou carte bancaire.
                 </p>
                 <Link
                   href="/membership-form"
-                  className="inline-flex items-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.35)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.5)] hover:-translate-y-0.5 transition-all group"
+                  className="inline-flex items-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group"
                 >
                   Commencer l&apos;adhésion
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -207,51 +196,48 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Répertoire des départements ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -bottom-32 -left-32 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Réseau</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Réseau</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-2 uppercase tracking-tight">
-              Répertoire des <em className="not-italic italic text-brand-light">départements</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
+              Répertoire des <em className="not-italic italic text-brand-primary">départements</em>
             </h2>
-            <p className="text-base font-bold text-white">88+ départements à travers la Côte d&apos;Ivoire</p>
+            <p className="text-base font-bold text-muted-foreground">88+ départements à travers la Côte d&apos;Ivoire</p>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-white border border-border rounded-2xl overflow-hidden">
             <div className="h-[2px] bg-gradient-to-r from-brand-primary to-transparent" />
             <div className="p-6">
               <div className="relative mb-6">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white pointer-events-none" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Rechercher un département (ville, établissement...)"
-                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-md text-white text-sm font-bold placeholder:text-white focus:outline-none focus:border-brand-primary/50 transition-colors"
+                  className="w-full pl-11 pr-4 py-3 bg-brand-subtle/50 border border-border rounded-md text-foreground text-sm font-medium placeholder:text-muted-foreground focus:outline-none focus:border-brand-primary transition-colors"
                 />
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {departments.map((dept) => (
-                  <div key={dept} className="group flex items-center gap-3 p-4 bg-white/[0.03] border border-white/10 rounded-lg hover:bg-white/[0.07] hover:border-brand-primary/30 transition-all cursor-pointer">
-                    <div className="w-8 h-8 rounded-lg bg-brand-primary/15 border border-brand-primary/25 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary/25 transition-colors">
-                      <MapPin className="w-3.5 h-3.5 text-brand-light" />
+                  <div key={dept} className="group flex items-center gap-3 p-4 bg-brand-subtle/30 border border-border rounded-lg hover:bg-brand-subtle hover:border-brand-primary/25 transition-all cursor-pointer">
+                    <div className="w-8 h-8 rounded-lg bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary/15 transition-colors">
+                      <MapPin className="w-3.5 h-3.5 text-brand-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-white">{dept}</h3>
-                      <p className="text-xs font-bold text-white">Voir les contacts</p>
+                      <h3 className="text-sm font-medium text-foreground">{dept}</h3>
+                      <p className="text-xs font-bold text-muted-foreground">Voir les contacts</p>
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className="mt-6">
-                <button className="inline-flex items-center gap-2 text-sm font-medium text-brand-light hover:text-brand-accent transition-colors group">
+                <button className="inline-flex items-center gap-2 text-sm font-medium text-brand-primary hover:opacity-90 transition-colors group">
                   Voir tous les départements (88+)
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </button>
@@ -262,10 +248,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Alumni Network ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative">
@@ -318,42 +301,31 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Espace Diaspora ── */}
-      <AnimateSection className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1655102718200-7230a1be8bfc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-            alt="Espace Diaspora"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary-dark/95 via-brand-primary-dark/80 to-brand-primary-dark/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/60 to-transparent" />
-        </div>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-4">
-            <span className="w-1 h-1 rounded-full bg-brand-light" />
-            <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · International</p>
-            <span className="w-1 h-1 rounded-full bg-brand-light" />
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
+            <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · International</p>
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
           </div>
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-4 uppercase tracking-tight">
-            Espace <em className="not-italic italic text-brand-light">Diaspora</em>
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-4 uppercase tracking-tight">
+            Espace <em className="not-italic italic text-brand-primary">Diaspora</em>
           </h2>
           <div className="w-12 h-[2px] bg-gradient-to-r from-brand-primary to-transparent mb-6" />
-          <p className="text-base font-bold text-white mb-8 max-w-xl leading-relaxed">
+          <p className="text-base font-bold text-muted-foreground mb-8 max-w-xl leading-relaxed">
             Vous êtes à l&apos;étranger ? Restez connecté avec l&apos;ACEEPCI et soutenez la mission depuis n&apos;importe où dans le monde.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/payments"
-              className="inline-flex items-center justify-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.4)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.55)] hover:-translate-y-0.5 transition-all group"
+              className="inline-flex items-center justify-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group"
             >
               Devenir membre diaspora
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="/payments"
-              className="inline-flex items-center justify-center gap-2.5 px-7 py-3 bg-transparent border border-white/30 text-white text-sm font-medium rounded-sm hover:bg-white/10 hover:border-white/50 hover:-translate-y-0.5 transition-all backdrop-blur-sm"
+              className="inline-flex items-center justify-center gap-2.5 px-7 py-3 bg-white border border-border text-foreground text-sm font-medium rounded-sm hover:bg-brand-primary/5 hover:border-brand-primary/30 transition-all"
             >
               Faire un don
             </Link>
@@ -362,41 +334,38 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Mon Compte ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-brand-subtle/50 border border-border rounded-2xl overflow-hidden">
             <div className="h-[2px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
             <div className="p-8 md:p-10">
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-1 h-1 rounded-full bg-brand-light" />
-                  <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">Espace personnel</p>
-                  <span className="w-1 h-1 rounded-full bg-brand-light" />
+                  <span className="w-1 h-1 rounded-full bg-brand-primary" />
+                  <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Espace personnel</p>
+                  <span className="w-1 h-1 rounded-full bg-brand-primary" />
                 </div>
-                <h2 className="font-serif text-3xl font-bold text-white mb-1 uppercase tracking-tight">
-                  Mon <em className="not-italic italic text-brand-light">Compte</em>
+                <h2 className="font-serif text-3xl font-bold text-foreground mb-1 uppercase tracking-tight">
+                  Mon <em className="not-italic italic text-brand-primary">Compte</em>
                 </h2>
-                <p className="text-sm font-bold text-white">Déjà membre ? Accédez à votre espace personnel</p>
+                <p className="text-sm font-bold text-muted-foreground">Déjà membre ? Accédez à votre espace personnel</p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4 mb-8">
                 {accountItems.map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="group flex flex-col gap-3 p-5 bg-white/[0.04] border border-white/10 rounded-xl hover:bg-white/[0.08] hover:border-brand-primary/25 transition-all duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-brand-primary/15 border border-brand-primary/25 flex items-center justify-center group-hover:bg-brand-primary/25 transition-colors">
-                      <Icon className="w-4 h-4 text-brand-light" />
+                  <div key={title} className="group flex flex-col gap-3 p-5 bg-white border border-border rounded-xl hover:shadow-[0_8px_24px_rgba(24,64,112,0.08)] hover:border-brand-primary/20 transition-all duration-300">
+                    <div className="w-10 h-10 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center group-hover:bg-brand-primary/15 transition-colors">
+                      <Icon className="w-4 h-4 text-brand-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-white mb-0.5">{title}</h3>
-                      <p className="text-xs font-bold text-white">{desc}</p>
+                      <h3 className="text-sm font-semibold text-foreground mb-0.5">{title}</h3>
+                      <p className="text-xs font-bold text-muted-foreground">{desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <button className="inline-flex items-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.35)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.5)] hover:-translate-y-0.5 transition-all group">
+              <button className="inline-flex items-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group">
                 Se connecter
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>

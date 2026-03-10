@@ -232,7 +232,7 @@ export default function Page() {
   const selectedEvent = availableEvents.find(e => e.id === formData.eventId);
 
   return (
-    <div className="min-h-screen bg-brand-subtle">
+    <div className="min-h-screen bg-white">
       <PageHero
         title="Formulaire d'inscription"
         subtitle="Inscrivez-vous aux événements de l'ACEEPCI"

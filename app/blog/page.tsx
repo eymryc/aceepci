@@ -195,7 +195,7 @@ export default function Page() {
   const popularPosts = [...blogPosts].sort((a, b) => b.views - a.views).slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-brand-subtle">
+    <div className="min-h-screen bg-white">
       <PageHero
         title="Blog ACEEPCI"
         subtitle="Articles, témoignages, réflexions spirituelles et actualités de notre communauté chrétienne étudiante"
