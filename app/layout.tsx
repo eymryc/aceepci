@@ -22,9 +22,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr">
-      <body className="antialiased">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <html lang="fr" className="light" suppressHydrationWarning>
+      <body className="antialiased" suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem enableColorScheme={false}>
           <AuthProvider>
             <LayoutWrapper>{children}</LayoutWrapper>
             <Toaster richColors position="top-right" />
