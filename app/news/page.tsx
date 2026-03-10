@@ -80,45 +80,39 @@ export default function Page() {
         background={heroImages.news}
       />
       {/* Featured Article */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Actualités</p>
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
-              À la <em className="not-italic italic text-brand-primary">une</em>
-            </h2>
-            <p className="text-foreground/85 mt-3 text-sm sm:text-base max-w-xl mx-auto">Notre dernier article à ne pas manquer</p>
-          </header>
-          <div className="grid md:grid-cols-2 gap-10 lg:gap-12 items-center">
-            <div className="relative rounded-2xl overflow-hidden border border-border shadow-[0_20px_60px_rgba(24,64,112,0.12)]">
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent z-10" />
+          <div className="flex items-center gap-2 mb-6">
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
+            <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Actualités</p>
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="relative rounded-xl overflow-hidden border border-border shadow-[0_20px_60px_rgba(24,64,112,0.12)]">
               <ImageWithFallback
                 src={news[0].image}
                 alt={news[0].title}
                 className="w-full h-96 object-cover"
               />
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-primary to-brand-accent" />
             </div>
             <div>
-              <span className="inline-block px-3 py-1.5 bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-[0.7rem] font-semibold tracking-wider uppercase rounded-lg mb-4">
+              <span className="inline-block px-3 py-1 bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-[0.65rem] font-medium tracking-[0.12em] uppercase rounded-sm mb-4">
                 {news[0].category}
               </span>
-              <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight uppercase tracking-tight">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4 uppercase tracking-tight">
                 {news[0].title}
-              </h3>
-              <p className="text-foreground/90 mb-6 text-base sm:text-lg leading-relaxed font-medium">
+              </h2>
+              <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
                 {news[0].excerpt}
               </p>
-              <div className="flex items-center text-sm font-medium text-foreground/85 mb-6 gap-5">
+              <div className="flex items-center text-sm text-muted-foreground mb-6 gap-4">
                 <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-brand-primary" />{news[0].date}</span>
                 <span className="flex items-center gap-1.5"><Eye className="w-4 h-4 text-brand-primary" />{news[0].views} vues</span>
               </div>
               <Link
                 href={`/news/${news[0].id}`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-xl shadow-[0_4px_16px_rgba(24,64,112,0.3)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.4)] hover:-translate-y-0.5 transition-all group"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.3)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.45)] hover:-translate-y-0.5 transition-all group"
               >
                 Lire l&apos;article <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
@@ -128,65 +122,65 @@ export default function Page() {
       </AnimateSection>
 
       {/* News Grid */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-10 sm:mb-12">
-            <div className="flex justify-center gap-2 mb-4">
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Dernières actualités</p>
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
+                <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Dernières actualités</p>
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              </div>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground uppercase tracking-tight">
+                Toute l&apos;<em className="not-italic italic text-brand-primary">actualité</em>
+              </h2>
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
-              Toute l&apos;<em className="not-italic italic text-brand-primary">actualité</em>
-            </h2>
-            <p className="text-foreground/85 mt-3 text-sm sm:text-base">Filtrez par catégorie</p>
-          </header>
-
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
-            {["Tous", "Événements", "Projets", "Témoignages", "Social", "Formations", "Galerie"].map((filter) => (
-              <button
-                key={filter}
-                className={`px-4 py-2.5 text-sm font-medium rounded-xl border transition-all ${
-                  activeFilter === filter
-                    ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-transparent shadow-[0_4px_14px_rgba(24,64,112,0.28)]"
-                    : "bg-white border-border text-foreground hover:bg-brand-primary/10 hover:border-brand-primary/25"
-                }`}
-                onClick={() => setActiveFilter(filter)}
-              >
-                {filter}
-              </button>
-            ))}
+            <div className="flex gap-2">
+              {["Tous", "Événements", "Projets"].map((filter) => (
+                <button
+                  key={filter}
+                  className={`px-4 py-2.5 text-sm font-medium rounded-sm border transition-all ${
+                    activeFilter === filter
+                      ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-transparent shadow-[0_4px_12px_rgba(24,64,112,0.28)]"
+                      : "bg-white border-border text-foreground hover:bg-brand-primary/5 hover:border-brand-primary/30"
+                  }`}
+                  onClick={() => setActiveFilter(filter)}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredNews.slice(1).map((article) => (
-              <article key={article.id} className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_16px_48px_rgba(24,64,112,0.12)] transition-all duration-300">
-                <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-80 group-hover:opacity-100 transition-opacity z-10" />
-                <div className="relative h-52 overflow-hidden">
+              <article key={article.id} className="group bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_12px_36px_rgba(24,64,112,0.08)] transition-all duration-300">
+                <div className="relative h-48 overflow-hidden">
                   <ImageWithFallback
                     src={article.image}
                     alt={article.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/50 to-transparent" />
-                  <span className="absolute top-4 left-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm text-foreground text-[0.7rem] font-semibold tracking-wider uppercase rounded-lg">
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-white/95 backdrop-blur-sm text-foreground text-[0.65rem] font-medium tracking-[0.1em] uppercase rounded-sm">
                     {article.category}
                   </span>
                 </div>
                 <div className="p-6">
-                  <div className="flex items-center text-sm font-medium text-foreground/85 mb-3 gap-4">
-                    <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-brand-primary" />{article.date}</span>
-                    <span className="flex items-center gap-1.5"><Eye className="w-4 h-4 text-brand-primary" />{article.views} vues</span>
+                  <div className="flex items-center text-xs text-muted-foreground mb-3 gap-3">
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-brand-primary" />{article.date}</span>
+                    <span className="flex items-center gap-1"><Eye className="w-3 h-3 text-brand-primary" />{article.views}</span>
                   </div>
                   <h3 className="font-serif text-lg font-bold text-foreground mb-2 line-clamp-2 leading-snug">
                     {article.title}
                   </h3>
-                  <p className="text-foreground/90 text-sm mb-4 line-clamp-3 leading-relaxed">
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3 leading-relaxed">
                     {article.excerpt}
                   </p>
                   <Link
                     href={`/news/${article.id}`}
-                    className="inline-flex items-center gap-2 text-brand-primary font-semibold text-sm transition-colors group/link hover:opacity-90"
+                    className="inline-flex items-center gap-1.5 text-brand-primary hover:opacity-90 font-medium text-sm transition-colors group/link"
                   >
                     Lire plus <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5" />
                   </Link>
@@ -196,7 +190,7 @@ export default function Page() {
           </div>
 
           <div className="text-center mt-12">
-            <button className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-xl shadow-[0_4px_16px_rgba(24,64,112,0.3)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.4)] hover:-translate-y-0.5 transition-all">
+            <button className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.3)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.45)] hover:-translate-y-0.5 transition-all">
               Charger plus d&apos;articles
             </button>
           </div>
@@ -204,58 +198,56 @@ export default function Page() {
       </AnimateSection>
 
       {/* Newsletter Subscription */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="relative bg-brand-subtle/60 border border-border rounded-2xl p-8 sm:p-10 text-center shadow-[0_4px_24px_rgba(24,64,112,0.06)]">
-            <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Newsletter</p>
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 uppercase tracking-tight">
-              Ne manquez aucune <em className="not-italic italic text-brand-primary">actualité</em>
-            </h2>
-            <p className="text-foreground/90 mb-8 max-w-lg mx-auto text-sm sm:text-base">
-              Inscrivez-vous à notre newsletter mensuelle
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Votre adresse email"
-                className="flex-1 px-4 py-3 rounded-xl border border-border bg-white text-foreground placeholder:text-foreground/50 focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-colors"
-              />
-              <button
-                type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-xl shadow-[0_4px_16px_rgba(24,64,112,0.3)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.4)] transition-all"
-              >
-                S&apos;abonner
-              </button>
-            </form>
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
+            <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Newsletter</p>
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
           </div>
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3 uppercase tracking-tight">
+            Ne manquez aucune <em className="not-italic italic text-brand-primary">actualité</em>
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+            Inscrivez-vous à notre newsletter mensuelle
+          </p>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Votre adresse email"
+              className="flex-1 px-4 py-3 rounded-sm border border-border bg-white text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors"
+            />
+            <button
+              type="submit"
+              className="px-8 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.3)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.45)] transition-all"
+            >
+              S&apos;abonner
+            </button>
+          </form>
         </div>
       </AnimateSection>
 
       {/* Media Gallery Preview */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-2">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Galerie</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground uppercase tracking-tight">
               Galerie <em className="not-italic italic text-brand-primary">photos & vidéos</em>
             </h2>
-            <p className="text-foreground/85 mt-3 text-sm sm:text-base max-w-xl mx-auto">
+            <p className="text-muted-foreground mt-2 max-w-2xl">
               Les moments forts de notre communauté
             </p>
-          </header>
+          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {news.slice(0, 4).map((item, index) => (
-              <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group cursor-pointer border border-border hover:border-brand-primary/25 hover:shadow-[0_12px_32px_rgba(24,64,112,0.12)] transition-all duration-300">
+              <div key={index} className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer border border-border hover:border-brand-primary/30 transition-all">
                 <ImageWithFallback
                   src={item.image}
                   alt={`Gallery ${index + 1}`}
@@ -264,17 +256,17 @@ export default function Page() {
                 <div className="absolute inset-0 bg-brand-primary-dark/0 group-hover:bg-brand-primary-dark/50 transition-colors flex items-center justify-center">
                   <Eye className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brand-primary-dark to-transparent text-white text-sm font-semibold px-3 py-2.5">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brand-primary-dark to-transparent text-white text-sm font-semibold px-3 py-2">
                   {item.category}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center mt-8">
             <Link
               href="#"
-              className="inline-flex items-center gap-2 text-brand-primary font-semibold hover:opacity-90 transition-opacity group"
+              className="inline-flex items-center gap-2 text-brand-primary hover:text-brand-primary-dark font-medium transition-colors group"
             >
               Voir toute la galerie <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>

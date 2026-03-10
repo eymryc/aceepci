@@ -59,21 +59,21 @@ export default function Page() {
       />
 
       {/* ── Pourquoi devenir membre ── */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Adhésion</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
               Pourquoi devenir <em className="not-italic italic text-brand-primary">membre ?</em>
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-foreground/85 max-w-2xl mx-auto">
+            <p className="text-base font-light text-muted-foreground max-w-2xl">
               L&apos;adhésion à l&apos;ACEEPCI vous ouvre les portes d&apos;une expérience spirituelle enrichissante
             </p>
-          </header>
+          </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-border rounded-2xl overflow-hidden border border-border">
             {whyJoin.map(({ icon: Icon, title, desc }, i) => (
@@ -87,7 +87,7 @@ export default function Page() {
                 </div>
                 <div>
                   <h3 className="font-serif text-lg font-bold text-foreground mb-1">{title}</h3>
-                  <p className="text-sm font-normal text-foreground/90 leading-relaxed">{desc}</p>
+                  <p className="text-xs font-light text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -96,19 +96,19 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Types d'adhésion ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Formules</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
               Types <em className="not-italic italic text-brand-primary">d&apos;adhésion</em>
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-foreground/85">Choisissez la formule qui vous correspond</p>
-          </header>
+            <p className="text-base font-bold text-muted-foreground">Choisissez la formule qui vous correspond</p>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {membershipTypes.map((type) => (
@@ -131,13 +131,13 @@ export default function Page() {
                   )}
                   <h3 className="font-serif text-xl font-bold text-foreground mb-2">{type.name}</h3>
                   <div className="font-serif text-3xl font-bold text-brand-primary mb-1">{type.price}</div>
-                  <p className="text-sm font-normal text-foreground/90 mb-6">{type.description}</p>
+                  <p className="text-xs font-bold text-muted-foreground mb-6">{type.description}</p>
                   <div className="w-8 h-[2px] bg-brand-primary/50 mb-6 group-hover:w-14 transition-all duration-300" />
                   <ul className="space-y-3 mb-8">
                     {type.benefits.map((benefit) => (
                       <li key={benefit} className="flex items-start gap-2.5">
                         <CheckCircle className="w-4 h-4 text-brand-primary flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                        <span className="text-sm font-medium text-foreground/85 leading-relaxed">{benefit}</span>
+                        <span className="text-xs font-bold text-muted-foreground leading-relaxed">{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -160,7 +160,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Adhésion en ligne ── */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="relative bg-brand-subtle rounded-2xl overflow-hidden border border-border">
             <div className="h-[3px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
@@ -179,7 +179,7 @@ export default function Page() {
                 <h2 className="font-serif text-3xl font-bold text-foreground mb-3 uppercase tracking-tight">
                   Adhésion <em className="not-italic italic text-brand-primary">en ligne</em>
                 </h2>
-                <p className="text-sm font-medium text-foreground/90 leading-relaxed mb-6">
+                <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-6">
                   Remplissez le formulaire d&apos;adhésion en ligne et effectuez votre paiement de manière sécurisée via Orange Money, Wave ou carte bancaire.
                 </p>
                 <Link
@@ -196,19 +196,19 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Répertoire des départements ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Réseau</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
               Répertoire des <em className="not-italic italic text-brand-primary">départements</em>
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-foreground/85">88+ départements à travers la Côte d&apos;Ivoire</p>
-          </header>
+            <p className="text-base font-bold text-muted-foreground">88+ départements à travers la Côte d&apos;Ivoire</p>
+          </div>
 
           <div className="bg-white border border-border rounded-2xl overflow-hidden">
             <div className="h-[2px] bg-gradient-to-r from-brand-primary to-transparent" />
@@ -230,7 +230,7 @@ export default function Page() {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-foreground">{dept}</h3>
-                      <p className="text-xs font-medium text-foreground/85">Voir les contacts</p>
+                      <p className="text-xs font-bold text-muted-foreground">Voir les contacts</p>
                     </div>
                   </div>
                 ))}
@@ -248,7 +248,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Alumni Network ── */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative">
@@ -275,7 +275,7 @@ export default function Page() {
                 Anciens <em className="not-italic italic text-brand-primary">membres</em>
               </h2>
               <div className="w-12 h-[2px] bg-gradient-to-r from-brand-primary to-transparent mb-6" />
-              <p className="text-sm font-medium text-foreground/90 leading-relaxed mb-6">
+              <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-6">
                 Vous êtes un ancien de l&apos;ACEEPCI ? Restez connecté avec votre famille spirituelle ! Le réseau Alumni vous permet de maintenir le lien, de mentorer les jeunes, et de continuer à contribuer à la mission.
               </p>
               <ul className="space-y-3 mb-8">
@@ -284,7 +284,7 @@ export default function Page() {
                     <div className="w-5 h-5 rounded-full bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center flex-shrink-0 shadow-[0_2px_8px_rgba(24,64,112,0.35)]">
                       <CheckCircle className="w-3 h-3 text-white" strokeWidth={2.5} />
                     </div>
-                    <span className="text-sm font-medium text-foreground/90">{item}</span>
+                    <span className="text-sm font-bold text-muted-foreground">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -301,7 +301,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Espace Diaspora ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-4">
             <span className="w-1 h-1 rounded-full bg-brand-primary" />
@@ -312,7 +312,7 @@ export default function Page() {
             Espace <em className="not-italic italic text-brand-primary">Diaspora</em>
           </h2>
           <div className="w-12 h-[2px] bg-gradient-to-r from-brand-primary to-transparent mb-6" />
-          <p className="text-base font-medium text-foreground/90 mb-8 max-w-xl leading-relaxed">
+          <p className="text-base font-bold text-muted-foreground mb-8 max-w-xl leading-relaxed">
             Vous êtes à l&apos;étranger ? Restez connecté avec l&apos;ACEEPCI et soutenez la mission depuis n&apos;importe où dans le monde.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -334,7 +334,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Mon Compte ── */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="bg-brand-subtle/50 border border-border rounded-2xl overflow-hidden">
             <div className="h-[2px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
@@ -348,7 +348,7 @@ export default function Page() {
                 <h2 className="font-serif text-3xl font-bold text-foreground mb-1 uppercase tracking-tight">
                   Mon <em className="not-italic italic text-brand-primary">Compte</em>
                 </h2>
-                <p className="text-sm font-medium text-foreground/90">Déjà membre ? Accédez à votre espace personnel</p>
+                <p className="text-sm font-bold text-muted-foreground">Déjà membre ? Accédez à votre espace personnel</p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4 mb-8">
@@ -359,7 +359,7 @@ export default function Page() {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-foreground mb-0.5">{title}</h3>
-                      <p className="text-xs font-medium text-foreground/85">{desc}</p>
+                      <p className="text-xs font-bold text-muted-foreground">{desc}</p>
                     </div>
                   </div>
                 ))}
