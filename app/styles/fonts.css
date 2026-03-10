@@ -1,1 +1,6 @@
-/* Custom font faces - add @font-face rules here if needed */
+/* Google Fonts - chargement via CSS pour éviter le bug Turbopack avec next/font */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-rajdhani: 'Rajdhani', ui-sans-serif, system-ui, sans-serif;
+}

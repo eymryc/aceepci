@@ -4,17 +4,20 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, ArrowRight, Shield } from "lucide-react";
+import { Menu, X, ChevronDown, ArrowRight, Shield, LogOut, User } from "lucide-react";
 import { navConfig } from "@/config/site";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LOGO_SRC = "/assets/WhatsApp Image 2026-03-05 at 09.42.00.jpeg";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen]     = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [userMenuOpen, setUserMenuOpen]  = useState(false);
   const [scrolled, setScrolled]         = useState(false);
   const pathname  = usePathname();
   const navigation = navConfig;
+  const { user, isAuthenticated, logout } = useAuth();
 
   // Scroll-aware transparent → solid
   useEffect(() => {
@@ -131,24 +134,50 @@ export function Header() {
             ))}
 
             {/* CTA buttons */}
-            <Link
+            {/* <Link
               href="/admin"
               className="ml-2 inline-flex items-center gap-2 px-3 py-2.5 text-xs xl:text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-full transition-all whitespace-nowrap flex-shrink-0"
               title="Administration"
             >
               <Shield className="w-4 h-4 flex-shrink-0" />
               <span className="sr-only lg:not-sr-only">Admin</span>
-            </Link>
-            <Link
-              href="/login"
-              className={`ml-2 inline-flex items-center gap-2 px-3 py-2.5 text-xs xl:text-sm font-medium rounded-full transition-all whitespace-nowrap flex-shrink-0 ${
-                isActive("/login")
-                  ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white shadow-[0_4px_12px_rgba(24,64,112,0.3)]"
-                  : "border border-white/30 text-white hover:bg-white/10"
-              }`}
-            >
-              Se connecter
-            </Link>
+            </Link> */}
+            {isAuthenticated ? (
+              <div className="relative ml-2 pb-2" onMouseEnter={() => setUserMenuOpen(true)} onMouseLeave={() => setUserMenuOpen(false)}>
+                <button
+                  className="inline-flex items-center gap-2 px-3 py-2.5 text-xs xl:text-sm font-medium rounded-full border border-white/30 text-white hover:bg-white/10 whitespace-nowrap flex-shrink-0"
+                >
+                  <User className="w-4 h-4" />
+                  {user?.firstname ?? user?.username ?? "Mon compte"}
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute top-full right-0 pt-2 w-48 z-[100]">
+                    <div className="py-2 bg-brand-primary-dark border border-brand-primary/25 rounded-lg shadow-xl">
+                      <Link href="/members" className="flex items-center gap-2 px-4 py-2.5 text-sm text-white hover:bg-white/10 transition-colors" onClick={() => setUserMenuOpen(false)}>
+                        <User className="w-4 h-4" />
+                        Mon espace
+                      </Link>
+                      <button onClick={() => { logout(); setUserMenuOpen(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-white hover:bg-white/10 text-left transition-colors">
+                        <LogOut className="w-4 h-4" />
+                        Se déconnecter
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className={`ml-2 inline-flex items-center gap-2 px-3 py-2.5 text-xs xl:text-sm font-medium rounded-full transition-all whitespace-nowrap flex-shrink-0 ${
+                  isActive("/login")
+                    ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white shadow-[0_4px_12px_rgba(24,64,112,0.3)]"
+                    : "border border-white/30 text-white hover:bg-white/10"
+                }`}
+              >
+                Se connecter
+              </Link>
+            )}
             <Link
               href="/payments"
               className="ml-2 inline-flex items-center gap-2 px-3 py-2.5 bg-white text-brand-primary text-xs xl:text-sm font-medium rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:bg-brand-subtle hover:text-brand-primary-dark transition-all group whitespace-nowrap flex-shrink-0"
@@ -234,16 +263,29 @@ export function Header() {
                 <Shield className="w-4 h-4" />
                 Administration
               </Link>
-              <Link
-                href="/login"
-                className={`mt-3 mx-1 flex items-center justify-center gap-2 py-3 text-sm font-medium rounded-full ${
-                  isActive("/login")
-                    ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white"
-                    : "border border-white/30 text-white"
-                }`}
-              >
-                Se connecter
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link href="/members" className="mt-3 mx-1 flex items-center justify-center gap-2 py-3 text-sm font-medium rounded-full border border-white/30 text-white" onClick={() => setIsMenuOpen(false)}>
+                    <User className="w-4 h-4" />
+                    Mon espace
+                  </Link>
+                  <button onClick={() => { logout(); setIsMenuOpen(false); }} className="mt-2 mx-1 flex items-center justify-center gap-2 py-3 text-sm font-medium rounded-full border border-white/30 text-white w-[calc(100%-8px)]">
+                    <LogOut className="w-4 h-4" />
+                    Se déconnecter
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className={`mt-3 mx-1 flex items-center justify-center gap-2 py-3 text-sm font-medium rounded-full ${
+                    isActive("/login")
+                      ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white"
+                      : "border border-white/30 text-white"
+                  }`}
+                >
+                  Se connecter
+                </Link>
+              )}
               <Link
                 href="/payments"
                 className="mt-2 mx-1 flex items-center justify-center gap-2 py-3 bg-white text-brand-primary text-sm font-medium rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.12)]"

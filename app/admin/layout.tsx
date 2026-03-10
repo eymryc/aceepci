@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
   Newspaper,
@@ -23,7 +24,21 @@ import {
   Search,
   Bell,
   User,
+  ChevronDown,
 } from "lucide-react";
+
+const settingsSubItems = [
+  { href: "/admin/settings/departments", label: "Départements de service" },
+  { href: "/admin/settings/cities", label: "Villes" },
+  { href: "/admin/settings/districts", label: "Districts" },
+  { href: "/admin/settings/member-types", label: "Types de membre" },
+  { href: "/admin/settings/academic-years", label: "Années académiques" },
+  { href: "/admin/settings/training-domains", label: "Domaines de formation" },
+  { href: "/admin/settings/service-domains", label: "Domaines de service" },
+  { href: "/admin/settings/member-statuses", label: "Statuts de membre" },
+  { href: "/admin/settings/families", label: "Familles" },
+  { href: "/admin/settings/groups", label: "Groupes" },
+];
 
 const navGroups = [
   {
@@ -48,14 +63,23 @@ const navGroups = [
   {
     label: "Système",
     items: [
-      { href: "/admin/settings", label: "Paramètres", icon: Settings },
+      { href: "/admin/settings", label: "Paramètres", icon: Settings, subItems: settingsSubItems },
     ],
   },
 ];
 
 const getPageTitle = (path: string) => {
+  const subMatch = settingsSubItems.find((s) => path === s.href || path.startsWith(s.href + "/"));
+  if (subMatch) return subMatch.label;
   const match = navGroups.flatMap((g) => g.items).find((i) => path.startsWith(i.href));
   return match?.label ?? "Admin";
+};
+
+const formatRole = (role: string | undefined) => {
+  if (!role) return "Administrateur";
+  const r = role.toLowerCase();
+  if (r.includes("admin")) return "Administrateur";
+  return role.charAt(0).toUpperCase() + role.slice(1);
 };
 
 export default function AdminLayout({
@@ -65,6 +89,13 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [settingsExpanded, setSettingsExpanded] = useState(pathname.startsWith("/admin/settings"));
+
+  useEffect(() => {
+    if (pathname.startsWith("/admin/settings")) setSettingsExpanded(true);
+  }, [pathname]);
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#f1f5f9]">
@@ -104,22 +135,64 @@ export default function AdminLayout({
                 <ul className="space-y-0.5">
                   {group.items.map((item) => {
                     const Icon = item.icon;
+                    const hasSubItems = "subItems" in item && item.subItems && item.subItems.length > 0;
                     const isActive =
                       pathname === item.href ||
                       (item.href !== "/admin" && pathname.startsWith(item.href));
+                    const isSettings = item.href === "/admin/settings";
+                    const expanded = isSettings ? settingsExpanded : false;
                     return (
                       <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
-                            isActive
-                              ? "bg-white/10 text-white border-l-4 border-amber-400 -ml-0.5 pl-4"
-                              : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-                          }`}
-                        >
-                          <Icon className="w-4 h-4 flex-shrink-0" />
-                          {item.label}
-                        </Link>
+                        {hasSubItems ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => isSettings && setSettingsExpanded((e) => !e)}
+                              className={`flex w-full items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
+                                isActive
+                                  ? "bg-white/10 text-white border-l-4 border-amber-400 -ml-0.5 pl-4"
+                                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <Icon className="w-4 h-4 flex-shrink-0" />
+                                {item.label}
+                              </div>
+                              <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                            </button>
+                            {expanded && (
+                              <ul className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-600/50 pl-3">
+                                {(item as { subItems: { href: string; label: string }[] }).subItems.map((sub) => (
+                                  <li key={sub.href}>
+                                    <Link
+                                      href={sub.href}
+                                      className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-all ${
+                                        pathname === sub.href
+                                          ? "bg-white/10 text-white font-medium"
+                                          : "text-slate-500 hover:bg-white/5 hover:text-slate-200"
+                                      }`}
+                                    >
+                                      {sub.label}
+                                      <ChevronRight className="w-3.5 h-3.5 opacity-70" />
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
+                              isActive
+                                ? "bg-white/10 text-white border-l-4 border-amber-400 -ml-0.5 pl-4"
+                                : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 flex-shrink-0" />
+                            {item.label}
+                          </Link>
+                        )}
                       </li>
                     );
                   })}
@@ -139,6 +212,7 @@ export default function AdminLayout({
             </Link>
             <button
               type="button"
+              onClick={() => logout()}
               className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
             >
               <LogOut className="w-4 h-4" />
@@ -189,21 +263,60 @@ export default function AdminLayout({
                 <ul className="space-y-0.5">
                   {group.items.map((item) => {
                     const Icon = item.icon;
+                    const hasSubItems = "subItems" in item && item.subItems && item.subItems.length > 0;
                     const isActive =
                       pathname === item.href ||
                       (item.href !== "/admin" && pathname.startsWith(item.href));
+                    const isSettings = item.href === "/admin/settings";
+                    const expanded = isSettings ? settingsExpanded : false;
                     return (
                       <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          onClick={() => setSidebarOpen(false)}
-                          className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm ${
-                            isActive ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
-                          }`}
-                        >
-                          <Icon className="w-4 h-4" />
-                          {item.label}
-                        </Link>
+                        {hasSubItems ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => isSettings && setSettingsExpanded((e) => !e)}
+                              className={`flex w-full items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-sm ${
+                                isActive ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <Icon className="w-4 h-4" />
+                                {item.label}
+                              </div>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                            </button>
+                            {expanded && (
+                              <ul className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-600/50 pl-3">
+                                {(item as { subItems: { href: string; label: string }[] }).subItems.map((sub) => (
+                                  <li key={sub.href}>
+                                    <Link
+                                      href={sub.href}
+                                      onClick={() => setSidebarOpen(false)}
+                                      className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
+                                        pathname === sub.href ? "bg-white/10 text-white font-medium" : "text-slate-500 hover:text-white"
+                                      }`}
+                                    >
+                                      {sub.label}
+                                      <ChevronRight className="w-3.5 h-3.5 opacity-70" />
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm ${
+                              isActive ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            <Icon className="w-4 h-4" />
+                            {item.label}
+                          </Link>
+                        )}
                       </li>
                     );
                   })}
@@ -211,6 +324,24 @@ export default function AdminLayout({
               </div>
             ))}
           </nav>
+          <div className="border-t border-slate-700/50 p-4 space-y-1">
+            <Link
+              href="/"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Retour au site
+            </Link>
+            <button
+              type="button"
+              onClick={() => { logout(); setSidebarOpen(false); }}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Déconnexion
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -267,14 +398,62 @@ export default function AdminLayout({
             >
               Voir le site
             </Link>
-            <div className="hidden md:flex items-center gap-2 pl-4 border-l border-slate-200">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">Admin</p>
-                <p className="text-xs text-muted-foreground">Administrateur</p>
-              </div>
+            <div className="hidden md:block relative pl-4 border-l border-slate-200">
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((o) => !o)}
+                className="flex items-center gap-2 p-1.5 -m-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center flex-shrink-0">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-foreground">
+                    {user?.firstname ?? user?.username ?? "Admin"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatRole(user?.roles?.[0])}
+                  </p>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+              </button>
+              {userMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setUserMenuOpen(false)}
+                    aria-hidden
+                  />
+                  <div className="absolute right-0 top-full mt-1 pt-1 w-56 z-50">
+                    <div className="bg-white rounded-lg shadow-lg border border-slate-200 py-2 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-slate-100">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {user?.fullname ?? user?.firstname ?? "Admin"}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin/settings"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                      >
+                        <User className="w-4 h-4" />
+                        Profil
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => { logout(); setUserMenuOpen(false); }}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Déconnexion
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </header>

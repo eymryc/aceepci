@@ -1,16 +1,11 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Rajdhani } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
-
-const rajdhani = Rajdhani({
-  weight: ["300", "400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-rajdhani",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -27,9 +22,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr" className={rajdhani.variable}>
-      <body className={`${rajdhani.className} antialiased`}>
-        <LayoutWrapper>{children}</LayoutWrapper>
+    <html lang="fr">
+      <body className="antialiased">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <AuthProvider>
+            <LayoutWrapper>{children}</LayoutWrapper>
+            <Toaster richColors position="top-right" />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
