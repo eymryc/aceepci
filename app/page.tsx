@@ -90,16 +90,7 @@ export default function Page() {
 
 
 
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-
-        {/* Top rule */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        {/* Dot pattern */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
 
@@ -182,70 +173,58 @@ export default function Page() {
 
 
 
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-
-        {/* Orbs */}
-        <div className="pointer-events-none absolute -top-48 -left-48 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-        {/* Top rule */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        {/* Grid texture */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: "linear-gradient(rgba(245,240,232,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(245,240,232,0.5) 1px,transparent 1px)", backgroundSize: "60px 60px" }}
-        />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
 
           {/* ── Header ── */}
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-16">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-1 h-1 rounded-full bg-brand-accent" />
-                <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
+                <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">
                   ACEEPCI · Depuis 1961
                 </p>
-                <span className="w-1 h-1 rounded-full bg-brand-accent" />
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
               </div>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight uppercase tracking-tight">
-                60 ans d&apos;<em className="not-italic italic text-brand-light">impact</em>{" "}
-                <span className="block text-white">en Côte d&apos;Ivoire</span>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+                60 ans d&apos;<em className="not-italic italic text-brand-primary">impact</em>{" "}
+                <span className="block text-foreground">en Côte d&apos;Ivoire</span>
               </h2>
             </div>
-            <p className="text-sm font-bold text-white max-w-xs leading-relaxed sm:text-right">
+            <p className="text-sm font-bold text-muted-foreground max-w-xs leading-relaxed sm:text-right">
               Depuis 1961, l&apos;ACEEPCI transforme des vies et forme des leaders
             </p>
           </div>
 
           {/* ── Stats grid ── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-white/[0.07] rounded-2xl overflow-hidden border-2 border-white/50">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-brand-primary/10 rounded-2xl overflow-hidden border border-border">
             {stats.map((stat, index) => {
             const StatIcon = stat.icon;
             return (
               <div
                 key={index}
-                className={`group relative bg-brand-primary-dark flex flex-col items-center justify-center gap-4 px-6 py-10 hover:bg-brand-primary/10 transition-colors duration-300 overflow-hidden border-r-2 border-white/40 ${index % 2 === 1 ? "max-lg:border-r-0" : ""} ${index % 4 === 3 ? "lg:border-r-0" : ""}`}
+                className={`group relative bg-white flex flex-col items-center justify-center gap-4 px-6 py-10 hover:bg-brand-subtle transition-colors duration-300 overflow-hidden border-r border-border ${index % 2 === 1 ? "max-lg:border-r-0" : ""} ${index % 4 === 3 ? "lg:border-r-0" : ""}`}
               >
                 {/* Hover top accent */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-12 h-[2px] bg-brand-accent transition-all duration-300 rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-12 h-[2px] bg-brand-primary transition-all duration-300 rounded-full" />
 
                 {/* Big bg number */}
-                <span className="absolute bottom-2 right-4 font-serif text-[4rem] font-bold leading-none text-white/[0.07] select-none pointer-events-none">
+                <span className="absolute bottom-2 right-4 font-serif text-[4rem] font-bold leading-none text-brand-primary/[0.08] select-none pointer-events-none">
                   {String(index + 1).padStart(2, "0")}
                 </span>
 
                 {/* Icon */}
-                <div className="w-14 h-14 rounded-full bg-brand-primary/15 border-2 border-brand-primary/50 flex items-center justify-center group-hover:bg-brand-primary/25 group-hover:border-brand-primary/60 group-hover:scale-110 transition-all duration-300">
-                  <StatIcon className="w-6 h-6 text-brand-light" />
+                <div className="w-14 h-14 rounded-full bg-brand-primary/10 border-2 border-brand-primary/20 flex items-center justify-center group-hover:bg-brand-primary/15 group-hover:border-brand-primary/30 group-hover:scale-110 transition-all duration-300">
+                  <StatIcon className="w-6 h-6 text-brand-primary" />
                 </div>
 
                 {/* Value */}
-                <div className="font-serif text-4xl font-bold text-brand-light leading-none">
+                <div className="font-serif text-4xl font-bold text-brand-primary leading-none">
                   {stat.value}
                 </div>
 
                 {/* Label */}
-                <p className="text-xs font-light tracking-wider text-center text-white group-hover:text-white transition-colors uppercase leading-snug">
+                <p className="text-xs font-light tracking-wider text-center text-muted-foreground group-hover:text-foreground transition-colors uppercase leading-snug">
                   {stat.label}
                 </p>
               </div>
@@ -255,11 +234,11 @@ export default function Page() {
 
           {/* ── Bottom timeline hint ── */}
           <div className="mt-12 flex items-center gap-4">
-            <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent to-white/50" />
-            <p className="font-serif text-sm italic text-white px-4 text-center">
+            <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent to-border" />
+            <p className="font-serif text-sm italic text-muted-foreground px-4 text-center">
               Une histoire d&apos;engagement depuis 1961
             </p>
-            <div className="flex-1 h-[2px] bg-gradient-to-l from-transparent to-white/50" />
+            <div className="flex-1 h-[2px] bg-gradient-to-l from-transparent to-border" />
           </div>
 
         </div>
@@ -267,16 +246,7 @@ export default function Page() {
 
 
 
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-
-        {/* Top rule */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        {/* Dot pattern */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
 
@@ -373,15 +343,6 @@ export default function Page() {
 
 
       <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-
-        {/* Top rule */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        {/* Subtle dot pattern */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
-
         <div className="relative z-10 max-w-7xl mx-auto">
 
           {/* ── Header ── */}
@@ -487,61 +448,44 @@ export default function Page() {
 
 
 
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
-
-        {/* Orbs */}
-        <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-        {/* Top rule */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        {/* Grid texture */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: "linear-gradient(rgba(245,240,232,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(245,240,232,0.5) 1px,transparent 1px)", backgroundSize: "60px 60px" }}
-        />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
 
           {/* ── Eyebrow ── */}
           <div className="flex justify-center mb-12">
             <div className="flex items-center gap-2">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">
                 Passez à l&apos;action
               </p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-5">
 
             {/* ── Card 1 : Rejoignez-nous ── */}
-            <div className="group relative bg-white/5 border border-white/10 rounded-2xl p-8 md:p-10 overflow-hidden hover:border-brand-primary/35 hover:bg-white/8 transition-all duration-300">
-              {/* Card glow on hover */}
-              <div className="absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_at_top-left,rgba(24,64,112,0.12)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-              {/* Top accent */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              {/* Big background number */}
-              <span className="absolute bottom-4 right-6 font-serif text-[7rem] font-bold leading-none text-white/[0.04] select-none pointer-events-none">01</span>
+            <div className="group relative bg-brand-subtle/80 border border-border rounded-2xl p-8 md:p-10 overflow-hidden hover:border-brand-primary/25 hover:shadow-lg transition-all duration-300">
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="absolute bottom-4 right-6 font-serif text-[7rem] font-bold leading-none text-brand-primary/[0.06] select-none pointer-events-none">01</span>
 
               <div className="relative flex items-start gap-5">
-                {/* Icon */}
-                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white shadow-sm border border-border flex items-center justify-center">
                   <Users className="w-6 h-6 text-brand-primary" />
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="font-serif text-2xl font-bold text-white mb-2 uppercase tracking-tight">
+                  <h3 className="font-serif text-2xl font-bold text-foreground mb-2 uppercase tracking-tight">
                     Rejoignez-nous
                   </h3>
-                  <div className="w-8 h-[2px] bg-brand-light mb-4 transition-all duration-300 group-hover:w-14" />
-                  <p className="text-sm font-bold text-white leading-relaxed mb-6">
+                  <div className="w-8 h-[2px] bg-brand-primary mb-4 transition-all duration-300 group-hover:w-14" />
+                  <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-6">
                     Devenez membre de l&apos;ACEEPCI et faites partie d&apos;une communauté
-                    de plus de <span className="text-brand-light font-medium">5 000 jeunes</span> engagés pour Christ.
+                    de plus de <span className="text-brand-primary font-medium">5 000 jeunes</span> engagés pour Christ.
                   </p>
                   <Link
                     href="/members"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-white text-brand-primary text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:bg-brand-subtle hover:text-brand-primary-dark hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all group/btn"
+                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group/btn"
                   >
                     Adhérer maintenant
                     <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
@@ -551,32 +495,27 @@ export default function Page() {
             </div>
 
             {/* ── Card 2 : Soutenez ── */}
-            <div className="group relative bg-white/5 border border-white/10 rounded-2xl p-8 md:p-10 overflow-hidden hover:border-brand-primary/35 hover:bg-white/8 transition-all duration-300">
-              {/* Card glow on hover */}
-              <div className="absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_at_top-left,rgba(24,64,112,0.12)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-              {/* Top accent */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              {/* Big background number */}
-              <span className="absolute bottom-4 right-6 font-serif text-[7rem] font-bold leading-none text-white/[0.04] select-none pointer-events-none">02</span>
+            <div className="group relative bg-brand-subtle/80 border border-border rounded-2xl p-8 md:p-10 overflow-hidden hover:border-brand-primary/25 hover:shadow-lg transition-all duration-300">
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="absolute bottom-4 right-6 font-serif text-[7rem] font-bold leading-none text-brand-primary/[0.06] select-none pointer-events-none">02</span>
 
               <div className="relative flex items-start gap-5">
-                {/* Icon */}
-                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white shadow-sm border border-border flex items-center justify-center">
                   <Heart className="w-6 h-6 text-brand-primary" />
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="font-serif text-2xl font-bold text-white mb-2 uppercase tracking-tight">
+                  <h3 className="font-serif text-2xl font-bold text-foreground mb-2 uppercase tracking-tight">
                     Soutenez notre mission
                   </h3>
-                  <div className="w-8 h-[2px] bg-brand-light mb-4 transition-all duration-300 group-hover:w-14" />
-                  <p className="text-sm font-bold text-white leading-relaxed mb-6">
+                  <div className="w-8 h-[2px] bg-brand-primary mb-4 transition-all duration-300 group-hover:w-14" />
+                  <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-6">
                     Votre don aide à financer nos activités, nos camps bibliques
-                    et le soutien aux <span className="text-brand-light font-medium">élèves défavorisés</span>.
+                    et le soutien aux <span className="text-brand-primary font-medium">élèves défavorisés</span>.
                   </p>
                   <Link
                     href="/payments"
-                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-white text-brand-primary text-sm font-medium rounded-sm border-2 border-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:bg-brand-subtle hover:text-brand-primary-dark hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all group/btn"
+                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group/btn"
                   >
                     Faire un don
                     <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
@@ -649,7 +588,7 @@ export default function Page() {
 
       <NewsletterSection />
 
-      <AnimateSection className="py-16" as="div">
+      <AnimateSection className="py-16 bg-brand-subtle" as="div">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-left mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground uppercase tracking-tight pl-4 border-l-4 border-brand-primary mb-4">Actualités récentes</h2>
@@ -660,15 +599,7 @@ export default function Page() {
         </div>
       </AnimateSection>
 
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
-
-        {/* Top rule */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-        />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
 
           {/* ── Header ── */}
@@ -694,29 +625,9 @@ export default function Page() {
             </div>
           </div>
 
-          {/* ── Logo grid ── */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[1px] bg-border/50 rounded-xl overflow-hidden border border-border">
-            {partners.map((p) => (
-              <div
-                key={p.name}
-                className="group relative bg-background flex flex-col items-center justify-center gap-3 px-6 py-8 hover:bg-brand-primary/5 transition-colors duration-300 cursor-default"
-              >
-                {/* Logo */}
-                <div className="w-16 h-10 flex items-center justify-center">
-                  <img
-                    src={p.logo}
-                    alt={p.name}
-                    className="max-w-full max-h-full object-contain opacity-50 grayscale group-hover:opacity-90 group-hover:grayscale-0 transition-all duration-500"
-                  />
-                </div>
-                {/* Name */}
-                <p className="text-[0.65rem] font-light tracking-wide text-center text-muted-foreground group-hover:text-foreground transition-colors duration-300 leading-snug">
-                  {p.name}
-                </p>
-                {/* Bottom accent on hover */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-8 h-[2px] bg-brand-primary transition-all duration-300 rounded-full" />
-              </div>
-            ))}
+          {/* ── Logo swiper ── */}
+          <div className="mt-4">
+            <PartnersCarousel partners={partners} />
           </div>
 
           {/* ── CTA ── */}

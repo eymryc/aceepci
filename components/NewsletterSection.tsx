@@ -28,15 +28,7 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="relative bg-background overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-
-      {/* Top rule */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-      />
-
+    <section className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
       <div className="relative z-10 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 

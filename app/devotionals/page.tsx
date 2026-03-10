@@ -347,26 +347,25 @@ export default function Page() {
       )}
 
       {/* Subscribe CTA */}
-      <section className="py-16 bg-brand-primary-dark relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(24,64,112,0.18),transparent)] pointer-events-none" />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white relative">
-          <h2 className="font-serif text-3xl font-bold uppercase tracking-tight mb-4">
+      <section className="py-16 bg-white relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+          <h2 className="font-serif text-3xl font-bold text-foreground uppercase tracking-tight mb-4">
             Recevez les dévotions dans votre boîte mail
           </h2>
-          <p className="text-xl text-white mb-8">
+          <p className="text-xl text-muted-foreground mb-8">
             Inscrivez-vous pour recevoir chaque jour une nouvelle méditation biblique
           </p>
           <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
               type="email"
               placeholder="Votre adresse email"
-              className="flex-1 px-4 py-3 rounded-lg text-foreground bg-white/10 border border-white/20 placeholder:text-white focus:outline-none focus:ring-2 focus:ring-brand-light focus:border-brand-light"
+              className="flex-1 px-4 py-3 rounded-lg text-foreground bg-background border border-border placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
             />
             <button
               type="submit"
               className="px-8 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white rounded-lg hover:opacity-95 transition-colors font-semibold"
             >
-              S'inscrire
+              S&apos;inscrire
             </button>
           </form>
         </div>

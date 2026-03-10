@@ -72,39 +72,35 @@ export default function Page() {
       />
 
       {/* ── Campagne Progress ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-16 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-accent) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-16 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <div className="bg-brand-primary-dark rounded-2xl overflow-hidden border border-brand-primary/25">
+          <div className="bg-brand-subtle rounded-2xl overflow-hidden border border-border">
             <div className="h-[3px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
-            <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.16)_0%,transparent_70%)]" />
             <div className="p-8 flex flex-col md:flex-row items-center gap-8">
               <div className="flex-shrink-0">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_8px_28px_rgba(24,64,112,0.35)] flex items-center justify-center">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_8px_28px_rgba(24,64,112,0.3)] flex items-center justify-center">
                   <TrendingUp className="w-10 h-10 text-white" />
                 </div>
               </div>
               <div className="flex-1 w-full">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="w-1 h-1 rounded-full bg-brand-accent" />
-                  <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">Campagne 2026</p>
+                  <span className="w-1 h-1 rounded-full bg-brand-primary" />
+                  <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Campagne 2026</p>
                 </div>
-                <h3 className="font-serif text-2xl font-bold text-white mb-4">
+                <h3 className="font-serif text-2xl font-bold text-foreground mb-4">
                   Construction du Centre d&apos;Accueil
                 </h3>
                 <div className="mb-3">
-                  <div className="flex justify-between text-xs font-light mb-2">
-                    <span className="text-brand-light font-medium">42 millions FCFA collectés</span>
-                    <span className="text-white">Objectif : 100 millions FCFA</span>
+                  <div className="flex justify-between text-xs font-medium mb-2">
+                    <span className="text-brand-primary">42 millions FCFA collectés</span>
+                    <span className="text-muted-foreground">Objectif : 100 millions FCFA</span>
                   </div>
-                  <div className="w-full bg-white/10 rounded-full h-2.5">
-                    <div className="bg-gradient-to-r from-brand-primary to-brand-accent h-2.5 rounded-full shadow-[0_0_10px_rgba(24,64,112,0.55)]" style={{ width: "42%" }} />
+                  <div className="w-full bg-white rounded-full h-2.5 border border-border">
+                    <div className="bg-gradient-to-r from-brand-primary to-brand-accent h-2.5 rounded-full shadow-[0_0_10px_rgba(24,64,112,0.35)]" style={{ width: "42%" }} />
                   </div>
-                  <p className="text-right text-[0.7rem] text-brand-light mt-1 font-medium">42%</p>
+                  <p className="text-right text-[0.7rem] text-brand-primary mt-1 font-medium">42%</p>
                 </div>
-                <p className="text-sm font-bold text-white leading-relaxed">
+                <p className="text-sm font-bold text-muted-foreground leading-relaxed">
                   Aidez-nous à construire le centre d&apos;accueil de Yamoussoukro pour héberger nos camps bibliques et activités nationales.
                 </p>
               </div>
@@ -114,47 +110,43 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Types de dons ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-accent" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Dons</p>
-              <span className="w-1 h-1 rounded-full bg-brand-accent" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Dons</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-white leading-tight mb-2">
-              Types de <em className="not-italic italic text-brand-light">dons</em>
+            <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground leading-tight mb-2">
+              Types de <em className="not-italic italic text-brand-primary">dons</em>
             </h2>
-            <p className="text-base font-bold text-white">Choisissez comment vous souhaitez soutenir notre mission</p>
+            <p className="text-base font-bold text-muted-foreground">Choisissez comment vous souhaitez soutenir notre mission</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {donationTypes.map(({ title, desc, icon: Icon, suggested, num }) => (
-              <div key={num} className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-primary/45 hover:bg-white/10 transition-all duration-300">
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="absolute bottom-4 right-5 font-serif text-[4.5rem] font-bold leading-none text-white/[0.04] select-none pointer-events-none">{num}</span>
+              <div key={num} className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/30 hover:shadow-[0_12px_36px_rgba(24,64,112,0.1)] transition-all duration-300">
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="absolute bottom-4 right-5 font-serif text-[4.5rem] font-bold leading-none text-brand-primary/[0.05] select-none pointer-events-none">{num}</span>
 
                 <div className="p-6">
                   <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_4px_12px_rgba(24,64,112,0.25)] flex items-center justify-center mb-5">
                     <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="font-serif text-xl font-bold text-white mb-1">{title}</h3>
-                  <div className="w-6 h-[2px] bg-brand-accent/60 mb-3 group-hover:w-12 transition-all duration-300" />
-                  <p className="text-xs font-bold text-white mb-5">{desc}</p>
+                  <h3 className="font-serif text-xl font-bold text-foreground mb-1">{title}</h3>
+                  <div className="w-6 h-[2px] bg-brand-primary/60 mb-3 group-hover:w-12 transition-all duration-300" />
+                  <p className="text-xs font-bold text-muted-foreground mb-5">{desc}</p>
 
-                  <p className="text-[0.65rem] font-medium tracking-[0.1em] uppercase text-white mb-2">Montants suggérés (FCFA)</p>
+                  <p className="text-[0.65rem] font-medium tracking-[0.1em] uppercase text-muted-foreground mb-2">Montants suggérés (FCFA)</p>
                   <div className="grid grid-cols-4 gap-1.5 mb-5">
                     {suggested.map((amount) => (
-                      <button key={amount} className="px-1.5 py-2 text-[0.65rem] font-medium bg-white/5 border border-white/10 text-white rounded-sm hover:bg-brand-primary/20 hover:border-brand-primary/35 hover:text-brand-light transition-all">
+                      <button key={amount} className="px-1.5 py-2 text-[0.65rem] font-medium bg-brand-subtle border border-border text-foreground rounded-sm hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:text-brand-primary transition-all">
                         {amount}
                       </button>
                     ))}
                   </div>
-                  <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_12px_rgba(24,64,112,0.25)] hover:shadow-[0_4px_18px_rgba(24,64,112,0.4)] hover:-translate-y-px transition-all group/btn">
+                  <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_12px_rgba(24,64,112,0.25)] hover:opacity-95 hover:-translate-y-px transition-all group/btn">
                     Faire un don
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
                   </button>
@@ -166,10 +158,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Cotisations annuelles ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
@@ -204,57 +193,54 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Inscriptions aux activités ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Inscriptions</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Inscriptions</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-2 uppercase tracking-tight">
-              Inscriptions aux <em className="not-italic italic text-brand-light">activités</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
+              Inscriptions aux <em className="not-italic italic text-brand-primary">activités</em>
             </h2>
-            <p className="text-base font-bold text-white">Inscrivez-vous et payez en ligne pour nos événements</p>
+            <p className="text-base font-bold text-muted-foreground">Inscrivez-vous et payez en ligne pour nos événements</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {eventCards.map(({ title, desc, icon: Icon, image, amount, options }) => (
-              <div key={title} className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-primary/35 transition-all duration-300">
+              <div key={title} className="group bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_12px_36px_rgba(24,64,112,0.1)] transition-all duration-300">
                 <div className="relative h-44 overflow-hidden">
                   <ImageWithFallback src={image} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/80 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/60 to-transparent" />
                   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute top-4 left-4 w-11 h-11 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_4px_12px_rgba(24,64,112,0.4)] flex items-center justify-center">
+                  <div className="absolute top-4 left-4 w-11 h-11 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_4px_12px_rgba(24,64,112,0.35)] flex items-center justify-center">
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-serif text-lg font-bold text-white mb-1">{title}</h3>
-                  <p className="text-xs font-bold text-white mb-4">{desc}</p>
+                  <h3 className="font-serif text-lg font-bold text-foreground mb-1">{title}</h3>
+                  <p className="text-xs font-bold text-muted-foreground mb-4">{desc}</p>
 
                   {amount && (
-                    <div className="font-serif text-2xl font-bold text-brand-light mb-4">{amount}</div>
+                    <div className="font-serif text-2xl font-bold text-brand-primary mb-4">{amount}</div>
                   )}
 
                   {options && (
                     <div className="mb-4 space-y-2">
-                      <p className="text-[0.65rem] font-medium tracking-[0.1em] uppercase text-white">Options de paiement</p>
+                      <p className="text-[0.65rem] font-medium tracking-[0.1em] uppercase text-muted-foreground">Options de paiement</p>
                       {options.map((opt) => (
                         <label key={opt.label} className="flex items-center gap-2.5 cursor-pointer group/radio">
-                          <div className="w-4 h-4 rounded-full border border-brand-primary/45 flex items-center justify-center flex-shrink-0">
-                            <div className="w-2 h-2 rounded-full bg-brand-light opacity-0 group-hover/radio:opacity-100 transition-opacity" />
+                          <div className="w-4 h-4 rounded-full border border-border flex items-center justify-center flex-shrink-0">
+                            <div className="w-2 h-2 rounded-full bg-brand-primary opacity-0 group-hover/radio:opacity-100 transition-opacity" />
                           </div>
-                          <span className="text-xs font-bold text-white group-hover/radio:text-white transition-colors">{opt.label}</span>
+                          <span className="text-xs font-bold text-muted-foreground group-hover/radio:text-foreground transition-colors">{opt.label}</span>
                         </label>
                       ))}
                     </div>
                   )}
 
-                  <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_12px_rgba(24,64,112,0.25)] hover:shadow-[0_4px_18px_rgba(24,64,112,0.4)] hover:-translate-y-px transition-all group/btn mt-2">
+                  <button className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_12px_rgba(24,64,112,0.25)] hover:opacity-95 hover:-translate-y-px transition-all group/btn mt-2">
                     S&apos;inscrire
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
                   </button>
@@ -266,10 +252,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Modes de paiement ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
@@ -309,35 +292,32 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Fonctionnalités ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -bottom-32 -left-32 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Plateforme</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Plateforme</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight uppercase tracking-tight">
-              Nos <em className="not-italic italic text-brand-light">fonctionnalités</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+              Nos <em className="not-italic italic text-brand-primary">fonctionnalités</em>
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-white/[0.04] rounded-2xl overflow-hidden border border-white/10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-border rounded-2xl overflow-hidden border border-border">
             {features.map(({ icon: Icon, title, desc }, i) => (
-              <div key={title} className="group relative bg-brand-primary-dark flex flex-col items-center text-center gap-4 px-6 py-10 hover:bg-brand-primary/10 transition-colors duration-300 overflow-hidden">
+              <div key={title} className="group relative bg-white flex flex-col items-center text-center gap-4 px-6 py-10 hover:bg-brand-subtle/50 transition-colors duration-300 overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-10 h-[2px] bg-brand-primary transition-all duration-300 rounded-full" />
-                <span className="absolute bottom-2 right-3 font-serif text-[3.5rem] font-bold leading-none text-white/[0.04] select-none pointer-events-none">
+                <span className="absolute bottom-2 right-3 font-serif text-[3.5rem] font-bold leading-none text-brand-primary/[0.05] select-none pointer-events-none">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <div className="w-12 h-12 rounded-full bg-brand-primary/15 border border-brand-primary/25 flex items-center justify-center group-hover:bg-brand-primary/25 group-hover:scale-110 transition-all duration-300">
-                  <Icon className="w-5 h-5 text-brand-light" />
+                <div className="w-12 h-12 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center group-hover:bg-brand-primary/15 group-hover:scale-110 transition-all duration-300">
+                  <Icon className="w-5 h-5 text-brand-primary" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white mb-1">{title}</h3>
-                  <p className="text-xs font-bold text-white leading-relaxed">{desc}</p>
+                  <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
+                  <p className="text-xs font-bold text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -346,44 +326,33 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── CTA Final ── */}
-      <AnimateSection className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1737045597777-059fbc5a8e3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-            alt="Chaque don compte"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary-dark/95 via-brand-primary-dark/80 to-brand-primary-dark/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/60 to-transparent" />
-        </div>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_8px_28px_rgba(24,64,112,0.4)] mb-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_8px_28px_rgba(24,64,112,0.3)] mb-8">
             <DollarSign className="w-8 h-8 text-white" />
           </div>
 
           <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="w-1 h-1 rounded-full bg-brand-light" />
-            <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">Agissez maintenant</p>
-            <span className="w-1 h-1 rounded-full bg-brand-light" />
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
+            <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Agissez maintenant</p>
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
           </div>
 
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-4 uppercase tracking-tight">
-            Chaque don <em className="not-italic italic text-brand-light">compte</em>
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-4 uppercase tracking-tight">
+            Chaque don <em className="not-italic italic text-brand-primary">compte</em>
           </h2>
           <div className="w-12 h-[2px] bg-gradient-to-r from-transparent via-brand-primary to-transparent mx-auto mb-6" />
-          <p className="text-base font-bold text-white mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base font-bold text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
             Votre générosité nous permet de continuer à transformer des vies par l&apos;Évangile et à former les leaders de demain.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-sm shadow-[0_4px_20px_rgba(24,64,112,0.4)] hover:shadow-[0_6px_28px_rgba(24,64,112,0.55)] hover:-translate-y-0.5 transition-all group">
+            <button className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-sm shadow-[0_4px_20px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group">
               Faire un don maintenant
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
             <Link
               href="/about"
-              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-transparent border border-white/30 text-white font-medium rounded-sm hover:bg-white/10 hover:border-white/50 hover:-translate-y-0.5 transition-all backdrop-blur-sm"
+              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white border border-border text-foreground font-medium rounded-sm hover:bg-brand-subtle hover:border-brand-primary/30 transition-all"
             >
               En savoir plus sur notre mission
             </Link>

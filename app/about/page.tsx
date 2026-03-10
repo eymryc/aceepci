@@ -18,10 +18,7 @@ export default function Page() {
       />
 
       {/* ── Notre histoire ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div>
@@ -66,20 +63,16 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Vision & Mission ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Fondements</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Fondements</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight uppercase tracking-tight">
-              Vision & <em className="not-italic italic text-brand-light">Mission</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+              Vision & <em className="not-italic italic text-brand-primary">Mission</em>
             </h2>
           </div>
 
@@ -96,17 +89,17 @@ export default function Page() {
                 text: `Évangéliser et former spirituellement les élèves et étudiants, développer leur leadership, et créer une communauté de foi vivante guidée par notre devise : ${siteConfig.tagline}.`,
               },
             ].map(({ icon: Icon, label, text }) => (
-              <div key={label} className="group relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:border-brand-primary/30 transition-all duration-300">
+              <div key={label} className="group relative bg-white border border-border rounded-2xl p-8 overflow-hidden hover:border-brand-primary/25 hover:shadow-lg transition-all duration-300">
                 <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="absolute bottom-4 right-5 font-serif text-[5rem] font-bold leading-none text-white/[0.04] select-none pointer-events-none">
+                <span className="absolute bottom-4 right-5 font-serif text-[5rem] font-bold leading-none text-brand-primary/[0.06] select-none pointer-events-none">
                   {label === "Notre Vision" ? "01" : "02"}
                 </span>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_6px_18px_rgba(24,64,112,0.35)] flex items-center justify-center mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_6px_18px_rgba(24,64,112,0.28)] flex items-center justify-center mb-6">
                   <Icon className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="font-serif text-2xl font-bold text-white mb-3">{label}</h3>
-                <div className="w-8 h-[2px] bg-brand-light mb-4 transition-all duration-300 group-hover:w-14" />
-                <p className="text-sm font-bold text-white leading-relaxed">{text}</p>
+                <h3 className="font-serif text-2xl font-bold text-foreground mb-3">{label}</h3>
+                <div className="w-8 h-[2px] bg-brand-primary mb-4 transition-all duration-300 group-hover:w-14" />
+                <p className="text-sm font-bold text-muted-foreground leading-relaxed">{text}</p>
               </div>
             ))}
           </div>
@@ -114,10 +107,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Notre devise ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
@@ -160,21 +150,18 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Partenaires ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Affiliations</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Affiliations</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-2 uppercase tracking-tight">
-              Nos <em className="not-italic italic text-brand-light">partenaires</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
+              Nos <em className="not-italic italic text-brand-primary">partenaires</em>
             </h2>
-            <p className="text-sm font-bold text-white">Nous sommes affiliés à des organisations reconnues</p>
+            <p className="text-sm font-bold text-muted-foreground">Nous sommes affiliés à des organisations reconnues</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
@@ -183,17 +170,17 @@ export default function Page() {
               { name: "FEMAJECI", desc: "Fédération des Ministères et Œuvres de Jeunesse Évangéliques de Côte d'Ivoire",  icon: Users    },
               { name: "ÉMU-CI",   desc: "Église Méthodiste Unie de Côte d'Ivoire",                                        icon: BookOpen },
             ].map(({ name, desc, icon: Icon }, i) => (
-              <div key={name} className="group relative bg-white/5 border border-white/10 rounded-2xl p-8 text-center overflow-hidden hover:border-brand-primary/30 hover:bg-white/8 transition-all duration-300">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-12 h-[2px] bg-brand-accent transition-all duration-300 rounded-full" />
-                <span className="absolute bottom-3 right-4 font-serif text-[4rem] font-bold leading-none text-white/[0.04] select-none pointer-events-none">
+              <div key={name} className="group relative bg-white border border-border rounded-2xl p-8 text-center overflow-hidden hover:border-brand-primary/25 hover:shadow-lg transition-all duration-300">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-12 h-[2px] bg-brand-primary transition-all duration-300 rounded-full" />
+                <span className="absolute bottom-3 right-4 font-serif text-[4rem] font-bold leading-none text-brand-primary/[0.06] select-none pointer-events-none">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <div className="w-14 h-14 rounded-full bg-brand-primary/15 border border-brand-primary/25 flex items-center justify-center mx-auto mb-5 group-hover:bg-brand-primary/25 group-hover:border-brand-primary/40 group-hover:scale-110 transition-all duration-300">
-                  <Icon className="w-6 h-6 text-brand-light" />
+                <div className="w-14 h-14 rounded-full bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center mx-auto mb-5 group-hover:bg-brand-primary/15 group-hover:scale-110 transition-all duration-300">
+                  <Icon className="w-6 h-6 text-brand-primary" />
                 </div>
-                <h3 className="font-serif text-xl font-bold text-white mb-2">{name}</h3>
-                <div className="w-6 h-[2px] bg-brand-primary/50 mx-auto mb-3" />
-                <p className="text-xs font-bold text-white leading-relaxed">{desc}</p>
+                <h3 className="font-serif text-xl font-bold text-foreground mb-2">{name}</h3>
+                <div className="w-6 h-[2px] bg-brand-primary/40 mx-auto mb-3" />
+                <p className="text-xs font-bold text-muted-foreground leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -201,10 +188,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Organisation ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(var(--brand-primary) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-3">
@@ -241,21 +225,18 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Documents officiels ── */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.12)_0%,transparent_70%)]" />
-
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-2xl mx-auto">
           <div className="text-center mb-10">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">ACEEPCI · Ressources</p>
-              <span className="w-1 h-1 rounded-full bg-brand-light" />
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Ressources</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-2 uppercase tracking-tight">
-              Documents <em className="not-italic italic text-brand-light">officiels</em>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-2 uppercase tracking-tight">
+              Documents <em className="not-italic italic text-brand-primary">officiels</em>
             </h2>
-            <p className="text-sm font-bold text-white">Téléchargez nos statuts et règlement intérieur</p>
+            <p className="text-sm font-bold text-muted-foreground">Téléchargez nos statuts et règlement intérieur</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -266,16 +247,16 @@ export default function Page() {
               <a
                 key={doc.title}
                 href="#"
-                className="group flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/8 hover:border-brand-primary/30 transition-all duration-300"
+                className="group flex items-center gap-4 bg-white border border-border rounded-xl p-5 hover:border-brand-primary/25 hover:shadow-lg transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_4px_12px_rgba(24,64,112,0.3)] flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-[0_4px_12px_rgba(24,64,112,0.28)] flex items-center justify-center flex-shrink-0">
                   <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-medium text-white mb-0.5">{doc.title}</h3>
-                  <p className="text-xs font-bold text-white">{doc.meta}</p>
+                  <h3 className="text-sm font-medium text-foreground mb-0.5">{doc.title}</h3>
+                  <p className="text-xs font-bold text-muted-foreground">{doc.meta}</p>
                 </div>
-                <Download className="w-4 h-4 text-brand-primary/50 group-hover:text-brand-light transition-colors flex-shrink-0" />
+                <Download className="w-4 h-4 text-brand-primary group-hover:text-brand-primary-dark transition-colors flex-shrink-0" />
               </a>
             ))}
           </div>
@@ -283,9 +264,7 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Siège national ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-brand-primary to-transparent" />
-
+      <AnimateSection className="relative bg-white overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="flex items-center justify-between flex-wrap gap-6">
             <div>
