@@ -113,30 +113,30 @@ export default function Page() {
       />
 
       {/* ── Événements à venir ── */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Agenda</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
               Événements <em className="not-italic italic text-brand-primary">à venir</em>
             </h2>
-            <p className="text-muted-foreground mt-3 text-sm sm:text-base max-w-xl mx-auto">Inscrivez-vous dès maintenant à nos prochaines activités</p>
-          </header>
+            <p className="text-base font-light text-muted-foreground mt-2">Inscrivez-vous dès maintenant à nos prochaines activités</p>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
             {upcomingEvents.map((event, i) => (
               <div
                 key={i}
-                className="group relative bg-white rounded-2xl border border-border overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_20px_55px_rgba(24,64,112,0.15)] hover:-translate-y-1.5 transition-all duration-300"
+                className="group bg-white rounded-2xl border border-border overflow-hidden hover:shadow-[0_18px_55px_rgba(24,64,112,0.15)] hover:-translate-y-1.5 transition-all duration-300"
               >
-                <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent opacity-80 group-hover:opacity-100 transition-opacity z-10" />
-                <div className="relative h-52 overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <ImageWithFallback src={event.image} alt={event.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/70 to-transparent" />
+                  <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-brand-primary to-brand-accent" />
                   <span className="absolute top-4 right-4 text-[0.65rem] font-medium tracking-[0.12em] uppercase bg-brand-primary/25 border border-brand-primary/50 text-white px-2.5 py-1 rounded-sm backdrop-blur-sm">
                     {event.category}
                   </span>
@@ -152,8 +152,8 @@ export default function Page() {
                       { icon: MapPin,   text: event.location },
                       { icon: Users,    text: event.participants },
                     ].map(({ icon: Icon, text }) => (
-                      <div key={text} className="flex items-center gap-2 text-sm font-medium text-foreground/90">
-                        <Icon className="w-4 h-4 text-brand-primary flex-shrink-0" />
+                      <div key={text} className="flex items-center gap-2 text-xs sm:text-[0.8rem] font-light text-muted-foreground">
+                        <Icon className="w-3.5 h-3.5 text-brand-primary flex-shrink-0" />
                         {text}
                       </div>
                     ))}
@@ -173,11 +173,11 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Camp Biblique National ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-14 lg:gap-24 items-center">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-xs font-medium tracking-widest uppercase px-4 py-2 rounded-lg mb-5">
+              <div className="inline-flex items-center gap-2 bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-xs font-medium tracking-widest uppercase px-4 py-2 rounded-sm mb-5">
                 57+ éditions
               </div>
               <div className="flex items-center gap-2 mb-3">
@@ -185,32 +185,31 @@ export default function Page() {
                 <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Événement phare</p>
                 <span className="w-1 h-1 rounded-full bg-brand-primary" />
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight mb-3 uppercase tracking-tight">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-6 uppercase tracking-tight">
                 Camp Biblique <em className="not-italic italic text-brand-primary">National</em>
               </h2>
-              <p className="text-foreground/85 text-sm sm:text-base mb-6">Une semaine intense de foi, formation et communion</p>
               <div className="w-12 h-[2px] bg-gradient-to-r from-brand-primary to-transparent mb-6" />
-              <div className="space-y-4 text-sm text-foreground/90 leading-relaxed mb-8">
-                <p>Le Camp Biblique National est l&apos;événement phare de l&apos;ACEEPCI. Chaque année, plus de <span className="text-brand-primary font-semibold">500 jeunes</span> se rassemblent pendant une semaine pour un temps intense d&apos;enseignement biblique, de louange et de communion fraternelle.</p>
+              <div className="space-y-4 text-sm font-bold text-muted-foreground leading-relaxed mb-8">
+                <p>Le Camp Biblique National est l&apos;événement phare de l&apos;ACEEPCI. Chaque année, plus de <span className="text-brand-primary font-medium">500 jeunes</span> se rassemblent pendant une semaine pour un temps intense d&apos;enseignement biblique, de louange et de communion fraternelle.</p>
                 <p>Au programme : sessions d&apos;enseignement, ateliers thématiques, activités sportives, soirées culturelles et moments de prière collective.</p>
               </div>
-              <ul className="space-y-3">
+              <div className="space-y-3">
                 {["Enseignements bibliques quotidiens", "Ateliers de formation au leadership", "Activités sportives et culturelles", "Hébergement et restauration sur place"].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
+                  <div key={item} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center flex-shrink-0 shadow-[0_2px_8px_rgba(24,64,112,0.3)]">
                       <span className="text-white text-[0.6rem] font-bold">✓</span>
                     </div>
-                    <span className="text-sm font-medium text-foreground/90">{item}</span>
-                  </li>
+                    <p className="text-sm font-bold text-muted-foreground">{item}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
 
             <div className="relative">
               <div className="absolute -top-4 -right-4 w-12 h-12 border-t-2 border-r-2 border-brand-primary rounded-tr-2xl z-10" />
               <div className="absolute -bottom-4 -left-4 w-12 h-12 border-b-2 border-l-2 border-brand-primary rounded-bl-2xl z-10" />
-              <div className="absolute -bottom-3 -right-3 w-full h-full rounded-2xl bg-brand-primary/10 border border-brand-primary/20" />
-              <div className="relative rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(24,64,112,0.14)]">
+              <div className="absolute -bottom-3 -right-3 w-full h-full rounded-xl bg-brand-primary/10 border border-brand-primary/20" />
+              <div className="relative rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(24,64,112,0.12)]">
                 <ImageWithFallback
                   src="https://images.unsplash.com/photo-1750284743584-10142975ecd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
                   alt="Camp Biblique"
@@ -224,30 +223,29 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Activités principales ── */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-2 mb-3">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Programmes</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
               Nos <em className="not-italic italic text-brand-primary">programmes</em>
             </h2>
-            <p className="text-muted-foreground mt-3 text-sm sm:text-base max-w-xl mx-auto">Séminaires, cultes, concours, chorales et bien plus</p>
-          </header>
+          </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {mainActivities.map(({ icon: Icon, title, desc, items, image }, i) => (
               <div
                 key={title}
-                className="group relative bg-white rounded-2xl border border-border overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_20px_55px_rgba(24,64,112,0.15)] hover:-translate-y-1.5 transition-all duration-300"
+                className="group bg-white rounded-2xl border border-border overflow-hidden hover:shadow-[0_18px_55px_rgba(24,64,112,0.15)] hover:-translate-y-1.5 transition-all duration-300"
               >
-                <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-80 group-hover:opacity-100 transition-opacity z-10" />
                 <div className="relative h-44 overflow-hidden">
                   <ImageWithFallback src={image} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/70 to-transparent" />
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <span className="absolute bottom-3 right-3 font-serif text-3xl font-bold text-white select-none">
                     {String(i + 1).padStart(2, "0")}
                   </span>
@@ -258,11 +256,11 @@ export default function Page() {
                   </div>
                   <h3 className="font-serif text-xl font-bold text-foreground mb-2">{title}</h3>
                   <div className="w-6 h-[2px] bg-brand-primary mb-3 transition-all duration-300 group-hover:w-12" />
-                  <p className="text-sm font-normal text-foreground/90 leading-relaxed mb-4">{desc}</p>
-                  <ul className="space-y-2">
+                  <p className="text-xs font-light text-muted-foreground leading-relaxed mb-4">{desc}</p>
+                  <ul className="space-y-1.5">
                     {items.map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-sm font-medium text-foreground/85">
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary flex-shrink-0" />
+                      <li key={item} className="flex items-center gap-2 text-xs font-light text-muted-foreground">
+                        <span className="w-1 h-1 rounded-full bg-brand-primary flex-shrink-0" />
                         {item}
                       </li>
                     ))}
@@ -275,37 +273,37 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Calendrier 2026 ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Planning</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
               Calendrier <em className="not-italic italic text-brand-primary">2026</em>
             </h2>
-            <p className="text-muted-foreground mt-3 text-sm sm:text-base">Les grands rendez-vous de l&apos;année</p>
-          </header>
+            <p className="text-base font-bold text-muted-foreground mt-2">Les grands rendez-vous de l&apos;année</p>
+          </div>
 
-          <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(24,64,112,0.06)]">
-            <div className="h-[3px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
+          <div className="bg-white border border-border rounded-2xl overflow-hidden">
+            <div className="h-[2px] bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
             {calendarEvents.map((ev, i) => (
               <div
                 key={i}
-                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 sm:p-7 hover:bg-brand-subtle/50 transition-colors ${i < calendarEvents.length - 1 ? "border-b border-border" : ""}`}
+                className={`flex items-center justify-between gap-4 p-6 hover:bg-brand-subtle/50 transition-colors ${i < calendarEvents.length - 1 ? "border-b border-border" : ""}`}
               >
                 <div className="flex items-center gap-5">
-                  <div className="text-center flex-shrink-0 w-16 py-2 px-3 rounded-xl bg-brand-subtle/80 border border-brand-primary/15">
+                  <div className="text-center flex-shrink-0 w-14">
                     <div className="font-serif text-2xl font-bold text-brand-primary leading-none">{ev.day}</div>
-                    <div className="text-xs font-semibold text-foreground/80 mt-0.5">{ev.month}</div>
+                    <div className="text-xs font-bold text-muted-foreground mt-0.5">{ev.month}</div>
                   </div>
-                  <div className="w-px h-12 bg-border hidden sm:block" />
-                  <div className="min-w-0">
-                    <h3 className="font-serif text-base sm:text-lg font-semibold text-foreground">{ev.title}</h3>
-                    <div className="flex items-center gap-1.5 mt-1.5 text-sm font-medium text-foreground/85">
-                      <MapPin className="w-3.5 h-3.5 text-brand-primary flex-shrink-0" /> {ev.location}
+                  <div className="w-px h-10 bg-border" />
+                  <div>
+                    <h3 className="font-serif text-base font-semibold text-foreground">{ev.title}</h3>
+                    <div className="flex items-center gap-1.5 mt-1 text-xs font-bold text-muted-foreground">
+                      <MapPin className="w-3 h-3" /> {ev.location}
                     </div>
                   </div>
                 </div>
@@ -323,39 +321,39 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── Partenaires ── */}
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Écosystème</p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
               Nos <em className="not-italic italic text-brand-primary">partenaires</em>
             </h2>
-            <p className="text-muted-foreground mt-3 text-sm sm:text-base max-w-xl mx-auto">Nous sommes affiliés à des organisations reconnues</p>
-          </header>
+            <p className="text-base font-light text-muted-foreground mt-2">Nous sommes affiliés à des organisations reconnues</p>
+          </div>
 
           <div className="relative">
-            <button onClick={scrollPrev} className="absolute top-1/2 -left-2 sm:-left-4 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-border text-foreground flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-lg hover:shadow-xl" aria-label="Précédent">
+            <button onClick={scrollPrev} className="absolute top-1/2 -left-4 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-border text-foreground flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-lg">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <button onClick={scrollNext} className="absolute top-1/2 -right-2 sm:-right-4 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-border text-foreground flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-lg hover:shadow-xl" aria-label="Suivant">
+            <button onClick={scrollNext} className="absolute top-1/2 -right-4 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-border text-foreground flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-lg">
               <ChevronRight className="w-5 h-5" />
             </button>
             <div className="overflow-hidden" ref={emblaRef}>
-              <div className="flex gap-6">
+              <div className="flex gap-5">
                 {partners.map((partner, i) => (
                   <div key={i} className="flex-[0_0_280px] min-w-0">
-                    <div className="group relative bg-white rounded-2xl border border-border overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_16px_48px_rgba(24,64,112,0.12)] hover:-translate-y-1 transition-all duration-300">
-                      <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-80 group-hover:opacity-100 transition-opacity z-10" />
-                      <div className="relative h-44 overflow-hidden">
+                    <div className="group bg-white rounded-xl border border-border overflow-hidden hover:shadow-[0_12px_36px_rgba(24,64,112,0.12)] hover:-translate-y-1 transition-all duration-300">
+                      <div className="relative h-40 overflow-hidden">
                         <ImageWithFallback src={partner.image} alt={partner.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 grayscale group-hover:grayscale-0" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/50 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/60 to-transparent" />
+                        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
-                      <div className="p-5 text-center">
-                        <h3 className="font-serif text-base font-bold text-foreground">{partner.name}</h3>
+                      <div className="p-4 text-center">
+                        <h3 className="font-serif text-base font-semibold text-foreground">{partner.name}</h3>
                       </div>
                     </div>
                   </div>
@@ -365,10 +363,10 @@ export default function Page() {
           </div>
 
           <div className="text-center mt-14">
-            <p className="text-sm font-medium text-foreground/90 mb-6">Vous souhaitez devenir partenaire ?</p>
+            <p className="text-sm font-bold text-muted-foreground mb-5">Vous souhaitez devenir partenaire ?</p>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-lg shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group"
+              className="inline-flex items-center gap-2.5 px-7 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.3)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.45)] hover:-translate-y-0.5 transition-all group"
             >
               Contactez-nous
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -378,30 +376,27 @@ export default function Page() {
       </AnimateSection>
 
       {/* ── CTA final ── */}
-      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="relative bg-white border border-border rounded-2xl p-8 sm:p-10 md:p-12 text-center shadow-[0_4px_24px_rgba(24,64,112,0.06)]">
-            <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent" />
-            <div className="flex justify-center gap-2 mb-4">
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
-              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Passez à l&apos;action</p>
-              <span className="w-1 h-1 rounded-full bg-brand-primary" />
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight mb-3 uppercase tracking-tight">
-              Participez à nos <em className="not-italic italic text-brand-primary">activités</em>
-            </h2>
-            <div className="w-12 h-[2px] bg-brand-primary/60 mx-auto mb-6" />
-            <p className="text-foreground/90 mb-8 max-w-lg mx-auto text-sm sm:text-base leading-relaxed font-medium">
-              Rejoignez-nous et vivez des expériences spirituelles inoubliables
-            </p>
-            <Link
-              href="/members"
-              className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-lg shadow-[0_4px_20px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group"
-            >
-              Devenir membre
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
+            <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Passez à l&apos;action</p>
+            <span className="w-1 h-1 rounded-full bg-brand-primary" />
           </div>
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight mb-4 uppercase tracking-tight">
+            Participez à nos <em className="not-italic italic text-brand-primary">activités</em>
+          </h2>
+          <div className="w-12 h-[2px] bg-gradient-to-r from-brand-primary to-transparent mb-6" />
+          <p className="text-base font-bold text-muted-foreground mb-8 max-w-xl leading-relaxed">
+            Rejoignez-nous et vivez des expériences spirituelles inoubliables
+          </p>
+          <Link
+            href="/members"
+            className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-sm shadow-[0_4px_20px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group"
+          >
+            Devenir membre
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
       </AnimateSection>
     </div>
