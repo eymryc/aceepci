@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
@@ -44,11 +44,12 @@ const navGroups = [
   {
     label: "Contenu",
     items: [
+      { href: "/admin/hero-slides", label: "Slides bannière", icon: ImageIcon },
+      { href: "/admin/verse", label: "Verset du jour", icon: Quote },
       { href: "/admin/news", label: "Actualités", icon: Newspaper },
       { href: "/admin/blog", label: "Blog", icon: FileText },
       { href: "/admin/devotionals", label: "Dévotions", icon: BookOpen },
       { href: "/admin/sermons", label: "Sermons", icon: Mic2 },
-      { href: "/admin/verse", label: "Verset du jour", icon: Quote },
       { href: "/admin/gallery", label: "Galerie média", icon: ImageIcon },
     ],
   },
@@ -88,14 +89,29 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [settingsExpanded, setSettingsExpanded] = useState(pathname.startsWith("/admin/settings"));
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     if (pathname.startsWith("/admin/settings")) setSettingsExpanded(true);
   }, [pathname]);
-  const { user, logout } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (!isLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f1f5f9]">
+        <div className="animate-pulse text-muted-foreground">Redirection vers la connexion...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f1f5f9]">

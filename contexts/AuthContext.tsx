@@ -5,14 +5,24 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
 import type { ApiUser } from "@/lib/api";
-import { login as apiLogin, logout as apiLogout, refreshToken } from "@/lib/api";
+import { login as apiLogin, logout as apiLogout, refreshToken, setRefreshTokenHandler } from "@/lib/api";
 
 const STORAGE_KEY = "aceepci_auth";
+
+/** Rafraîchir quand il reste moins de 2 min avant expiration */
+const REFRESH_BEFORE_MS = 2 * 60 * 1000;
+/** Ou au plus tard toutes les 10 min tant que l'utilisateur est actif */
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
+/** Vérification toutes les 60 secondes */
+const CHECK_INTERVAL_MS = 60 * 1000;
+/** Inactivité max avant d'arrêter le refresh (30 min) — au-delà, on laisse expirer */
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
 
 interface AuthState {
   user: ApiUser | null;
@@ -27,7 +37,8 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (loginId: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshAuth: () => Promise<void>;
+  /** Rafraîchit le token. Si forceRefresh, appelle l'API même si le token est encore valide. */
+  refreshAuth: (forceRefresh?: boolean) => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -58,22 +69,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, token: null, expiresAt: null });
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const lastRefreshAt = useRef(0);
+  const lastActivityAt = useRef(Date.now());
 
-  const refreshAuth = useCallback(async () => {
+  const refreshAuth = useCallback(async (forceRefresh = false): Promise<string | null> => {
     const stored = loadStoredAuth();
     if (!stored?.token) {
       setState({ user: null, token: null, expiresAt: null });
       setIsLoading(false);
-      return;
+      return null;
     }
     const now = Date.now();
     const expiresAt = stored.expiresAt ?? 0;
-    if (expiresAt > now + 60000) {
+    const timeLeft = expiresAt - now;
+    if (!forceRefresh && timeLeft > REFRESH_BEFORE_MS) {
       setState(stored);
       setIsLoading(false);
-      return;
+      return stored.token;
     }
-    try {
+    const doRefresh = async (): Promise<string | null> => {
       const res = await refreshToken(stored.token);
       if (res.status !== "success" || !res.data) throw new Error("Refresh failed");
       const data = typeof res.data === "object" ? res.data : null;
@@ -85,17 +99,90 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
       setState(newState);
       saveAuth(newState);
-    } catch {
-      setState({ user: null, token: null, expiresAt: null });
-      saveAuth(null);
-    } finally {
       setIsLoading(false);
+      return newState.token;
+    };
+
+    try {
+      return await doRefresh();
+    } catch {
+      try {
+        await new Promise((r) => setTimeout(r, 2000));
+        return await doRefresh();
+      } catch {
+        setState({ user: null, token: null, expiresAt: null });
+        saveAuth(null);
+        setIsLoading(false);
+        return null;
+      }
     }
   }, []);
 
   useEffect(() => {
     refreshAuth();
   }, [refreshAuth]);
+
+  useEffect(() => {
+    setRefreshTokenHandler(() => refreshAuth(true));
+    return () => setRefreshTokenHandler(null);
+  }, [refreshAuth]);
+
+  useEffect(() => {
+    const updateActivity = () => {
+      lastActivityAt.current = Date.now();
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") updateActivity();
+    };
+    const events = ["mousedown", "keydown", "scroll", "touchstart", "focus"];
+    events.forEach((e) => window.addEventListener(e, updateActivity));
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, updateActivity));
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!state.token || !state.expiresAt) {
+      lastRefreshAt.current = 0;
+      return;
+    }
+
+    const checkAndRefresh = async () => {
+      const now = Date.now();
+      const timeLeft = state.expiresAt! - now;
+      const timeSinceLastRefresh = now - lastRefreshAt.current;
+      const timeSinceLastActivity = now - lastActivityAt.current;
+
+      if (timeSinceLastActivity > INACTIVITY_TIMEOUT_MS) {
+        if (timeLeft < 0) {
+          setState({ user: null, token: null, expiresAt: null });
+          saveAuth(null);
+        }
+        return;
+      }
+
+      if (lastRefreshAt.current === 0 && timeLeft > REFRESH_BEFORE_MS) {
+        lastRefreshAt.current = now;
+        return;
+      }
+
+      const shouldRefresh =
+        timeLeft < REFRESH_BEFORE_MS ||
+        timeSinceLastRefresh > REFRESH_INTERVAL_MS;
+
+      if (shouldRefresh) {
+        const newToken = await refreshAuth(true);
+        if (newToken) lastRefreshAt.current = now;
+      }
+    };
+
+    const id = setInterval(checkAndRefresh, CHECK_INTERVAL_MS);
+    checkAndRefresh();
+
+    return () => clearInterval(id);
+  }, [state.token, state.expiresAt, refreshAuth]);
 
   const login = useCallback(
     async (loginId: string, password: string) => {
