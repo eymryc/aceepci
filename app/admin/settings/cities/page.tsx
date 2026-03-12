@@ -16,17 +16,6 @@ const FormFields = ({ form, setForm }: { form: Record<string, string | number | 
         className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
       />
     </div>
-    <div>
-      <label className="block text-sm font-medium text-foreground mb-2">Code (optionnel)</label>
-      <input
-        type="text"
-        value={String(form.code ?? "")}
-        onChange={(e) => setForm("code", e.target.value)}
-        placeholder="Ex: ABJ, YAM"
-        maxLength={20}
-        className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-      />
-    </div>
   </div>
 );
 
@@ -41,7 +30,7 @@ export default function CitiesPage() {
       deleteLabel="Supprimer la ville"
       deleteConfirmLabel="Supprimer cette ville ?"
       formFields={FormFields}
-      getItemData={(form) => ({ name: String(form.name ?? "").trim(), code: String(form.code ?? "").trim() || null })}
+      getItemData={(form, editing) => ({ name: String(form.name ?? "").trim(), ...(editing && { code: String(form.code ?? "").trim() || null }) })}
       validateForm={(form) => (!String(form.name ?? "").trim() ? "Le nom est requis." : null)}
     />
   );

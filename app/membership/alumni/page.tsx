@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PageHero } from "@/components/sections/PageHero";
@@ -19,6 +19,7 @@ import {
   Award,
   Calendar,
 } from "lucide-react";
+import { publicOptionsApi, type PublicOptionItem } from "@/lib/api";
 
 interface FormData {
   lastName: string;
@@ -100,36 +101,22 @@ export default function Page() {
     acceptCharter: false,
     acceptPayment: false,
   });
+  const [departmentOptions, setDepartmentOptions] = useState<PublicOptionItem[]>([]);
+  const [serviceAreaOptions, setServiceAreaOptions] = useState<PublicOptionItem[]>([]);
 
   const totalSteps = 6;
 
-  const departments = [
-    "Abidjan - Cocody",
-    "Abidjan - Yopougon",
-    "Abidjan - Abobo",
-    "Abidjan - Plateau",
-    "Bouaké",
-    "Yamoussoukro",
-    "San-Pedro",
-    "Daloa",
-    "Korhogo",
-    "Man",
-    "Abengourou",
-    "Grand-Bassam",
-  ];
-
-  const serviceAreas = [
-    "Mentorat et accompagnement",
-    "Enseignement et formation",
-    "Conseil et orientation professionnelle",
-    "Intercession",
-    "Leadership et gouvernance",
-    "Levée de fonds",
-    "Relations alumni",
-    "Évangélisation",
-    "Coaching spirituel",
-    "Networking professionnel",
-  ];
+  useEffect(() => {
+    Promise.all([publicOptionsApi.departments(), publicOptionsApi.serviceDomains()])
+      .then(([departments, serviceDomains]) => {
+        setDepartmentOptions(departments);
+        setServiceAreaOptions(serviceDomains);
+      })
+      .catch(() => {
+        setDepartmentOptions([]);
+        setServiceAreaOptions([]);
+      });
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -296,6 +283,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Date de naissance"
                     />
                   </div>
                   <div>
@@ -325,6 +313,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Sexe"
                     >
                       <option value="">Sélectionner</option>
                       <option value="Masculin">Masculin</option>
@@ -342,6 +331,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      placeholder="Votre nationalité"
                     />
                   </div>
                 </div>
@@ -358,6 +348,7 @@ export default function Page() {
                       onChange={(e) => handleFileChange(e, "photo")}
                       className="hidden"
                       id="photo-upload"
+                      aria-label="Photo d'identité"
                     />
                     <label htmlFor="photo-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">
@@ -463,11 +454,12 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Département ACEEPCI souhaité"
                     >
                       <option value="">Sélectionner un département</option>
-                      {departments.map((dept) => (
-                        <option key={dept} value={dept}>
-                          {dept}
+                      {departmentOptions.map((dept) => (
+                        <option key={dept.id} value={dept.name}>
+                          {dept.name}
                         </option>
                       ))}
                     </select>
@@ -518,6 +510,7 @@ export default function Page() {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                        aria-label="Lien de parenté"
                       >
                         <option value="">Sélectionner</option>
                         <option value="Conjoint">Conjoint(e)</option>
@@ -702,6 +695,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Nombre d'années à l'ACEEPCI"
                     >
                       <option value="">Sélectionner</option>
                       <option value="1-2 ans">1-2 ans</option>
@@ -720,11 +714,12 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Dernier département fréquenté"
                     >
                       <option value="">Sélectionner</option>
-                      {departments.map((dept) => (
-                        <option key={dept} value={dept}>
-                          {dept}
+                      {departmentOptions.map((dept) => (
+                        <option key={dept.id} value={dept.name}>
+                          {dept.name}
                         </option>
                       ))}
                     </select>
@@ -739,22 +734,22 @@ export default function Page() {
                     En tant qu'ancien, comment souhaitez-vous contribuer à l'ACEEPCI ?
                   </p>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {serviceAreas.map((area) => (
+                    {serviceAreaOptions.map((area) => (
                       <label
-                        key={area}
+                        key={area.id}
                         className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${
-                          formData.serviceAreas.includes(area)
+                          formData.serviceAreas.includes(area.name)
                             ? "border-brand-primary bg-brand-subtle"
                             : "border-border hover:border-brand-primary/40"
                         }`}
                       >
                         <input
                           type="checkbox"
-                          checked={formData.serviceAreas.includes(area)}
-                          onChange={() => handleServiceAreaToggle(area)}
+                          checked={formData.serviceAreas.includes(area.name)}
+                          onChange={() => handleServiceAreaToggle(area.name)}
                           className="w-4 h-4 text-brand-primary border-border rounded focus:ring-brand-primary"
                         />
-                        <span className="text-sm text-foreground">{area}</span>
+                        <span className="text-sm text-foreground">{area.name}</span>
                       </label>
                     ))}
                   </div>
@@ -770,6 +765,7 @@ export default function Page() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                    aria-label="Intérêt pour le mentorat"
                   >
                     <option value="">Sélectionner</option>
                     <option value="Très intéressé">Très intéressé - Je veux mentorer activement</option>
@@ -893,6 +889,7 @@ export default function Page() {
                       className="hidden"
                       id="idcard-upload"
                       required
+                      aria-label="Carte d'identité"
                     />
                     <label htmlFor="idcard-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">
@@ -922,6 +919,7 @@ export default function Page() {
                       onChange={(e) => handleFileChange(e, "workProof")}
                       className="hidden"
                       id="work-upload"
+                      aria-label="Justificatif professionnel"
                     />
                     <label htmlFor="work-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">
@@ -953,6 +951,7 @@ export default function Page() {
                       onChange={(e) => handleFileChange(e, "pastorLetter")}
                       className="hidden"
                       id="pastor-upload"
+                      aria-label="Attestation du pasteur"
                     />
                     <label htmlFor="pastor-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">

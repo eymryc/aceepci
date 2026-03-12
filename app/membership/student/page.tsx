@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PageHero } from "@/components/sections/PageHero";
@@ -21,6 +21,7 @@ import {
   Check,
   BookOpen,
 } from "lucide-react";
+import { publicOptionsApi, type PublicOptionItem } from "@/lib/api";
 
 interface FormData {
   // Informations personnelles
@@ -107,36 +108,56 @@ export default function Page() {
     acceptPayment: false,
     parentalConsent: false,
   });
+  const [memberTypeOptions, setMemberTypeOptions] = useState<PublicOptionItem[]>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<PublicOptionItem[]>([]);
+  const [serviceAreaOptions, setServiceAreaOptions] = useState<PublicOptionItem[]>([]);
+  const [knowledgeSourceOptions, setKnowledgeSourceOptions] = useState<PublicOptionItem[]>([]);
+  const [academicLevelOptions, setAcademicLevelOptions] = useState<PublicOptionItem[]>([]);
 
   const totalSteps = 6;
 
-  const departments = [
-    "Abidjan - Cocody",
-    "Abidjan - Yopougon",
-    "Abidjan - Abobo",
-    "Abidjan - Plateau",
-    "Bouaké",
-    "Yamoussoukro",
-    "San-Pedro",
-    "Daloa",
-    "Korhogo",
-    "Man",
-    "Abengourou",
-    "Grand-Bassam",
-  ];
+  const selectedMemberTypeId = useMemo(
+    () =>
+      memberTypeOptions.find((item) => {
+        const name = item.name.toLowerCase();
+        return name.includes("élève") || name.includes("eleve");
+      })?.id,
+    [memberTypeOptions]
+  );
 
-  const serviceAreas = [
-    "Louange et adoration",
-    "Intercession",
-    "Évangélisation",
-    "Enseignement biblique",
-    "Accueil et hospitalité",
-    "Communication et médias",
-    "Organisation d'événements",
-    "Conseil des pairs",
-    "Arts et créativité",
-    "Sport et loisirs",
-  ];
+  useEffect(() => {
+    Promise.all([
+      publicOptionsApi.memberTypes(),
+      publicOptionsApi.departments(),
+      publicOptionsApi.serviceDomains(),
+      publicOptionsApi.knowledgeSources(),
+    ])
+      .then(([memberTypes, departments, serviceDomains, knowledgeSources]) => {
+        setMemberTypeOptions(memberTypes);
+        setDepartmentOptions(departments);
+        setServiceAreaOptions(serviceDomains);
+        setKnowledgeSourceOptions(knowledgeSources);
+      })
+      .catch(() => {
+        setMemberTypeOptions([]);
+        setDepartmentOptions([]);
+        setServiceAreaOptions([]);
+        setKnowledgeSourceOptions([]);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!selectedMemberTypeId) return;
+    publicOptionsApi
+      .academicLevels({ member_type_id: selectedMemberTypeId })
+      .then((items) => {
+        setAcademicLevelOptions(items);
+        if (formData.grade && !items.some((item) => item.name === formData.grade)) {
+          setFormData((prev) => ({ ...prev, grade: "" }));
+        }
+      })
+      .catch(() => setAcademicLevelOptions([]));
+  }, [formData.grade, selectedMemberTypeId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -303,6 +324,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Date de naissance"
                     />
                   </div>
                   <div>
@@ -332,6 +354,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Sexe"
                     >
                       <option value="">Sélectionner</option>
                       <option value="Masculin">Masculin</option>
@@ -349,6 +372,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      placeholder="Votre nationalité"
                     />
                   </div>
                 </div>
@@ -365,6 +389,7 @@ export default function Page() {
                       onChange={(e) => handleFileChange(e, "photo")}
                       className="hidden"
                       id="photo-upload"
+                      aria-label="Photo d'identité"
                     />
                     <label htmlFor="photo-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">
@@ -470,11 +495,12 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Département ACEEPCI souhaité"
                     >
                       <option value="">Sélectionner un département</option>
-                      {departments.map((dept) => (
-                        <option key={dept} value={dept}>
-                          {dept}
+                      {departmentOptions.map((dept) => (
+                        <option key={dept.id} value={dept.name}>
+                          {dept.name}
                         </option>
                       ))}
                     </select>
@@ -525,6 +551,7 @@ export default function Page() {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                        aria-label="Lien de parenté"
                       >
                         <option value="">Sélectionner</option>
                         <option value="Père">Père</option>
@@ -581,11 +608,14 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Classe"
                     >
                       <option value="">Sélectionner votre classe</option>
-                      <option value="Seconde">Seconde</option>
-                      <option value="Première">Première</option>
-                      <option value="Terminale">Terminale</option>
+                      {academicLevelOptions.map((option) => (
+                        <option key={option.id} value={option.name}>
+                          {option.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -598,6 +628,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Série"
                     >
                       <option value="">Sélectionner votre série</option>
                       <option value="A1">A1 (Lettres)</option>
@@ -697,6 +728,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Êtes-vous né de nouveau"
                     >
                       <option value="">Sélectionner</option>
                       <option value="Oui">Oui</option>
@@ -714,6 +746,7 @@ export default function Page() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Avez-vous été baptisé d'eau"
                     >
                       <option value="">Sélectionner</option>
                       <option value="Oui">Oui</option>
@@ -742,22 +775,22 @@ export default function Page() {
                     Domaines de service souhaités à l'ACEEPCI
                   </label>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {serviceAreas.map((area) => (
+                    {serviceAreaOptions.map((area) => (
                       <label
-                        key={area}
+                        key={area.id}
                         className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all ${
-                          formData.serviceAreas.includes(area)
+                          formData.serviceAreas.includes(area.name)
                             ? "border-brand-primary bg-brand-subtle"
                             : "border-border hover:border-brand-primary/40"
                         }`}
                       >
                         <input
                           type="checkbox"
-                          checked={formData.serviceAreas.includes(area)}
-                          onChange={() => handleServiceAreaToggle(area)}
+                          checked={formData.serviceAreas.includes(area.name)}
+                          onChange={() => handleServiceAreaToggle(area.name)}
                           className="w-4 h-4 text-brand-primary border-border rounded focus:ring-brand-primary"
                         />
-                        <span className="text-sm text-foreground">{area}</span>
+                        <span className="text-sm text-foreground">{area.name}</span>
                       </label>
                     ))}
                   </div>
@@ -773,16 +806,14 @@ export default function Page() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                    aria-label="Comment avez-vous connu l'ACEEPCI"
                   >
                     <option value="">Sélectionner</option>
-                    <option value="Ami/Camarade">Ami/Camarade de classe</option>
-                    <option value="Église locale">Église locale</option>
-                    <option value="Réseaux sociaux">Réseaux sociaux</option>
-                    <option value="Événement">Événement ACEEPCI</option>
-                    <option value="Site web">Site web</option>
-                    <option value="Au lycée">Au lycée</option>
-                    <option value="Famille">Famille</option>
-                    <option value="Autre">Autre</option>
+                    {knowledgeSourceOptions.map((option) => (
+                      <option key={option.id} value={option.name}>
+                        {option.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -846,6 +877,7 @@ export default function Page() {
                       className="hidden"
                       id="idcard-upload"
                       required
+                      aria-label="Pièce d'identité"
                     />
                     <label htmlFor="idcard-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">
@@ -876,6 +908,7 @@ export default function Page() {
                       className="hidden"
                       id="student-upload"
                       required
+                      aria-label="Certificat de scolarité ou carte d'étudiant"
                     />
                     <label htmlFor="student-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">
@@ -905,6 +938,7 @@ export default function Page() {
                       onChange={(e) => handleFileChange(e, "pastorLetter")}
                       className="hidden"
                       id="pastor-upload"
+                      aria-label="Attestation du pasteur"
                     />
                     <label htmlFor="pastor-upload" className="cursor-pointer">
                       <span className="text-brand-primary hover:opacity-90 font-medium">

@@ -9,12 +9,20 @@ const settingsSubItems = [
   { href: "/admin/settings/cities", label: "Villes" },
   { href: "/admin/settings/districts", label: "Districts" },
   { href: "/admin/settings/member-types", label: "Types de membre" },
+  { href: "/admin/settings/member-levels", label: "Niveaux de membre" },
+  { href: "/admin/settings/nationalities", label: "Nationalités" },
   { href: "/admin/settings/academic-years", label: "Années académiques" },
+  { href: "/admin/settings/academic-levels", label: "Niveaux académiques" },
   { href: "/admin/settings/training-domains", label: "Domaines de formation" },
   { href: "/admin/settings/service-domains", label: "Domaines de service" },
+  { href: "/admin/settings/knowledge-sources", label: "Sources de connaissance" },
   { href: "/admin/settings/member-statuses", label: "Statuts de membre" },
   { href: "/admin/settings/families", label: "Familles" },
   { href: "/admin/settings/groups", label: "Groupes" },
+  { href: "/admin/settings/event-categories", label: "Catégories d'événements" },
+  { href: "/admin/settings/accommodation-types", label: "Types d'hébergement" },
+  { href: "/admin/settings/meal-preferences", label: "Préférences alimentaires" },
+  { href: "/admin/settings/workshop-options", label: "Options d'ateliers" },
 ];
 
 export default function SettingsLayout({

@@ -25,7 +25,6 @@ import {
 export interface CrudItem {
   id: number;
   name: string;
-  [key: string]: unknown;
 }
 
 export interface CrudApi<T extends CrudItem> {
@@ -53,7 +52,7 @@ interface SettingsCrudPageProps<T extends CrudItem> {
     setForm: (field: string, value: string | number | null) => void;
     editing: T | null;
   }) => React.ReactNode;
-  getItemData: (form: Record<string, string | number | null>) => Record<string, unknown>;
+  getItemData: (form: Record<string, string | number | null>, editing: T | null) => Record<string, unknown>;
   validateForm: (form: Record<string, string | number | null>) => string | null;
   extraColumns?: ExtraColumn<T>[];
 }
@@ -134,7 +133,18 @@ export function SettingsCrudPage<T extends CrudItem>({
 
   const handleEdit = (item: T) => {
     setEditing(item);
-    setForm({ name: item.name, ...item });
+    const formData: Record<string, string | number | null> = {};
+    for (const [k, v] of Object.entries(item)) {
+      if (v === null || v === undefined || typeof v === "string" || typeof v === "number") {
+        formData[k] = v as string | number | null;
+      } else if (typeof v === "object" && v !== null && "id" in v) {
+        const id = (v as { id?: number }).id;
+        const fkKey = k === "member_type" ? "member_type_id" : k === "family" ? "family_id" : `${k}_id`;
+        formData[fkKey] = id ?? null;
+      }
+    }
+    if (formData.name === undefined) formData.name = item.name;
+    setForm(formData);
     setFormError(null);
     setFormFieldErrors({});
     setDialogOpen(true);
@@ -152,8 +162,8 @@ export function SettingsCrudPage<T extends CrudItem>({
     setFormFieldErrors({});
     try {
       const res = editing
-        ? await api.update(token, editing.id, getItemData(form))
-        : await api.create(token, getItemData(form));
+        ? await api.update(token, editing.id, getItemData(form, editing))
+        : await api.create(token, getItemData(form, null));
       setDialogOpen(false);
       toast.success(res.message || (editing ? "Modifié." : "Créé."));
       fetchData();
