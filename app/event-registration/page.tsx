@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { saveRegistration } from "@/lib/eventRegistrations";
+import { publicOptionsApi, type PublicOptionItem } from "@/lib/api";
 import { PageHero } from "@/components/sections/PageHero";
 import { heroImages } from "@/config/heroImages";
 import {
@@ -143,31 +145,28 @@ export default function Page() {
 
   const totalSteps = 5;
 
-  const departments = [
-    "Abidjan - Cocody",
-    "Abidjan - Yopougon",
-    "Abidjan - Abobo",
-    "Abidjan - Plateau",
-    "Bouaké",
-    "Yamoussoukro",
-    "San-Pedro",
-    "Daloa",
-    "Korhogo",
-    "Man",
-    "Abengourou",
-    "Grand-Bassam",
-  ];
+  const [departments, setDepartments] = useState<PublicOptionItem[]>([]);
+  const [memberLevels, setMemberLevels] = useState<PublicOptionItem[]>([]);
+  const [serviceDomains, setServiceDomains] = useState<PublicOptionItem[]>([]);
 
-  const workshops = [
-    "Leadership spirituel",
-    "Évangélisation et mission",
-    "Vie de prière et intercession",
-    "Étude biblique approfondie",
-    "Louange et adoration",
-    "Mentorat et discipulat",
-    "Gestion des finances personnelles",
-    "Relation et mariage chrétien",
-  ];
+  useEffect(() => {
+    publicOptionsApi.departments({ per_page: 500 }).then(setDepartments).catch(() => setDepartments([]));
+    publicOptionsApi.memberLevels({ per_page: 500 }).then(setMemberLevels).catch(() => setMemberLevels([]));
+    publicOptionsApi.serviceDomains({ per_page: 500 }).then(setServiceDomains).catch(() => setServiceDomains([]));
+  }, []);
+
+  const workshops = serviceDomains.length > 0
+    ? serviceDomains.map((d) => d.label ?? d.name)
+    : [
+        "Leadership spirituel",
+        "Évangélisation et mission",
+        "Vie de prière et intercession",
+        "Étude biblique approfondie",
+        "Louange et adoration",
+        "Mentorat et discipulat",
+        "Gestion des finances personnelles",
+        "Relation et mariage chrétien",
+      ];
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -224,7 +223,45 @@ export default function Page() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Event registration submitted:", formData);
+    saveRegistration({
+      eventId: formData.eventId,
+      eventName: formData.eventName,
+      lastName: formData.lastName,
+      firstName: formData.firstName,
+      email: formData.email,
+      phone: formData.phone,
+      birthDate: formData.birthDate,
+      gender: formData.gender,
+      memberStatus: memberLevels.find((m) => String(m.id) === formData.memberStatus)?.label ?? formData.memberStatus,
+      member_level_id: formData.memberStatus ? Number(formData.memberStatus) : null,
+      membershipNumber: formData.membershipNumber,
+      department: departments.find((d) => String(d.id) === formData.department)?.label ?? formData.department,
+      department_id: formData.department ? Number(formData.department) : null,
+      localChurch: formData.localChurch,
+      needsAccommodation: formData.needsAccommodation,
+      accommodationType: formData.accommodationType,
+      needsTransport: formData.needsTransport,
+      transportDeparture: formData.transportDeparture,
+      mealPreference: formData.mealPreference,
+      dietaryRestrictions: formData.dietaryRestrictions,
+      emergencyContact: formData.emergencyContact,
+      emergencyPhone: formData.emergencyPhone,
+      emergencyRelation: formData.emergencyRelation,
+      medicalConditions: formData.medicalConditions,
+      allergies: formData.allergies,
+      medication: formData.medication,
+      workshopChoice: formData.workshopChoice,
+      workshop_ids: serviceDomains.length > 0
+        ? formData.workshopChoice
+            .map((label) => serviceDomains.find((d) => (d.label ?? d.name) === label)?.id)
+            .filter((id): id is number => id != null)
+        : undefined,
+      specialNeeds: formData.specialNeeds,
+      motivation: formData.motivation,
+      acceptTerms: formData.acceptTerms,
+      acceptRules: formData.acceptRules,
+      paymentConfirm: formData.paymentConfirm,
+    });
     alert(`Votre inscription à "${formData.eventName}" a été enregistrée avec succès ! Vous recevrez une confirmation par email avec les détails du paiement.`);
     router.push("/activities");
   };
@@ -408,11 +445,11 @@ export default function Page() {
                         className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                       >
                         <option value="">Sélectionner</option>
-                        <option value="Élève">Élève (Lycée)</option>
-                        <option value="Étudiant">Étudiant (Université)</option>
-                        <option value="Alumni">Alumni</option>
-                        <option value="Sympathisant">Sympathisant</option>
-                        <option value="Invité">Invité</option>
+                        {memberLevels.map((opt) => (
+                          <option key={opt.id} value={String(opt.id)}>
+                            {opt.label ?? opt.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -440,8 +477,8 @@ export default function Page() {
                       >
                         <option value="">Sélectionner</option>
                         {departments.map((dept) => (
-                          <option key={dept} value={dept}>
-                            {dept}
+                          <option key={dept.id} value={String(dept.id)}>
+                            {dept.label ?? dept.name}
                           </option>
                         ))}
                       </select>
@@ -912,7 +949,9 @@ export default function Page() {
                     </div>
                     <div>
                       <span className="text-muted-foreground">Statut :</span>
-                      <p className="font-medium text-foreground">{formData.memberStatus || "Non spécifié"}</p>
+                      <p className="font-medium text-foreground">
+                        {(memberLevels.find((m) => String(m.id) === formData.memberStatus)?.label ?? formData.memberStatus) || "Non spécifié"}
+                      </p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Email :</span>

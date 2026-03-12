@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   Quote,
   ImageIcon,
+  Info,
   ChevronRight,
   Search,
   Bell,
@@ -32,12 +33,26 @@ const settingsSubItems = [
   { href: "/admin/settings/cities", label: "Villes" },
   { href: "/admin/settings/districts", label: "Districts" },
   { href: "/admin/settings/member-types", label: "Types de membre" },
+  { href: "/admin/settings/member-levels", label: "Niveaux de membre" },
+  { href: "/admin/settings/nationalities", label: "Nationalités" },
   { href: "/admin/settings/academic-years", label: "Années académiques" },
+  { href: "/admin/settings/academic-levels", label: "Niveaux académiques" },
   { href: "/admin/settings/training-domains", label: "Domaines de formation" },
   { href: "/admin/settings/service-domains", label: "Domaines de service" },
+  { href: "/admin/settings/knowledge-sources", label: "Sources de connaissance" },
   { href: "/admin/settings/member-statuses", label: "Statuts de membre" },
   { href: "/admin/settings/families", label: "Familles" },
   { href: "/admin/settings/groups", label: "Groupes" },
+];
+
+const aboutSubItems = [
+  { href: "/admin/about/histoire", label: "Histoire" },
+  { href: "/admin/about/mot-du-president", label: "Mot du président" },
+  { href: "/admin/about/mission", label: "Notre mission" },
+  { href: "/admin/about/vision", label: "Notre vision" },
+  { href: "/admin/about/devise", label: "Notre devise" },
+  { href: "/admin/about/documents", label: "Nos documents" },
+  { href: "/admin/about/organisation", label: "Notre organisation" },
 ];
 
 const navGroups = [
@@ -46,6 +61,7 @@ const navGroups = [
     items: [
       { href: "/admin/hero-slides", label: "Slides bannière", icon: ImageIcon },
       { href: "/admin/verse", label: "Verset du jour", icon: Quote },
+      { href: "/admin/about", label: "À propos", icon: Info, subItems: aboutSubItems },
       { href: "/admin/news", label: "Actualités", icon: Newspaper },
       { href: "/admin/blog", label: "Blog", icon: FileText },
       { href: "/admin/devotionals", label: "Dévotions", icon: BookOpen },
@@ -72,6 +88,8 @@ const navGroups = [
 const getPageTitle = (path: string) => {
   const subMatch = settingsSubItems.find((s) => path === s.href || path.startsWith(s.href + "/"));
   if (subMatch) return subMatch.label;
+  const aboutMatch = aboutSubItems.find((s) => path === s.href || path.startsWith(s.href + "/"));
+  if (aboutMatch) return aboutMatch.label;
   const match = navGroups.flatMap((g) => g.items).find((i) => path.startsWith(i.href));
   return match?.label ?? "Admin";
 };
@@ -92,12 +110,17 @@ export default function AdminLayout({
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [settingsExpanded, setSettingsExpanded] = useState(pathname.startsWith("/admin/settings"));
+  const [expandedMenus, setExpandedMenus] = useState({
+    settings: false,
+    about: false,
+  });
   const { user, logout, isAuthenticated, isLoading } = useAuth();
 
-  useEffect(() => {
-    if (pathname.startsWith("/admin/settings")) setSettingsExpanded(true);
-  }, [pathname]);
+  const getMenuKey = (href: string): "settings" | "about" | null => {
+    if (href === "/admin/settings") return "settings";
+    if (href === "/admin/about") return "about";
+    return null;
+  };
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -155,15 +178,18 @@ export default function AdminLayout({
                     const isActive =
                       pathname === item.href ||
                       (item.href !== "/admin" && pathname.startsWith(item.href));
-                    const isSettings = item.href === "/admin/settings";
-                    const expanded = isSettings ? settingsExpanded : false;
+                    const menuKey = getMenuKey(item.href);
+                    const expanded = menuKey ? expandedMenus[menuKey] || pathname.startsWith(item.href) : false;
                     return (
                       <li key={item.href}>
                         {hasSubItems ? (
                           <>
                             <button
                               type="button"
-                              onClick={() => isSettings && setSettingsExpanded((e) => !e)}
+                              onClick={() =>
+                                menuKey &&
+                                setExpandedMenus((prev) => ({ ...prev, [menuKey]: !prev[menuKey] }))
+                              }
                               className={`flex w-full items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
                                 isActive
                                   ? "bg-white/10 text-white border-l-4 border-amber-400 -ml-0.5 pl-4"
@@ -256,7 +282,9 @@ export default function AdminLayout({
           <div className="flex h-20 items-center justify-between px-6 border-b border-slate-700/50">
             <span className="font-serif text-lg font-bold text-white">Admin ACEEPCI</span>
             <button
+              type="button"
               onClick={() => setSidebarOpen(false)}
+              aria-label="Fermer le menu"
               className="p-2 text-slate-400 hover:text-white rounded-lg"
             >
               <X className="w-6 h-6" />
@@ -283,15 +311,18 @@ export default function AdminLayout({
                     const isActive =
                       pathname === item.href ||
                       (item.href !== "/admin" && pathname.startsWith(item.href));
-                    const isSettings = item.href === "/admin/settings";
-                    const expanded = isSettings ? settingsExpanded : false;
+                    const menuKey = getMenuKey(item.href);
+                    const expanded = menuKey ? expandedMenus[menuKey] || pathname.startsWith(item.href) : false;
                     return (
                       <li key={item.href}>
                         {hasSubItems ? (
                           <>
                             <button
                               type="button"
-                              onClick={() => isSettings && setSettingsExpanded((e) => !e)}
+                              onClick={() =>
+                                menuKey &&
+                                setExpandedMenus((prev) => ({ ...prev, [menuKey]: !prev[menuKey] }))
+                              }
                               className={`flex w-full items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-sm ${
                                 isActive ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
                               }`}
@@ -368,6 +399,7 @@ export default function AdminLayout({
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
+            aria-label="Ouvrir le menu"
             className="lg:hidden p-2 -m-2 text-slate-600 hover:bg-slate-100 rounded-lg"
           >
             <Menu className="w-6 h-6" />

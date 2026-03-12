@@ -11,12 +11,12 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import type { ApiUser } from "@/lib/api";
-import { login as apiLogin, logout as apiLogout, refreshToken, setRefreshTokenHandler } from "@/lib/api";
+import { login as apiLogin, logout as apiLogout, refreshToken, setRefreshTokenHandler, setOnApiActivity } from "@/lib/api";
 
 const STORAGE_KEY = "aceepci_auth";
 
-/** Rafraîchir quand il reste moins de 2 min avant expiration */
-const REFRESH_BEFORE_MS = 2 * 60 * 1000;
+/** Rafraîchir quand il reste moins de 5 min avant expiration */
+const REFRESH_BEFORE_MS = 5 * 60 * 1000;
 /** Ou au plus tard toutes les 10 min tant que l'utilisateur est actif */
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 /** Vérification toutes les 60 secondes */
@@ -36,7 +36,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (loginId: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (redirectTo?: string) => Promise<void>;
   /** Rafraîchit le token. Si forceRefresh, appelle l'API même si le token est encore valide. */
   refreshAuth: (forceRefresh?: boolean) => Promise<string | null>;
 }
@@ -88,14 +88,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return stored.token;
     }
     const doRefresh = async (): Promise<string | null> => {
+      if (!stored.token) throw new Error("No token to refresh");
       const res = await refreshToken(stored.token);
-      if (res.status !== "success" || !res.data) throw new Error("Refresh failed");
-      const data = typeof res.data === "object" ? res.data : null;
-      if (!data || typeof data === "string") throw new Error("Invalid refresh response");
+      if (res.status !== "success") throw new Error("Refresh failed");
+      // L'API peut renvoyer data comme string (token brut) ou comme objet { access_token, expires_in, user }
+      const data = res.data;
+      let newToken: string;
+      let expiresIn = 3600;
+      let user = stored.user;
+      if (typeof data === "string" && data.length > 0) {
+        newToken = data;
+      } else if (data && typeof data === "object" && typeof (data as { access_token?: string }).access_token === "string") {
+        const obj = data as { access_token: string; expires_in?: number; user?: ApiUser };
+        newToken = obj.access_token;
+        expiresIn = obj.expires_in ?? 3600;
+        user = obj.user ?? stored.user;
+      } else {
+        throw new Error("Invalid refresh response");
+      }
       const newState: AuthState = {
-        user: data.user ?? stored.user,
-        token: data.access_token,
-        expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
+        user,
+        token: newToken,
+        expiresAt: Date.now() + expiresIn * 1000,
       };
       setState(newState);
       saveAuth(newState);
@@ -131,15 +145,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updateActivity = () => {
       lastActivityAt.current = Date.now();
     };
+    let mousemoveThrottle: ReturnType<typeof setTimeout> | null = null;
+    const throttledMousemove = () => {
+      if (!mousemoveThrottle) {
+        updateActivity();
+        mousemoveThrottle = setTimeout(() => { mousemoveThrottle = null; }, 3000);
+      }
+    };
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") updateActivity();
     };
     const events = ["mousedown", "keydown", "scroll", "touchstart", "focus"];
     events.forEach((e) => window.addEventListener(e, updateActivity));
+    window.addEventListener("mousemove", throttledMousemove);
     document.addEventListener("visibilitychange", onVisibilityChange);
+    setOnApiActivity(updateActivity);
     return () => {
       events.forEach((e) => window.removeEventListener(e, updateActivity));
+      window.removeEventListener("mousemove", throttledMousemove);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      setOnApiActivity(null);
     };
   }, []);
 
@@ -205,7 +230,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [router]
   );
 
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (redirectTo?: string) => {
     const { token } = state;
     if (token) {
       try {
@@ -216,7 +241,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setState({ user: null, token: null, expiresAt: null });
     saveAuth(null);
-    router.push("/");
+    router.push(redirectTo ?? "/");
   }, [state.token, router]);
 
   const value: AuthContextValue = {

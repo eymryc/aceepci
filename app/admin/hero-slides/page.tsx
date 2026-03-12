@@ -86,7 +86,7 @@ export default function HeroSlidesPage() {
     setEditing(slide);
     setForm({
       title: slide.title,
-      image: slide.image,
+      image: slide.image ?? null,
       eyebrow: slide.eyebrow ?? "",
       subtitle: slide.subtitle ?? "",
       description: slide.description ?? "",

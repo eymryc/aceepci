@@ -4,3 +4,4 @@ export { AdminBadge } from "./AdminBadge";
 export { AdminButton } from "./AdminButton";
 export { AdminEmptyState } from "./AdminEmptyState";
 export { SettingsCrudPage } from "./SettingsCrudPage";
+export { MemberFormWithSteps } from "./MemberFormWithSteps";
