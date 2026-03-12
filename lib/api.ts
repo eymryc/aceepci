@@ -407,6 +407,8 @@ export const publicOptionsApi = {
     fetchPublicOptions("/fields-of-study", params),
   serviceDomains: (params?: Record<string, string | number | undefined>) =>
     fetchPublicOptions("/service-domains", params),
+  nationalities: (params?: Record<string, string | number | undefined>) =>
+    fetchPublicOptions("/nationalities", params),
   academicYears: (params?: Record<string, string | number | undefined>) =>
     fetchPublicOptions("/academic-years", params),
   memberLevels: (params?: Record<string, string | number | undefined>) =>
@@ -751,6 +753,23 @@ export const adminMembersApi = {
     return handleResponse<{ status?: string; message?: string; data?: unknown; imported?: number; errors?: unknown[] }>(res);
   },
 };
+
+/** Création d'un membre depuis le formulaire public (sans auth admin, endpoint public) */
+export async function createPublicMember(
+  body: AdminMemberCreateBody,
+  files?: AdminMemberCreateFiles | File | null
+): Promise<{ status: string; message: string; data?: unknown }> {
+  const fd = buildAdminMemberFormData(body, files);
+  // Endpoint public dédié aux adhésions du site
+  const res = await fetch(apiUrl("/site/members"), {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+    },
+    body: fd,
+  });
+  return handleResponse<{ status: string; message: string; data?: unknown }>(res);
+}
 
 // ─── Slides (bannière accueil) ─────────────────────────────────────────────
 
