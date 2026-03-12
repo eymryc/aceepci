@@ -39,6 +39,7 @@ import {
   type AdminMemberListItem,
   type LabeledSettingItem,
 } from "@/lib/api";
+import { getMembershipFeeFromName, memberCharterItems } from "@/lib/memberFormConfig";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
@@ -499,12 +500,7 @@ export function MemberFormWithSteps({ memberId }: MemberFormWithStepsProps) {
     ref.current?.click();
   };
 
-  const getMembershipFee = () => {
-    if (selectedMemberTypeName.includes("élève") || selectedMemberTypeName.includes("eleve")) return "5 000 FCFA";
-    if (selectedMemberTypeName.includes("étudiant") || selectedMemberTypeName.includes("etudiant")) return "10 000 FCFA";
-    if (selectedMemberTypeName.includes("travailleur") || selectedMemberTypeName.includes("alumni")) return "20 000 FCFA";
-    return "À définir";
-  };
+  const getMembershipFee = () => getMembershipFeeFromName(selectedMemberTypeName);
 
   const validateStep = (step: number): string | null => {
     if (step === 1) {
@@ -1376,7 +1372,7 @@ export function MemberFormWithSteps({ memberId }: MemberFormWithStepsProps) {
                     <div className="flex-1">
                       <h3 className="font-bold text-foreground mb-2">Cotisation annuelle</h3>
                       <p className="text-sm text-foreground mb-3">
-                        En tant que membre, la cotisation annuelle estimée est de :
+                        En tant que membre, la cotisation annuelle est de :
                       </p>
                       <div className="text-3xl font-bold text-brand-primary mb-3">{getMembershipFee()}</div>
                     </div>
@@ -1388,11 +1384,9 @@ export function MemberFormWithSteps({ memberId }: MemberFormWithStepsProps) {
                   <div className="bg-brand-subtle rounded-lg p-4 max-h-64 overflow-y-auto text-sm text-foreground space-y-2">
                     <p className="font-semibold">En tant que membre de l'ACEEPCI, je m'engage à :</p>
                     <ul className="list-disc list-inside space-y-1">
-                      <li>Vivre selon les principes bibliques et être un témoin de Christ</li>
-                      <li>Participer activement aux activités du département local</li>
-                      <li>Respecter les statuts et règlements intérieurs de l'association</li>
-                      <li>Contribuer à l'édification spirituelle des autres membres</li>
-                      <li>Être soumis(e) aux autorités spirituelles de l'association</li>
+                      {memberCharterItems.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
