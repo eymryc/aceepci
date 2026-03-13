@@ -675,8 +675,8 @@ export function MemberFormWithSteps({ memberId }: MemberFormWithStepsProps) {
           </div>
           <div className="h-2 w-full rounded-full bg-border">
             <div
-              className="h-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent transition-all duration-300"
-              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              className="progress-step-fill"
+              style={{ "--progress-width": `${(currentStep / totalSteps) * 100}%` } as React.CSSProperties}
             />
           </div>
           <div className="mt-4 flex justify-between text-xs">
