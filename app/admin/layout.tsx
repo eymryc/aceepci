@@ -28,28 +28,69 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-const settingsSubItems = [
-  { href: "/admin/settings/departments", label: "Départements de service" },
-  { href: "/admin/settings/cities", label: "Villes" },
-  { href: "/admin/settings/districts", label: "Districts" },
-  { href: "/admin/settings/member-types", label: "Types de membre" },
-  { href: "/admin/settings/member-levels", label: "Niveaux de membre" },
-  { href: "/admin/settings/nationalities", label: "Nationalités" },
-  { href: "/admin/settings/academic-years", label: "Années académiques" },
-  { href: "/admin/settings/academic-levels", label: "Niveaux académiques" },
-  { href: "/admin/settings/training-domains", label: "Domaines de formation" },
-  { href: "/admin/settings/service-domains", label: "Domaines de service" },
-  { href: "/admin/settings/knowledge-sources", label: "Sources de connaissance" },
-  { href: "/admin/settings/member-statuses", label: "Statuts de membre" },
-  { href: "/admin/settings/families", label: "Familles" },
-  { href: "/admin/settings/groups", label: "Groupes" },
+const settingsGroups = [
+  {
+    title: "Géographie",
+    items: [
+      { href: "/admin/settings/cities", label: "Villes" },
+      { href: "/admin/settings/districts", label: "Districts" },
+    ],
+  },
+  {
+    title: "Membres",
+    items: [
+      { href: "/admin/settings/member-types", label: "Types de membre" },
+      { href: "/admin/settings/member-levels", label: "Niveaux de membre" },
+      { href: "/admin/settings/member-statuses", label: "Statuts de membre" },
+      { href: "/admin/settings/nationalities", label: "Nationalités" },
+      { href: "/admin/settings/families", label: "Familles" },
+      { href: "/admin/settings/groups", label: "Groupes" },
+    ],
+  },
+  {
+    title: "Académique",
+    items: [
+      { href: "/admin/settings/academic-years", label: "Années académiques" },
+      { href: "/admin/settings/academic-levels", label: "Niveaux académiques" },
+      { href: "/admin/settings/training-domains", label: "Domaines de formation" },
+    ],
+  },
+  {
+    title: "Service",
+    items: [
+      { href: "/admin/settings/departments", label: "Départements de service" },
+      { href: "/admin/settings/service-domains", label: "Domaines de service" },
+      { href: "/admin/settings/knowledge-sources", label: "Sources de connaissance" },
+    ],
+  },
+  {
+    title: "Événements",
+    items: [
+      { href: "/admin/settings/event-categories", label: "Catégories d'événements" },
+      { href: "/admin/settings/accommodation-types", label: "Types d'hébergement" },
+      { href: "/admin/settings/meal-preferences", label: "Préférences alimentaires" },
+      { href: "/admin/settings/workshop-options", label: "Options d'ateliers" },
+    ],
+  },
+  {
+    title: "Offres",
+    items: [
+      { href: "/admin/settings/offer-categories", label: "Catégories d'offres" },
+      { href: "/admin/settings/offer-types", label: "Types / Contrats d'offres" },
+    ],
+  },
+  {
+    title: "Contenu",
+    items: [{ href: "/admin/settings/news-categories", label: "Catégories d'articles" }],
+  },
 ];
+
+const settingsSubItemsFlat = settingsGroups.flatMap((g) => g.items);
 
 const aboutSubItems = [
   { href: "/admin/about/histoire", label: "Histoire" },
   { href: "/admin/about/mot-du-president", label: "Mot du président" },
-  { href: "/admin/about/mission", label: "Notre mission" },
-  { href: "/admin/about/vision", label: "Notre vision" },
+  { href: "/admin/about/mission", label: "Vision, Mission & Valeurs" },
   { href: "/admin/about/devise", label: "Notre devise" },
   { href: "/admin/about/documents", label: "Nos documents" },
   { href: "/admin/about/organisation", label: "Notre organisation" },
@@ -72,7 +113,7 @@ const navGroups = [
   {
     label: "Communauté",
     items: [
-      { href: "/admin/offers", label: "Offres", icon: Briefcase },
+      { href: "/admin/offers", label: "Offres d'emplois", icon: Briefcase },
       { href: "/admin/events", label: "Événements", icon: Calendar },
       { href: "/admin/members", label: "Adhésions", icon: Users },
     ],
@@ -80,13 +121,13 @@ const navGroups = [
   {
     label: "Système",
     items: [
-      { href: "/admin/settings", label: "Paramètres", icon: Settings, subItems: settingsSubItems },
+      { href: "/admin/settings", label: "Paramètres", icon: Settings, subGroups: settingsGroups },
     ],
   },
 ];
 
 const getPageTitle = (path: string) => {
-  const subMatch = settingsSubItems.find((s) => path === s.href || path.startsWith(s.href + "/"));
+  const subMatch = settingsSubItemsFlat.find((s) => path === s.href || path.startsWith(s.href + "/"));
   if (subMatch) return subMatch.label;
   const aboutMatch = aboutSubItems.find((s) => path === s.href || path.startsWith(s.href + "/"));
   if (aboutMatch) return aboutMatch.label;
@@ -114,6 +155,15 @@ export default function AdminLayout({
     settings: false,
     about: false,
   });
+  const [expandedSettingsGroups, setExpandedSettingsGroups] = useState<Record<string, boolean>>(() => {
+    const open: Record<string, boolean> = {};
+    for (const g of settingsGroups) {
+      open[g.title] = g.items.some(
+        (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+      );
+    }
+    return open;
+  });
   const { user, logout, isAuthenticated, isLoading } = useAuth();
 
   const getMenuKey = (href: string): "settings" | "about" | null => {
@@ -127,6 +177,19 @@ export default function AdminLayout({
       router.replace("/login");
     }
   }, [isLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    setExpandedSettingsGroups((prev) => {
+      const next: Record<string, boolean> = {};
+      for (const g of settingsGroups) {
+        const hasActive = g.items.some(
+          (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+        );
+        next[g.title] = hasActive ? true : (prev[g.title] ?? false);
+      }
+      return { ...prev, ...next };
+    });
+  }, [pathname]);
 
   if (!isLoading && !isAuthenticated) {
     return (
@@ -175,6 +238,8 @@ export default function AdminLayout({
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const hasSubItems = "subItems" in item && item.subItems && item.subItems.length > 0;
+                    const hasSubGroups = "subGroups" in item && item.subGroups && item.subGroups.length > 0;
+                    const hasSubMenu = hasSubItems || hasSubGroups;
                     const isActive =
                       pathname === item.href ||
                       (item.href !== "/admin" && pathname.startsWith(item.href));
@@ -182,7 +247,7 @@ export default function AdminLayout({
                     const expanded = menuKey ? expandedMenus[menuKey] || pathname.startsWith(item.href) : false;
                     return (
                       <li key={item.href}>
-                        {hasSubItems ? (
+                        {hasSubMenu ? (
                           <>
                             <button
                               type="button"
@@ -204,21 +269,63 @@ export default function AdminLayout({
                             </button>
                             {expanded && (
                               <ul className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-600/50 pl-3">
-                                {(item as { subItems: { href: string; label: string }[] }).subItems.map((sub) => (
-                                  <li key={sub.href}>
-                                    <Link
-                                      href={sub.href}
-                                      className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-all ${
-                                        pathname === sub.href
-                                          ? "bg-white/10 text-white font-medium"
-                                          : "text-slate-500 hover:bg-white/5 hover:text-slate-200"
-                                      }`}
-                                    >
-                                      {sub.label}
-                                      <ChevronRight className="w-3.5 h-3.5 opacity-70" />
-                                    </Link>
-                                  </li>
-                                ))}
+                                {hasSubGroups
+                                  ? (item as { subGroups: typeof settingsGroups }).subGroups.map((subGroup) => {
+                                      const subExpanded = expandedSettingsGroups[subGroup.title] ?? false;
+                                      return (
+                                        <li key={subGroup.title}>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setExpandedSettingsGroups((prev) => ({
+                                                ...prev,
+                                                [subGroup.title]: !prev[subGroup.title],
+                                              }))
+                                            }
+                                            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-white/5 hover:text-slate-200"
+                                          >
+                                            <span className="text-xs font-semibold uppercase tracking-wider">
+                                              {subGroup.title}
+                                            </span>
+                                            <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform ${subExpanded ? "rotate-180" : ""}`} />
+                                          </button>
+                                          {subExpanded && (
+                                            <ul className="ml-2 mt-0.5 space-y-0.5 border-l border-slate-600/30 pl-2">
+                                              {subGroup.items.map((sub) => (
+                                                <li key={sub.href}>
+                                                  <Link
+                                                    href={sub.href}
+                                                    className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-sm transition-all ${
+                                                      pathname === sub.href
+                                                        ? "bg-white/10 text-white font-medium"
+                                                        : "text-slate-500 hover:bg-white/5 hover:text-slate-200"
+                                                    }`}
+                                                  >
+                                                    {sub.label}
+                                                    <ChevronRight className="w-3 h-3 opacity-70" />
+                                                  </Link>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          )}
+                                        </li>
+                                      );
+                                    })
+                                  : (item as { subItems: { href: string; label: string }[] }).subItems.map((sub) => (
+                                      <li key={sub.href}>
+                                        <Link
+                                          href={sub.href}
+                                          className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-all ${
+                                            pathname === sub.href
+                                              ? "bg-white/10 text-white font-medium"
+                                              : "text-slate-500 hover:bg-white/5 hover:text-slate-200"
+                                          }`}
+                                        >
+                                          {sub.label}
+                                          <ChevronRight className="w-3.5 h-3.5 opacity-70" />
+                                        </Link>
+                                      </li>
+                                    ))}
                               </ul>
                             )}
                           </>
@@ -308,6 +415,8 @@ export default function AdminLayout({
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const hasSubItems = "subItems" in item && item.subItems && item.subItems.length > 0;
+                    const hasSubGroups = "subGroups" in item && item.subGroups && item.subGroups.length > 0;
+                    const hasSubMenu = hasSubItems || hasSubGroups;
                     const isActive =
                       pathname === item.href ||
                       (item.href !== "/admin" && pathname.startsWith(item.href));
@@ -315,7 +424,7 @@ export default function AdminLayout({
                     const expanded = menuKey ? expandedMenus[menuKey] || pathname.startsWith(item.href) : false;
                     return (
                       <li key={item.href}>
-                        {hasSubItems ? (
+                        {hasSubMenu ? (
                           <>
                             <button
                               type="button"
@@ -335,20 +444,61 @@ export default function AdminLayout({
                             </button>
                             {expanded && (
                               <ul className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-600/50 pl-3">
-                                {(item as { subItems: { href: string; label: string }[] }).subItems.map((sub) => (
-                                  <li key={sub.href}>
-                                    <Link
-                                      href={sub.href}
-                                      onClick={() => setSidebarOpen(false)}
-                                      className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
-                                        pathname === sub.href ? "bg-white/10 text-white font-medium" : "text-slate-500 hover:text-white"
-                                      }`}
-                                    >
-                                      {sub.label}
-                                      <ChevronRight className="w-3.5 h-3.5 opacity-70" />
-                                    </Link>
-                                  </li>
-                                ))}
+                                {hasSubGroups
+                                  ? (item as { subGroups: typeof settingsGroups }).subGroups.map((subGroup) => {
+                                      const subExpanded = expandedSettingsGroups[subGroup.title] ?? false;
+                                      return (
+                                        <li key={subGroup.title}>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setExpandedSettingsGroups((prev) => ({
+                                                ...prev,
+                                                [subGroup.title]: !prev[subGroup.title],
+                                              }))
+                                            }
+                                            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-white/5 hover:text-white"
+                                          >
+                                            <span className="text-xs font-semibold uppercase tracking-wider">
+                                              {subGroup.title}
+                                            </span>
+                                            <ChevronDown className={`w-3.5 h-3.5 opacity-70 transition-transform ${subExpanded ? "rotate-180" : ""}`} />
+                                          </button>
+                                          {subExpanded && (
+                                            <ul className="ml-2 mt-0.5 space-y-0.5 border-l border-slate-600/30 pl-2">
+                                              {subGroup.items.map((sub) => (
+                                                <li key={sub.href}>
+                                                  <Link
+                                                    href={sub.href}
+                                                    onClick={() => setSidebarOpen(false)}
+                                                    className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-sm ${
+                                                      pathname === sub.href ? "bg-white/10 text-white font-medium" : "text-slate-500 hover:text-white"
+                                                    }`}
+                                                  >
+                                                    {sub.label}
+                                                    <ChevronRight className="w-3 h-3 opacity-70" />
+                                                  </Link>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          )}
+                                        </li>
+                                      );
+                                    })
+                                  : (item as { subItems: { href: string; label: string }[] }).subItems.map((sub) => (
+                                      <li key={sub.href}>
+                                        <Link
+                                          href={sub.href}
+                                          onClick={() => setSidebarOpen(false)}
+                                          className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
+                                            pathname === sub.href ? "bg-white/10 text-white font-medium" : "text-slate-500 hover:text-white"
+                                          }`}
+                                        >
+                                          {sub.label}
+                                          <ChevronRight className="w-3.5 h-3.5 opacity-70" />
+                                        </Link>
+                                      </li>
+                                    ))}
                               </ul>
                             )}
                           </>

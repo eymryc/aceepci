@@ -7,8 +7,7 @@ import { ChevronRight } from "lucide-react";
 const aboutSubItems = [
   { href: "/admin/about/histoire", label: "Histoire" },
   { href: "/admin/about/mot-du-president", label: "Mot du président" },
-  { href: "/admin/about/mission", label: "Notre mission" },
-  { href: "/admin/about/vision", label: "Notre vision" },
+  { href: "/admin/about/mission", label: "Vision, Mission & Valeurs" },
   { href: "/admin/about/devise", label: "Notre devise" },
   { href: "/admin/about/documents", label: "Nos documents" },
   { href: "/admin/about/organisation", label: "Notre organisation" },

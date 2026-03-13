@@ -481,32 +481,32 @@ Dieu nous donne toujours une issue. Comptons sur Sa force et non sur la nôtre.
         </AnimateSection>
       )}
 
-      {/* Grille des sermons (section sombre) */}
-      <AnimateSection className="relative bg-brand-primary-dark overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
+      {/* Grille des sermons (section claire comme les actualités) */}
+      <AnimateSection className="relative bg-brand-subtle overflow-hidden py-24 px-4 sm:px-6 lg:px-8">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent to-transparent" />
-        <div className="pointer-events-none absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.18)_0%,transparent_70%)]" />
+        <div className="pointer-events-none absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(24,64,112,0.10)_0%,transparent_70%)]" />
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Header + Search + Filtres */}
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-1 h-1 rounded-full bg-brand-light" />
-                <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-light">Enseignements</p>
-                <span className="w-1 h-1 rounded-full bg-brand-light" />
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
+                <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">Enseignements</p>
+                <span className="w-1 h-1 rounded-full bg-brand-primary" />
               </div>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-white uppercase tracking-tight">
-                Toutes les <em className="not-italic italic text-brand-light">prédications</em>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground uppercase tracking-tight">
+                Toutes les <em className="not-italic italic text-brand-primary">prédications</em>
               </h2>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 flex-1 lg:max-w-xl">
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Rechercher..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-border rounded-lg text-foreground placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 />
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -516,8 +516,8 @@ Dieu nous donne toujours une issue. Comptons sur Sa force et non sur la nôtre.
                     onClick={() => setSelectedType(type)}
                     className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                       selectedType === type
-                        ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white shadow-[0_4px_12px_rgba(24,64,112,0.3)]"
-                        : "bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-brand-primary/30"
+                        ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white shadow-[0_4px_12px_rgba(24,64,112,0.25)]"
+                        : "bg-white border border-border text-foreground hover:bg-brand-primary/10 hover:border-brand-primary/25"
                     }`}
                   >
                     {type !== "all" && getIcon(type)}
@@ -530,7 +530,7 @@ Dieu nous donne toujours une issue. Comptons sur Sa force et non sur la nôtre.
 
           {filteredSermons.length > 0 ? (
             <>
-              <p className="text-sm text-white mb-8">
+              <p className="text-sm text-foreground mb-8">
                 {filteredSermons.length} sermon{filteredSermons.length > 1 ? "s" : ""} trouvé{filteredSermons.length > 1 ? "s" : ""}
               </p>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -538,7 +538,7 @@ Dieu nous donne toujours une issue. Comptons sur Sa force et non sur la nôtre.
                   <Link
                     key={sermon.id}
                     href={`/sermons/${sermon.id}`}
-                    className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-primary/30 hover:bg-white/8 transition-all duration-300"
+                    className="group bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_16px_48px_rgba(24,64,112,0.12)] transition-all duration-300"
                   >
                     <div className="relative h-40 overflow-hidden">
                       {sermon.type !== "Texte" ? (
@@ -570,19 +570,19 @@ Dieu nous donne toujours une issue. Comptons sur Sa force et non sur la nôtre.
                       </span>
                     </div>
                     <div className="p-5">
-                      <h3 className="font-serif text-lg font-bold text-white mb-2 line-clamp-2 leading-snug group-hover:text-brand-light transition-colors">
+                      <h3 className="font-serif text-lg font-bold text-foreground mb-2 line-clamp-2 leading-snug group-hover:text-brand-primary transition-colors">
                         {sermon.title}
                       </h3>
-                      <p className="text-xs text-white mb-3 flex items-center gap-1 truncate">
+                      <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1 truncate">
                         <User className="w-3 h-3 flex-shrink-0" />
                         {sermon.speaker}
                       </p>
-                      <div className="flex items-center justify-between text-xs text-white">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {sermon.date}
                         </span>
-                        <span className="font-semibold text-brand-light">{sermon.verse}</span>
+                        <span className="font-semibold text-brand-primary">{sermon.verse}</span>
                       </div>
                     </div>
                   </Link>
@@ -595,17 +595,17 @@ Dieu nous donne toujours une issue. Comptons sur Sa force et non sur la nôtre.
                   <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-lg hover:bg-white/10 hover:border-brand-primary/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="px-5 py-2.5 bg-white border border-border text-foreground rounded-lg hover:bg-brand-primary/10 hover:border-brand-primary/25 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     Précédent
                   </button>
-                  <span className="text-sm text-white">
+                  <span className="text-sm text-muted-foreground">
                     Page {currentPage} / {totalPages}
                   </span>
                   <button
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-lg hover:bg-white/10 hover:border-brand-primary/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="px-5 py-2.5 bg-white border border-border text-foreground rounded-lg hover:bg-brand-primary/10 hover:border-brand-primary/25 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     Suivant
                   </button>
@@ -614,11 +614,11 @@ Dieu nous donne toujours une issue. Comptons sur Sa force et non sur la nôtre.
             </>
           ) : (
             <div className="text-center py-20">
-              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-6">
-                <Video className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-2xl bg-white border border-border flex items-center justify-center mx-auto mb-6">
+                <Video className="w-10 h-10 text-brand-primary" />
               </div>
-              <h3 className="font-serif text-xl font-bold text-white mb-2">Aucun sermon trouvé</h3>
-              <p className="text-white max-w-md mx-auto">
+              <h3 className="font-serif text-xl font-bold text-foreground mb-2">Aucun sermon trouvé</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
                 Essayez de modifier votre recherche ou vos filtres.
               </p>
             </div>

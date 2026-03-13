@@ -86,7 +86,7 @@ export default function Page() {
       />
 
       {/* Prédications & Messages — première section */}
-      <AnimateSection className="relative py-24 sm:py-28 bg-brand-subtle/50 overflow-hidden px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative py-24 sm:py-28 bg-white overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
           <header className="text-center mb-12 sm:mb-14">
             <div className="flex justify-center gap-2 mb-4">

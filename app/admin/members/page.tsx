@@ -53,7 +53,7 @@ type MemberWithName = AdminMemberListItem & { name: string };
 // Tous les champs du formulaire membre — certains visibles par défaut, d'autres cachés
 const COLUMN_CONFIG: { key: string; label: string; defaultVisible: boolean }[] = [
   { key: "firstname", label: "PRÉNOM(S)", defaultVisible: true },
-  { key: "name", label: "NOM", defaultVisible: true },
+  { key: "lastname", label: "NOM", defaultVisible: true },
   { key: "email", label: "EMAIL", defaultVisible: false },
   { key: "phone", label: "TÉLÉPHONE", defaultVisible: true },
   { key: "birth_date", label: "DATE NAISSANCE", defaultVisible: false },
@@ -288,8 +288,11 @@ export default function AdminMembersPage() {
   };
 
   const sorted = [...items].sort((a, b) => {
-    const cmp = (a.name ?? "").localeCompare(b.name ?? "");
-    return sortDir === "asc" ? cmp : -cmp;
+    const cmpLast = (a.lastname ?? "").localeCompare(b.lastname ?? "");
+    if (cmpLast !== 0) return sortDir === "asc" ? cmpLast : -cmpLast;
+    return sortDir === "asc"
+      ? (a.firstname ?? "").localeCompare(b.firstname ?? "")
+      : -(a.firstname ?? "").localeCompare(b.firstname ?? "");
   });
 
   const visibleCols = COLUMN_CONFIG.filter((c) => c.key !== "actions" && visibleColumns[c.key]);
@@ -373,7 +376,7 @@ export default function AdminMembersPage() {
                 {visibleColumns.reference && (
                   <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">RÉFÉRENCE</th>
                 )}
-                {visibleColumns.name && (
+                {visibleColumns.lastname && (
                   <th className="px-6 py-4 text-left">
                     <button
                       type="button"
@@ -385,7 +388,7 @@ export default function AdminMembersPage() {
                   </th>
                 )}
                 {visibleCols
-                  .filter((c) => c.key !== "reference" && c.key !== "name")
+                  .filter((c) => c.key !== "reference" && c.key !== "lastname")
                   .map((c) => (
                     <th key={c.key} className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       {c.label}
@@ -429,11 +432,11 @@ export default function AdminMembersPage() {
                     {visibleColumns.reference && (
                       <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{item.id}</td>
                     )}
-                    {visibleColumns.name && (
-                      <td className="px-6 py-4 font-medium text-foreground">{item.name}</td>
+                    {visibleColumns.lastname && (
+                      <td className="px-6 py-4 font-medium text-foreground">{item.lastname ?? "—"}</td>
                     )}
                     {visibleCols
-                      .filter((c) => c.key !== "reference" && c.key !== "name")
+                      .filter((c) => c.key !== "reference" && c.key !== "lastname")
                       .map((c) => {
                         if (c.key === "type") {
                           return (
