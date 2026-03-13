@@ -43,6 +43,9 @@ export default function AdminEventsEditPage() {
     is_published: false,
     registration_open: false,
   });
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   useEffect(() => {
     publicOptionsApi.eventCategories().then(setCategories).catch(() => setCategories([]));
@@ -67,6 +70,15 @@ export default function AdminEventsEditPage() {
           is_published: event.is_published ?? false,
           registration_open: event.registration_open ?? false,
         });
+        const img = event.image_url;
+        const base = process.env.NEXT_PUBLIC_API_URL || "https://api.aceepci.org";
+        setCurrentImageUrl(
+          img && img.trim()
+            ? img.startsWith("http")
+              ? img
+              : `${base.replace(/\/$/, "")}${img.startsWith("/") ? img : `/${img}`}`
+            : null
+        );
       })
       .catch(() => {
         toast.error("Événement introuvable.");
@@ -115,7 +127,7 @@ export default function AdminEventsEditPage() {
         ...form,
         event_category_id: form.event_category_id || undefined,
         slug: form.slug || undefined,
-      });
+      }, { imageFile: imageFile || undefined, removeImage });
       toast.success(res.message || "Événement modifié.");
       router.push("/admin/events");
     } catch (err: unknown) {
@@ -177,6 +189,7 @@ export default function AdminEventsEditPage() {
                     name: "Nom",
                     title: "Titre",
                     slug: "Slug",
+                    image: "Image",
                   };
                   return (
                     <li key={field}>
@@ -229,6 +242,46 @@ export default function AdminEventsEditPage() {
                     maxLength={255}
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Image</label>
+                  <p className="text-xs text-muted-foreground mb-2">JPEG, PNG ou WebP — max 5 Mo</p>
+                  {currentImageUrl && !removeImage && (
+                    <div className="mb-3">
+                      <p className="text-xs text-muted-foreground mb-1">Image actuelle :</p>
+                      <img
+                        src={currentImageUrl}
+                        alt=""
+                        className="h-24 w-auto rounded-lg border border-border object-cover"
+                      />
+                    </div>
+                  )}
+                  <label className="flex items-center gap-3 cursor-pointer mb-2">
+                    <input
+                      type="checkbox"
+                      checked={removeImage}
+                      onChange={(e) => {
+                        setRemoveImage(e.target.checked);
+                        if (e.target.checked) setImageFile(null);
+                      }}
+                      className="w-4 h-4 rounded border-border text-brand-primary focus:ring-brand-primary"
+                    />
+                    <span className="text-sm font-medium text-foreground">Supprimer l&apos;image actuelle</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      setImageFile(f ?? null);
+                      if (f) setRemoveImage(false);
+                    }}
+                    disabled={removeImage}
+                    className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-primary file:text-white file:cursor-pointer hover:file:opacity-90 disabled:opacity-50"
+                  />
+                  {imageFile && (
+                    <p className="text-xs text-muted-foreground mt-1">{imageFile.name} (remplacera l&apos;image actuelle)</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Catégorie *</label>

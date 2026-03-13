@@ -26,6 +26,7 @@ import {
 // Tous les champs Event — visibilité configurable
 const COLUMN_CONFIG: { key: string; label: string; defaultVisible: boolean }[] = [
   { key: "id", label: "ID", defaultVisible: false },
+  { key: "image", label: "IMAGE", defaultVisible: true },
   { key: "name", label: "NOM", defaultVisible: true },
   { key: "title", label: "TITRE", defaultVisible: true },
   { key: "slug", label: "SLUG", defaultVisible: false },
@@ -55,6 +56,13 @@ function formatDateRange(start: string | undefined, end: string | undefined): st
   if (!start && !end) return "—";
   if (start && end && start === end) return formatDate(start);
   return `${formatDate(start)} – ${formatDate(end)}`;
+}
+
+function resolveEventImageUrl(img: string | undefined | null): string | null {
+  if (!img || !img.trim()) return null;
+  if (img.startsWith("http")) return img;
+  const base = process.env.NEXT_PUBLIC_API_URL || "https://api.aceepci.org";
+  return `${base.replace(/\/$/, "")}${img.startsWith("/") ? img : `/${img}`}`;
 }
 
 function getCellValue(item: Event, key: string): ReactNode {
@@ -150,17 +158,7 @@ export default function AdminEventsPage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <AdminPageHeader
-          title="Événements"
-          description="Gérez les événements et inscriptions"
-          action={
-            <Link href="/admin/events/new">
-              <AdminButton icon={<Plus className="w-4 h-4" />}>Nouvel événement</AdminButton>
-            </Link>
-          }
-        />
-      </div>
+      <AdminPageHeader title="Événements" description="Gérez les événements et inscriptions" />
 
       <AdminCard padding="none">
         <div className="p-4 border-b border-border flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
@@ -178,6 +176,9 @@ export default function AdminEventsPage() {
             />
           </div>
           <div className="flex gap-2">
+            <AdminButton href="/admin/events/new" icon={<Plus className="w-4 h-4" />}>
+              Nouvel événement
+            </AdminButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -251,6 +252,7 @@ export default function AdminEventsPage() {
                   <thead>
                     <tr>
                       {visibleColumns.id && <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">ID</th>}
+                      {visibleColumns.image && <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">IMAGE</th>}
                       {visibleColumns.name && <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">NOM</th>}
                       {visibleColumns.title && <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">TITRE</th>}
                       {visibleColumns.slug && <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">SLUG</th>}
@@ -272,6 +274,22 @@ export default function AdminEventsPage() {
                     {items.map((item) => (
                       <tr key={item.id} className="hover:bg-brand-subtle/30 transition-colors">
                         {visibleColumns.id && <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{item.id}</td>}
+                        {visibleColumns.image && (
+                          <td className="px-6 py-4">
+                            {(() => {
+                              const url = resolveEventImageUrl(item.image_url);
+                              return url ? (
+                                <img
+                                  src={url}
+                                  alt=""
+                                  className="h-10 w-10 rounded-lg border border-border object-cover"
+                                />
+                              ) : (
+                                <span className="text-muted-foreground text-xs">—</span>
+                              );
+                            })()}
+                          </td>
+                        )}
                         {visibleColumns.name && <td className="px-6 py-4 font-medium text-foreground">{getCellValue(item, "name")}</td>}
                         {visibleColumns.title && <td className="px-6 py-4 text-sm text-muted-foreground">{getCellValue(item, "title")}</td>}
                         {visibleColumns.slug && <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{getCellValue(item, "slug")}</td>}
