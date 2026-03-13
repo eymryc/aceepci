@@ -394,27 +394,6 @@ export const workshopOptionsApi = createCrudApi<{
   display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
 }));
 
-// ─── Paramètres offres ─────────────────────────────────────────────────────
-
-export const offerCategoriesApi = createCrudApi<{ id: number; name: string; code?: string | null; display_order?: number | null }>(
-  "/offer-categories",
-  (d) => ({
-    name: String(d.name ?? "").trim(),
-    code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 20) || null,
-    display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
-  })
-);
-
-export const offerTypesApi = createCrudApi<{ id: number; name: string; code?: string | null; offer_category_id?: number | null; display_order?: number | null }>(
-  "/offer-types",
-  (d) => ({
-    name: String(d.name ?? "").trim(),
-    code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
-    offer_category_id: d.offer_category_id != null && d.offer_category_id !== "" ? Number(d.offer_category_id) : null,
-    display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
-  })
-);
-
 export const publicOptionsApi = {
   memberTypes: (params?: Record<string, string | number | undefined>) =>
     fetchPublicOptions("/member-types", params),
@@ -454,94 +433,169 @@ export const publicOptionsApi = {
     fetchPublicOptions("/news-categories", params),
 };
 
-// ─── Événements ────────────────────────────────────────────────────────────
+// ─── Paramètres offres & actualités ────────────────────────────────────────
 
-export interface Event {
+export const offerCategoriesApi = createCrudApi<{
   id: number;
   name: string;
+  code?: string | null;
+  display_order?: number | null;
+}>("/offer-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 20) || null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+export const offerTypesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  offer_category_id?: number | null;
+  display_order?: number | null;
+}>("/offer-types", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  offer_category_id: d.offer_category_id != null && d.offer_category_id !== "" ? Number(d.offer_category_id) : null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+export const newsCategoriesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  display_order?: number | null;
+}>("/news-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+// ─── Offres (emploi, stage, bourse, bénévolat) ─────────────────────────────
+
+export type OfferCategory = "emploi" | "stage" | "bourse" | "benevolat";
+
+export interface Offer {
+  id: number;
   title: string;
-  slug: string;
-  event_category_id: number;
-  event_category?: { id: number; name: string };
-  start_date: string;
-  end_date: string;
-  expected_attendees?: string | null;
-  location?: string | null;
-  price?: string | null;
-  image_url?: string | null;
-  is_published: boolean;
-  registration_open: boolean;
+  organization: string;
+  category: OfferCategory;
+  location: string;
+  type: string;
+  deadline: string;
+  description: string;
+  requirements: string[];
+  salary?: string | null;
+  duration?: string | null;
+  external_link: string | null;
   created_at?: string;
   updated_at?: string;
+  is_published?: boolean;
+  offer_category_id?: number | null;
+  offer_type_id?: number | null;
+  offer_category?: { id: number; name: string; code?: string | null };
+  offer_type?: { id: number; name: string; code?: string | null };
 }
 
-function buildEventFormData(body: Record<string, unknown>, imageFile?: File | null): FormData {
-  const fd = new FormData();
-  fd.append("name", String(body.name ?? "").trim());
-  fd.append("title", String(body.title ?? body.name ?? "").trim());
-  if (body.slug) fd.append("slug", String(body.slug).trim());
-  fd.append("event_category_id", String(Number(body.event_category_id) || 0));
-  fd.append("start_date", String(body.start_date ?? "").trim());
-  fd.append("end_date", String(body.end_date ?? "").trim());
-  fd.append("expected_attendees", body.expected_attendees ? String(body.expected_attendees).trim() : "");
-  fd.append("location", body.location ? String(body.location).trim() : "");
-  fd.append("price", body.price ? String(body.price).trim() : "");
-  fd.append("is_published", body.is_published ? "1" : "0");
-  fd.append("registration_open", body.registration_open ? "1" : "0");
-  if (imageFile) {
-    fd.append("image", imageFile, imageFile.name);
-  }
-  return fd;
-}
-
-function buildEventUpdateFormData(
-  body: Record<string, unknown>,
-  imageFile?: File | null,
-  removeImage?: boolean
-): FormData {
-  const fd = buildEventFormData(body, imageFile);
-  fd.append("_method", "PUT");
-  fd.append("remove_image", removeImage ? "1" : "0");
-  return fd;
-}
-
-export const eventsApi = {
+export const offersApi = {
   list: async (
     token: string,
-    params?: { page?: number; per_page?: number; search?: string; published?: 0 | 1 }
+    params?: {
+      page?: number;
+      per_page?: number;
+      search?: string;
+      category?: OfferCategory;
+      include_expired?: boolean | 0 | 1;
+      include_unpublished?: boolean | 0 | 1;
+    }
   ) => {
     const sp = new URLSearchParams();
-    if (params?.published !== undefined) sp.set("published", String(params.published));
     if (params?.page) sp.set("page", String(params.page));
     if (params?.per_page) sp.set("per_page", String(params.per_page));
     if (params?.search) sp.set("search", params.search);
+    if (params?.category) sp.set("category", params.category);
+    if (params?.include_expired) sp.set("include_expired", "1");
+    if (params?.include_unpublished) sp.set("include_unpublished", "1");
     const q = sp.toString();
-    const res = await fetchWithAuth(`/events${q ? `?${q}` : ""}`, { method: "GET" }, token);
-    return handleResponse<{ data: Event[]; meta?: { total?: number; last_page?: number }; total?: number; last_page?: number }>(res);
+    const res = await fetchWithAuth(`/offers${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{
+      data: Offer[];
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
   },
   get: async (token: string, id: number) => {
-    const res = await fetchWithAuth(`/events/${id}`, { method: "GET" }, token);
-    const raw = await handleResponse<{ data: Event } | Event>(res);
-    return (typeof raw === "object" && raw !== null && "data" in raw ? (raw as { data: Event }).data : raw) as Event;
+    const res = await fetchWithAuth(`/offers/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: Offer } | Offer>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw ? (raw as { data: Offer }).data : raw) as Offer;
   },
-  create: async (token: string, data: Record<string, unknown>, imageFile?: File | null) => {
-    const fd = buildEventFormData(data, imageFile);
-    const res = await fetchWithAuthFormData("/events", fd, token, "POST");
-    return handleResponse<{ status: string; message: string; data: Event }>(res);
+  create: async (token: string, data: Record<string, unknown>) => {
+    const deadlineRaw = String(data.deadline ?? "").trim();
+    const deadline = deadlineRaw
+      ? deadlineRaw.includes("T")
+        ? deadlineRaw
+        : `${deadlineRaw}T12:00:00.000Z`
+      : "";
+    const body: Record<string, unknown> = {
+      title: String(data.title ?? "").trim(),
+      organization: String(data.organization ?? "").trim(),
+      offer_category_id: data.offer_category_id != null && data.offer_category_id !== "" ? Number(data.offer_category_id) : null,
+      offer_type_id: data.offer_type_id != null && data.offer_type_id !== "" ? Number(data.offer_type_id) : null,
+      location: data.location ? String(data.location).trim() : null,
+      deadline,
+      description: data.description ? String(data.description).trim() : null,
+      salary: data.salary ? String(data.salary).trim() : null,
+      duration: data.duration ? String(data.duration).trim() : null,
+      external_link: String(data.external_link ?? "").trim() ? String(data.external_link ?? "").trim() : null,
+      requirements: Array.isArray(data.requirements)
+        ? data.requirements
+        : String(data.requirements ?? "")
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean),
+    };
+    const res = await fetchWithAuth("/offers", { method: "POST", body: JSON.stringify(body) }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
   },
-  update: async (
-    token: string,
-    id: number,
-    data: Record<string, unknown>,
-    options?: { imageFile?: File | null; removeImage?: boolean }
-  ) => {
-    const fd = buildEventUpdateFormData(data, options?.imageFile, options?.removeImage);
-    const res = await fetchWithAuthFormData(`/events/${id}`, fd, token, "POST");
-    return handleResponse<{ status: string; message: string; data: Event }>(res);
+  update: async (token: string, id: number, data: Record<string, unknown>) => {
+    const deadlineRaw = String(data.deadline ?? "").trim();
+    const deadline = deadlineRaw
+      ? deadlineRaw.includes("T")
+        ? deadlineRaw
+        : `${deadlineRaw}T12:00:00.000Z`
+      : "";
+    const body: Record<string, unknown> = {
+      title: String(data.title ?? "").trim(),
+      organization: String(data.organization ?? "").trim(),
+      offer_category_id: data.offer_category_id != null && data.offer_category_id !== "" ? Number(data.offer_category_id) : null,
+      offer_type_id: data.offer_type_id != null && data.offer_type_id !== "" ? Number(data.offer_type_id) : null,
+      location: data.location ? String(data.location).trim() : null,
+      deadline,
+      description: data.description ? String(data.description).trim() : null,
+      salary: data.salary ? String(data.salary).trim() : null,
+      duration: data.duration ? String(data.duration).trim() : null,
+      external_link: String(data.external_link ?? "").trim() ? String(data.external_link ?? "").trim() : null,
+      requirements: Array.isArray(data.requirements)
+        ? data.requirements
+        : String(data.requirements ?? "")
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean),
+    };
+    const res = await fetchWithAuth(`/offers/${id}`, { method: "PUT", body: JSON.stringify(body) }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
   },
   delete: async (token: string, id: number) => {
-    const res = await fetchWithAuth(`/events/${id}`, { method: "DELETE" }, token);
+    const res = await fetchWithAuth(`/offers/${id}`, { method: "DELETE" }, token);
     return handleResponse<{ status: string; message: string }>(res);
+  },
+  publish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/offers/${id}/publish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
+  },
+  unpublish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/offers/${id}/unpublish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
   },
 };
 
@@ -574,7 +628,6 @@ export interface NewsArticle {
   updated_at?: string;
 }
 
-/** Catégories disponibles pour les actualités (administrable dans le code pour l’instant) */
 export const NEWS_CATEGORIES = [
   "Événements",
   "Projets",
@@ -584,17 +637,6 @@ export const NEWS_CATEGORIES = [
 ] as const;
 
 export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
-
-export const newsCategoriesApi = createCrudApi<{
-  id: number;
-  name: string;
-  code?: string | null;
-  display_order?: number | null;
-}>("/news-categories", (d) => ({
-  name: String(d.name ?? "").trim(),
-  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
-  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
-}));
 
 function buildNewsFormData(
   body: Record<string, unknown>,
@@ -740,113 +782,82 @@ export const newsApi = {
   },
 };
 
-// ─── Offres (emploi, stage, bourse, bénévolat) ───────────────────────────────
+// ─── Événements ────────────────────────────────────────────────────────────
 
-export type OfferCategory = "emploi" | "stage" | "bourse" | "benevolat";
-
-export interface Offer {
+export interface Event {
   id: number;
+  name: string;
   title: string;
-  organization: string;
-  category: OfferCategory;
-  location: string;
-  type: string;
-  deadline: string;
-  description: string;
-  requirements: string[];
-  salary?: string | null;
-  duration?: string | null;
-  external_link: string | null;
+  slug: string;
+  event_category_id: number;
+  event_category?: { id: number; name: string };
+  start_date: string;
+  end_date: string;
+  expected_attendees?: string | null;
+  location?: string | null;
+  price?: string | null;
+  is_published: boolean;
+  registration_open: boolean;
   created_at?: string;
   updated_at?: string;
-  is_published?: boolean;
-  offer_category_id?: number | null;
-  offer_type_id?: number | null;
-  offer_category?: { id: number; name: string; code?: string | null };
-  offer_type?: { id: number; name: string; code?: string | null };
 }
 
-export const offersApi = {
+export const eventsApi = {
   list: async (
     token: string,
-    params?: {
-      page?: number;
-      per_page?: number;
-      search?: string;
-      category?: OfferCategory;
-      include_expired?: boolean | 0 | 1;
-      include_unpublished?: boolean | 0 | 1;
-    }
+    params?: { page?: number; per_page?: number; search?: string; published?: 0 | 1 }
   ) => {
     const sp = new URLSearchParams();
+    if (params?.published !== undefined) sp.set("published", String(params.published));
     if (params?.page) sp.set("page", String(params.page));
     if (params?.per_page) sp.set("per_page", String(params.per_page));
     if (params?.search) sp.set("search", params.search);
-    if (params?.category) sp.set("category", params.category);
-    if (params?.include_expired) sp.set("include_expired", "1");
-    if (params?.include_unpublished) sp.set("include_unpublished", "1");
     const q = sp.toString();
-    const res = await fetchWithAuth(`/offers${q ? `?${q}` : ""}`, { method: "GET" }, token);
-    return handleResponse<{ data: Offer[]; meta?: { total?: number; last_page?: number }; total?: number; last_page?: number }>(res);
+    const res = await fetchWithAuth(`/events${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{ data: Event[]; meta?: { total?: number; last_page?: number }; total?: number; last_page?: number }>(res);
   },
   get: async (token: string, id: number) => {
-    const res = await fetchWithAuth(`/offers/${id}`, { method: "GET" }, token);
-    const raw = await handleResponse<{ data: Offer } | Offer>(res);
-    return (typeof raw === "object" && raw !== null && "data" in raw ? (raw as { data: Offer }).data : raw) as Offer;
+    const res = await fetchWithAuth(`/events/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: Event } | Event>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw ? (raw as { data: Event }).data : raw) as Event;
   },
   create: async (token: string, data: Record<string, unknown>) => {
-    const deadlineRaw = String(data.deadline ?? "").trim();
-    const deadline = deadlineRaw
-      ? (deadlineRaw.includes("T") ? deadlineRaw : `${deadlineRaw}T12:00:00.000Z`)
-      : "";
-    const body: Record<string, unknown> = {
-      title: String(data.title ?? "").trim(),
-      organization: String(data.organization ?? "").trim(),
-      offer_category_id: data.offer_category_id != null && data.offer_category_id !== "" ? Number(data.offer_category_id) : null,
-      offer_type_id: data.offer_type_id != null && data.offer_type_id !== "" ? Number(data.offer_type_id) : null,
+    const body = {
+      name: String(data.name ?? "").trim(),
+      title: String(data.title ?? data.name ?? "").trim(),
+      slug: data.slug ? String(data.slug).trim() : undefined,
+      event_category_id: Number(data.event_category_id) || 0,
+      start_date: String(data.start_date ?? "").trim(),
+      end_date: String(data.end_date ?? "").trim(),
+      expected_attendees: data.expected_attendees ? String(data.expected_attendees).trim() : null,
       location: data.location ? String(data.location).trim() : null,
-      deadline,
-      description: data.description ? String(data.description).trim() : null,
-      salary: data.salary ? String(data.salary).trim() : null,
-      duration: data.duration ? String(data.duration).trim() : null,
-      external_link: String(data.external_link ?? "").trim() ? String(data.external_link ?? "").trim() : null,
-      requirements: Array.isArray(data.requirements) ? data.requirements : (String(data.requirements ?? "").split("\n").map((s) => s.trim()).filter(Boolean)),
+      price: data.price ? String(data.price).trim() : null,
+      is_published: Boolean(data.is_published),
+      registration_open: Boolean(data.registration_open),
     };
-    const res = await fetchWithAuth("/offers", { method: "POST", body: JSON.stringify(body) }, token);
-    return handleResponse<{ status: string; message: string; data: Offer }>(res);
+    const res = await fetchWithAuth("/events", { method: "POST", body: JSON.stringify(body) }, token);
+    return handleResponse<{ status: string; message: string; data: Event }>(res);
   },
   update: async (token: string, id: number, data: Record<string, unknown>) => {
-    const deadlineRaw = String(data.deadline ?? "").trim();
-    const deadline = deadlineRaw
-      ? (deadlineRaw.includes("T") ? deadlineRaw : `${deadlineRaw}T12:00:00.000Z`)
-      : "";
-    const body: Record<string, unknown> = {
-      title: String(data.title ?? "").trim(),
-      organization: String(data.organization ?? "").trim(),
-      offer_category_id: data.offer_category_id != null && data.offer_category_id !== "" ? Number(data.offer_category_id) : null,
-      offer_type_id: data.offer_type_id != null && data.offer_type_id !== "" ? Number(data.offer_type_id) : null,
+    const body = {
+      name: String(data.name ?? "").trim(),
+      title: String(data.title ?? data.name ?? "").trim(),
+      slug: data.slug ? String(data.slug).trim() : undefined,
+      event_category_id: Number(data.event_category_id) || 0,
+      start_date: String(data.start_date ?? "").trim(),
+      end_date: String(data.end_date ?? "").trim(),
+      expected_attendees: data.expected_attendees ? String(data.expected_attendees).trim() : null,
       location: data.location ? String(data.location).trim() : null,
-      deadline,
-      description: data.description ? String(data.description).trim() : null,
-      salary: data.salary ? String(data.salary).trim() : null,
-      duration: data.duration ? String(data.duration).trim() : null,
-      external_link: String(data.external_link ?? "").trim() ? String(data.external_link ?? "").trim() : null,
-      requirements: Array.isArray(data.requirements) ? data.requirements : (String(data.requirements ?? "").split("\n").map((s) => s.trim()).filter(Boolean)),
+      price: data.price ? String(data.price).trim() : null,
+      is_published: Boolean(data.is_published),
+      registration_open: Boolean(data.registration_open),
     };
-    const res = await fetchWithAuth(`/offers/${id}`, { method: "PUT", body: JSON.stringify(body) }, token);
-    return handleResponse<{ status: string; message: string; data: Offer }>(res);
+    const res = await fetchWithAuth(`/events/${id}`, { method: "PUT", body: JSON.stringify(body) }, token);
+    return handleResponse<{ status: string; message: string; data: Event }>(res);
   },
   delete: async (token: string, id: number) => {
-    const res = await fetchWithAuth(`/offers/${id}`, { method: "DELETE" }, token);
+    const res = await fetchWithAuth(`/events/${id}`, { method: "DELETE" }, token);
     return handleResponse<{ status: string; message: string }>(res);
-  },
-  publish: async (token: string, id: number) => {
-    const res = await fetchWithAuth(`/offers/${id}/publish`, { method: "POST" }, token);
-    return handleResponse<{ status: string; message: string; data: Offer }>(res);
-  },
-  unpublish: async (token: string, id: number) => {
-    const res = await fetchWithAuth(`/offers/${id}/unpublish`, { method: "POST" }, token);
-    return handleResponse<{ status: string; message: string; data: Offer }>(res);
   },
 };
 
@@ -1406,7 +1417,6 @@ export interface DeviseSection {
 
 export const deviseSectionApi = {
   get: async (token: string) => {
-    // Backend : endpoint en anglais pour la devise (motto)
     const res = await fetchWithAuth("/motto", { method: "GET" }, token);
     const raw = await handleResponse<unknown>(res);
     const data = (raw as { data?: DeviseSection }).data ?? (raw as DeviseSection);
@@ -1426,17 +1436,21 @@ export const deviseSectionApi = {
       publish: boolean;
     }
   ) => {
-    const res = await fetchWithAuth("/motto", {
-      method: "POST",
-      body: JSON.stringify({
-        section_label: String(body.section_label ?? "").trim(),
-        title: String(body.title ?? "").trim(),
-        subtitle: String(body.subtitle ?? "").trim(),
-        quote: String(body.quote ?? "").trim(),
-        pillars: body.pillars,
-        publish: body.publish ? 1 : 0,
-      }),
-    }, token);
+    const res = await fetchWithAuth(
+      "/motto",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          section_label: String(body.section_label ?? "").trim(),
+          title: String(body.title ?? "").trim(),
+          subtitle: String(body.subtitle ?? "").trim(),
+          quote: String(body.quote ?? "").trim(),
+          pillars: body.pillars,
+          publish: body.publish ? 1 : 0,
+        }),
+      },
+      token
+    );
     return handleResponse<{ status: string; message: string; data?: DeviseSection }>(res);
   },
 };
@@ -1461,7 +1475,6 @@ export const visionMissionValuesApi = {
     const raw = await handleResponse<unknown>(res);
     const data = (raw as { data?: VisionMissionValuesSection }).data ?? (raw as VisionMissionValuesSection);
     if (data) {
-      // Compat lecture: certaines versions de l'API renvoient vision_text/mission_text/values_text
       const anyData = data as unknown as {
         vision_text?: string | null;
         mission_text?: string | null;
@@ -1487,19 +1500,22 @@ export const visionMissionValuesApi = {
       publish: boolean;
     }
   ) => {
-    const res = await fetchWithAuth("/vision-mission-values", {
-      method: "POST",
-      body: JSON.stringify({
-        section_label: String(body.section_label ?? "").trim(),
-        title: String(body.title ?? "").trim(),
-        subtitle: String(body.subtitle ?? "").trim(),
-        // L'API attend *_text : vision_text, mission_text, values_text
-        vision_text: String(body.vision ?? "").trim(),
-        mission_text: String(body.mission ?? "").trim(),
-        values_text: String(body.valeurs ?? "").trim(),
-        publish: body.publish ? 1 : 0,
-      }),
-    }, token);
+    const res = await fetchWithAuth(
+      "/vision-mission-values",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          section_label: String(body.section_label ?? "").trim(),
+          title: String(body.title ?? "").trim(),
+          subtitle: String(body.subtitle ?? "").trim(),
+          vision_text: String(body.vision ?? "").trim(),
+          mission_text: String(body.mission ?? "").trim(),
+          values_text: String(body.valeurs ?? "").trim(),
+          publish: body.publish ? 1 : 0,
+        }),
+      },
+      token
+    );
     return handleResponse<{ status: string; message: string; data?: VisionMissionValuesSection }>(res);
   },
 };
@@ -1523,7 +1539,6 @@ export interface OrganisationSection {
 
 export const organisationSectionApi = {
   get: async (token: string) => {
-    // L'API backend expose /organization (en anglais)
     const res = await fetchWithAuth("/organization", { method: "GET" }, token);
     const raw = await handleResponse<unknown>(res);
     const data = (raw as { data?: OrganisationSection }).data ?? (raw as OrganisationSection);
@@ -1542,16 +1557,20 @@ export const organisationSectionApi = {
       publish: boolean;
     }
   ) => {
-    const res = await fetchWithAuth("/organization", {
-      method: "POST",
-      body: JSON.stringify({
-        section_label: String(body.section_label ?? "").trim(),
-        title: String(body.title ?? "").trim(),
-        subtitle: String(body.subtitle ?? "").trim(),
-        cards: body.cards,
-        publish: body.publish ? 1 : 0,
-      }),
-    }, token);
+    const res = await fetchWithAuth(
+      "/organization",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          section_label: String(body.section_label ?? "").trim(),
+          title: String(body.title ?? "").trim(),
+          subtitle: String(body.subtitle ?? "").trim(),
+          cards: body.cards,
+          publish: body.publish ? 1 : 0,
+        }),
+      },
+      token
+    );
     return handleResponse<{ status: string; message: string; data?: OrganisationSection }>(res);
   },
 };

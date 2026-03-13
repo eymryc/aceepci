@@ -302,10 +302,4 @@
   .section-title-left + p {
     @apply text-left max-w-2xl mt-2;
   }
-
-  /* Barre de progression (largeur dynamique via --progress-width) */
-  .progress-step-fill {
-    width: var(--progress-width, 0%);
-    @apply h-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-accent transition-all duration-300;
-  }
 }
