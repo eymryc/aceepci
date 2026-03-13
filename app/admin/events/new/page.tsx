@@ -40,6 +40,7 @@ export default function AdminEventsNewPage() {
     is_published: false,
     registration_open: false,
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     publicOptionsApi.eventCategories().then(setCategories).catch(() => setCategories([]));
@@ -81,11 +82,15 @@ export default function AdminEventsNewPage() {
     setFormError(null);
     setFormFieldErrors({});
     try {
-      const res = await eventsApi.create(token, {
-        ...form,
-        event_category_id: form.event_category_id || undefined,
-        slug: form.slug || undefined,
-      });
+      const res = await eventsApi.create(
+        token,
+        {
+          ...form,
+          event_category_id: form.event_category_id || undefined,
+          slug: form.slug || undefined,
+        },
+        imageFile
+      );
       toast.success(res.message || "Événement créé.");
       router.push("/admin/events");
     } catch (err: unknown) {
@@ -139,6 +144,7 @@ export default function AdminEventsNewPage() {
                     name: "Nom",
                     title: "Titre",
                     slug: "Slug",
+                    image: "Image",
                   };
                   return (
                     <li key={field}>
@@ -191,6 +197,19 @@ export default function AdminEventsNewPage() {
                     maxLength={255}
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Image</label>
+                  <p className="text-xs text-muted-foreground mb-2">JPEG, PNG ou WebP — max 5 Mo</p>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                    className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-primary file:text-white file:cursor-pointer hover:file:opacity-90"
+                  />
+                  {imageFile && (
+                    <p className="text-xs text-muted-foreground mt-1">{imageFile.name}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Catégorie *</label>
