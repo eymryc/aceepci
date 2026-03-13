@@ -8,6 +8,9 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function Page() {
+
+
+  // Update the state to include "Livre"
   const [activeTab, setActiveTab] = useState<"Audio" | "Vidéo" | "Texte">("Vidéo");
 
   const allContent = [
