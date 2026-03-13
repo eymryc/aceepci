@@ -50,6 +50,10 @@ const settingsGroups = [
     ],
   },
   {
+    title: "Contenu",
+    items: [{ href: "/admin/settings/news-categories", label: "Catégories d'articles" }],
+  },
+  {
     title: "Offres",
     items: [
       { href: "/admin/settings/offer-categories", label: "Catégories d'offres" },

@@ -450,6 +450,8 @@ export const publicOptionsApi = {
     fetchPublicOptions("/offer-categories", params),
   offerTypes: (params?: Record<string, string | number | undefined>) =>
     fetchPublicOptions("/offer-types", params),
+  newsCategories: (params?: Record<string, string | number | undefined>) =>
+    fetchPublicOptions("/news-categories", params),
 };
 
 // ─── Événements ────────────────────────────────────────────────────────────
@@ -539,6 +541,201 @@ export const eventsApi = {
   },
   delete: async (token: string, id: number) => {
     const res = await fetchWithAuth(`/events/${id}`, { method: "DELETE" }, token);
+    return handleResponse<{ status: string; message: string }>(res);
+  },
+};
+
+// ─── Actualités (news) ─────────────────────────────────────────────────────
+
+export interface NewsArticle {
+  id: number;
+  title: string;
+  slug: string;
+  category?: string | null;
+  excerpt?: string | null;
+  content?: string | null;
+  image_url?: string | null;
+  author_name?: string | null;
+  author_role?: string | null;
+  author_avatar_url?: string | null;
+  reading_time?: string | null;
+  views_count?: number | null;
+  /** Date/heure de publication (ISO) */
+  published_at?: string | null;
+  linked_event_id?: number | null;
+  linked_event?: { id: number; name: string; title?: string | null } | null;
+  custom_cta_label?: string | null;
+  custom_cta_url?: string | null;
+  comments_enabled?: boolean | null;
+  reactions_enabled?: boolean | null;
+  gallery_images?: string[] | null;
+  is_published?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/** Catégories disponibles pour les actualités (administrable dans le code pour l’instant) */
+export const NEWS_CATEGORIES = [
+  "Événements",
+  "Projets",
+  "Formations",
+  "Témoignages",
+  "Galerie",
+] as const;
+
+export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
+
+export const newsCategoriesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  display_order?: number | null;
+}>("/news-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+function buildNewsFormData(
+  body: Record<string, unknown>,
+  options?: {
+    imageFile?: File | null;
+    authorAvatarFile?: File | null;
+    galleryFiles?: File[];
+  },
+  methodOverride?: "PUT"
+): FormData {
+  const fd = new FormData();
+  if (methodOverride) fd.append("_method", methodOverride);
+  fd.append("title", String(body.title ?? "").trim());
+  if (body.slug) fd.append("slug", String(body.slug).trim());
+  if (body.category) fd.append("category", String(body.category).trim());
+  fd.append("excerpt", String(body.excerpt ?? "").trim());
+  fd.append("content", String(body.content ?? "").trim());
+  if (body.author_name) fd.append("author_name", String(body.author_name).trim());
+  if (body.author_role) fd.append("author_role", String(body.author_role).trim());
+  if (body.reading_time) fd.append("reading_time", String(body.reading_time).trim());
+  if (body.views_count != null && body.views_count !== "") fd.append("views_count", String(body.views_count));
+  if (body.published_at) {
+    fd.append("published_at", String(body.published_at).trim());
+  }
+  if (body.linked_event_id != null && body.linked_event_id !== "") {
+    fd.append("linked_event_id", String(body.linked_event_id));
+  }
+  if (body.custom_cta_label) fd.append("custom_cta_label", String(body.custom_cta_label).trim());
+  if (body.custom_cta_url) fd.append("custom_cta_url", String(body.custom_cta_url).trim());
+  if (body.comments_enabled != null) {
+    fd.append("comments_enabled", body.comments_enabled ? "1" : "0");
+  }
+  if (body.reactions_enabled != null) {
+    fd.append("reactions_enabled", body.reactions_enabled ? "1" : "0");
+  }
+  if (body.publish != null) {
+    fd.append("publish", body.publish ? "1" : "0");
+  }
+  if (options?.imageFile) {
+    fd.append("image", options.imageFile, options.imageFile.name);
+  }
+  if (options?.authorAvatarFile) {
+    fd.append("author_avatar", options.authorAvatarFile, options.authorAvatarFile.name);
+  }
+  if (options?.galleryFiles?.length) {
+    options.galleryFiles.forEach((file) => {
+      fd.append("gallery_images[]", file, file.name);
+    });
+  }
+  return fd;
+}
+
+export const newsApi = {
+  list: async (
+    token: string,
+    params?: { page?: number; per_page?: number; search?: string; status?: "published" | "draft" }
+  ) => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.search) sp.set("search", params.search);
+    if (params?.status) sp.set("status", params.status);
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/news${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{
+      data: NewsArticle[];
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
+  },
+  get: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/news/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: NewsArticle } | NewsArticle>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw
+      ? (raw as { data: NewsArticle }).data
+      : raw) as NewsArticle;
+  },
+  create: async (
+    token: string,
+    body: {
+      title: string;
+      slug?: string;
+      category?: string;
+      excerpt: string;
+      content: string;
+      author_name?: string;
+      author_role?: string;
+      reading_time?: string;
+      views_count?: number | "";
+      published_at?: string;
+      linked_event_id?: number | "";
+      custom_cta_label?: string;
+      custom_cta_url?: string;
+      comments_enabled?: boolean;
+      reactions_enabled?: boolean;
+      publish: boolean;
+    },
+    options?: {
+      imageFile?: File | null;
+      authorAvatarFile?: File | null;
+      galleryFiles?: File[];
+    }
+  ) => {
+    const fd = buildNewsFormData(body, options);
+    const res = await fetchWithAuthFormData("/news", fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: NewsArticle }>(res);
+  },
+  update: async (
+    token: string,
+    id: number,
+    body: {
+      title: string;
+      slug?: string;
+      category?: string;
+      excerpt: string;
+      content: string;
+      author_name?: string;
+      author_role?: string;
+      reading_time?: string;
+      views_count?: number | "";
+      published_at?: string;
+      linked_event_id?: number | "";
+      custom_cta_label?: string;
+      custom_cta_url?: string;
+      comments_enabled?: boolean;
+      reactions_enabled?: boolean;
+      publish: boolean;
+    },
+    options?: {
+      imageFile?: File | null;
+      authorAvatarFile?: File | null;
+      galleryFiles?: File[];
+    }
+  ) => {
+    const fd = buildNewsFormData(body, options, "PUT");
+    const res = await fetchWithAuthFormData(`/news/${id}`, fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: NewsArticle }>(res);
+  },
+  delete: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/news/${id}`, { method: "DELETE" }, token);
     return handleResponse<{ status: string; message: string }>(res);
   },
 };
