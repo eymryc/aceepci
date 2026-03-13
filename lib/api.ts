@@ -454,6 +454,355 @@ export const publicOptionsApi = {
     fetchPublicOptions("/news-categories", params),
 };
 
+// ─── Paramètres offres & actualités ────────────────────────────────────────
+
+export const offerCategoriesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  display_order?: number | null;
+}>("/offer-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 20) || null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+export const offerTypesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  offer_category_id?: number | null;
+  display_order?: number | null;
+}>("/offer-types", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  offer_category_id: d.offer_category_id != null && d.offer_category_id !== "" ? Number(d.offer_category_id) : null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+export const newsCategoriesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  display_order?: number | null;
+}>("/news-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+// ─── Offres (emploi, stage, bourse, bénévolat) ─────────────────────────────
+
+export type OfferCategory = "emploi" | "stage" | "bourse" | "benevolat";
+
+export interface Offer {
+  id: number;
+  title: string;
+  organization: string;
+  category: OfferCategory;
+  location: string;
+  type: string;
+  deadline: string;
+  description: string;
+  requirements: string[];
+  salary?: string | null;
+  duration?: string | null;
+  external_link: string | null;
+  created_at?: string;
+  updated_at?: string;
+  is_published?: boolean;
+  offer_category_id?: number | null;
+  offer_type_id?: number | null;
+  offer_category?: { id: number; name: string; code?: string | null };
+  offer_type?: { id: number; name: string; code?: string | null };
+}
+
+export const offersApi = {
+  list: async (
+    token: string,
+    params?: {
+      page?: number;
+      per_page?: number;
+      search?: string;
+      category?: OfferCategory;
+      include_expired?: boolean | 0 | 1;
+      include_unpublished?: boolean | 0 | 1;
+    }
+  ) => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.search) sp.set("search", params.search);
+    if (params?.category) sp.set("category", params.category);
+    if (params?.include_expired) sp.set("include_expired", "1");
+    if (params?.include_unpublished) sp.set("include_unpublished", "1");
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/offers${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{
+      data: Offer[];
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
+  },
+  get: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/offers/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: Offer } | Offer>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw ? (raw as { data: Offer }).data : raw) as Offer;
+  },
+  create: async (token: string, data: Record<string, unknown>) => {
+    const deadlineRaw = String(data.deadline ?? "").trim();
+    const deadline = deadlineRaw
+      ? deadlineRaw.includes("T")
+        ? deadlineRaw
+        : `${deadlineRaw}T12:00:00.000Z`
+      : "";
+    const body: Record<string, unknown> = {
+      title: String(data.title ?? "").trim(),
+      organization: String(data.organization ?? "").trim(),
+      offer_category_id: data.offer_category_id != null && data.offer_category_id !== "" ? Number(data.offer_category_id) : null,
+      offer_type_id: data.offer_type_id != null && data.offer_type_id !== "" ? Number(data.offer_type_id) : null,
+      location: data.location ? String(data.location).trim() : null,
+      deadline,
+      description: data.description ? String(data.description).trim() : null,
+      salary: data.salary ? String(data.salary).trim() : null,
+      duration: data.duration ? String(data.duration).trim() : null,
+      external_link: String(data.external_link ?? "").trim() ? String(data.external_link ?? "").trim() : null,
+      requirements: Array.isArray(data.requirements)
+        ? data.requirements
+        : String(data.requirements ?? "")
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean),
+    };
+    const res = await fetchWithAuth("/offers", { method: "POST", body: JSON.stringify(body) }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
+  },
+  update: async (token: string, id: number, data: Record<string, unknown>) => {
+    const deadlineRaw = String(data.deadline ?? "").trim();
+    const deadline = deadlineRaw
+      ? deadlineRaw.includes("T")
+        ? deadlineRaw
+        : `${deadlineRaw}T12:00:00.000Z`
+      : "";
+    const body: Record<string, unknown> = {
+      title: String(data.title ?? "").trim(),
+      organization: String(data.organization ?? "").trim(),
+      offer_category_id: data.offer_category_id != null && data.offer_category_id !== "" ? Number(data.offer_category_id) : null,
+      offer_type_id: data.offer_type_id != null && data.offer_type_id !== "" ? Number(data.offer_type_id) : null,
+      location: data.location ? String(data.location).trim() : null,
+      deadline,
+      description: data.description ? String(data.description).trim() : null,
+      salary: data.salary ? String(data.salary).trim() : null,
+      duration: data.duration ? String(data.duration).trim() : null,
+      external_link: String(data.external_link ?? "").trim() ? String(data.external_link ?? "").trim() : null,
+      requirements: Array.isArray(data.requirements)
+        ? data.requirements
+        : String(data.requirements ?? "")
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean),
+    };
+    const res = await fetchWithAuth(`/offers/${id}`, { method: "PUT", body: JSON.stringify(body) }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
+  },
+  delete: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/offers/${id}`, { method: "DELETE" }, token);
+    return handleResponse<{ status: string; message: string }>(res);
+  },
+  publish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/offers/${id}/publish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
+  },
+  unpublish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/offers/${id}/unpublish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data: Offer }>(res);
+  },
+};
+
+// ─── Actualités (news) ─────────────────────────────────────────────────────
+
+export interface NewsArticle {
+  id: number;
+  title: string;
+  slug: string;
+  category?: string | null;
+  excerpt?: string | null;
+  content?: string | null;
+  image_url?: string | null;
+  author_name?: string | null;
+  author_role?: string | null;
+  author_avatar_url?: string | null;
+  reading_time?: string | null;
+  views_count?: number | null;
+  /** Date/heure de publication (ISO) */
+  published_at?: string | null;
+  linked_event_id?: number | null;
+  linked_event?: { id: number; name: string; title?: string | null } | null;
+  custom_cta_label?: string | null;
+  custom_cta_url?: string | null;
+  comments_enabled?: boolean | null;
+  reactions_enabled?: boolean | null;
+  gallery_images?: string[] | null;
+  is_published?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const NEWS_CATEGORIES = [
+  "Événements",
+  "Projets",
+  "Formations",
+  "Témoignages",
+  "Galerie",
+] as const;
+
+export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
+
+function buildNewsFormData(
+  body: Record<string, unknown>,
+  options?: {
+    imageFile?: File | null;
+    authorAvatarFile?: File | null;
+    galleryFiles?: File[];
+  },
+  methodOverride?: "PUT"
+): FormData {
+  const fd = new FormData();
+  if (methodOverride) fd.append("_method", methodOverride);
+  fd.append("title", String(body.title ?? "").trim());
+  if (body.slug) fd.append("slug", String(body.slug).trim());
+  if (body.category) fd.append("category", String(body.category).trim());
+  fd.append("excerpt", String(body.excerpt ?? "").trim());
+  fd.append("content", String(body.content ?? "").trim());
+  if (body.author_name) fd.append("author_name", String(body.author_name).trim());
+  if (body.author_role) fd.append("author_role", String(body.author_role).trim());
+  if (body.reading_time) fd.append("reading_time", String(body.reading_time).trim());
+  if (body.views_count != null && body.views_count !== "") fd.append("views_count", String(body.views_count));
+  if (body.published_at) {
+    fd.append("published_at", String(body.published_at).trim());
+  }
+  if (body.linked_event_id != null && body.linked_event_id !== "") {
+    fd.append("linked_event_id", String(body.linked_event_id));
+  }
+  if (body.custom_cta_label) fd.append("custom_cta_label", String(body.custom_cta_label).trim());
+  if (body.custom_cta_url) fd.append("custom_cta_url", String(body.custom_cta_url).trim());
+  if (body.comments_enabled != null) {
+    fd.append("comments_enabled", body.comments_enabled ? "1" : "0");
+  }
+  if (body.reactions_enabled != null) {
+    fd.append("reactions_enabled", body.reactions_enabled ? "1" : "0");
+  }
+  if (body.publish != null) {
+    fd.append("publish", body.publish ? "1" : "0");
+  }
+  if (options?.imageFile) {
+    fd.append("image", options.imageFile, options.imageFile.name);
+  }
+  if (options?.authorAvatarFile) {
+    fd.append("author_avatar", options.authorAvatarFile, options.authorAvatarFile.name);
+  }
+  if (options?.galleryFiles?.length) {
+    options.galleryFiles.forEach((file) => {
+      fd.append("gallery_images[]", file, file.name);
+    });
+  }
+  return fd;
+}
+
+export const newsApi = {
+  list: async (
+    token: string,
+    params?: { page?: number; per_page?: number; search?: string; status?: "published" | "draft" }
+  ) => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.search) sp.set("search", params.search);
+    if (params?.status) sp.set("status", params.status);
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/news${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{
+      data: NewsArticle[];
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
+  },
+  get: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/news/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: NewsArticle } | NewsArticle>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw
+      ? (raw as { data: NewsArticle }).data
+      : raw) as NewsArticle;
+  },
+  create: async (
+    token: string,
+    body: {
+      title: string;
+      slug?: string;
+      category?: string;
+      excerpt: string;
+      content: string;
+      author_name?: string;
+      author_role?: string;
+      reading_time?: string;
+      views_count?: number | "";
+      published_at?: string;
+      linked_event_id?: number | "";
+      custom_cta_label?: string;
+      custom_cta_url?: string;
+      comments_enabled?: boolean;
+      reactions_enabled?: boolean;
+      publish: boolean;
+    },
+    options?: {
+      imageFile?: File | null;
+      authorAvatarFile?: File | null;
+      galleryFiles?: File[];
+    }
+  ) => {
+    const fd = buildNewsFormData(body, options);
+    const res = await fetchWithAuthFormData("/news", fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: NewsArticle }>(res);
+  },
+  update: async (
+    token: string,
+    id: number,
+    body: {
+      title: string;
+      slug?: string;
+      category?: string;
+      excerpt: string;
+      content: string;
+      author_name?: string;
+      author_role?: string;
+      reading_time?: string;
+      views_count?: number | "";
+      published_at?: string;
+      linked_event_id?: number | "";
+      custom_cta_label?: string;
+      custom_cta_url?: string;
+      comments_enabled?: boolean;
+      reactions_enabled?: boolean;
+      publish: boolean;
+    },
+    options?: {
+      imageFile?: File | null;
+      authorAvatarFile?: File | null;
+      galleryFiles?: File[];
+    }
+  ) => {
+    const fd = buildNewsFormData(body, options, "PUT");
+    const res = await fetchWithAuthFormData(`/news/${id}`, fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: NewsArticle }>(res);
+  },
+  delete: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/news/${id}`, { method: "DELETE" }, token);
+    return handleResponse<{ status: string; message: string }>(res);
+  },
+};
+
 // ─── Événements ────────────────────────────────────────────────────────────
 
 export interface Event {
@@ -1406,7 +1755,6 @@ export interface DeviseSection {
 
 export const deviseSectionApi = {
   get: async (token: string) => {
-    // Backend : endpoint en anglais pour la devise (motto)
     const res = await fetchWithAuth("/motto", { method: "GET" }, token);
     const raw = await handleResponse<unknown>(res);
     const data = (raw as { data?: DeviseSection }).data ?? (raw as DeviseSection);
@@ -1426,6 +1774,21 @@ export const deviseSectionApi = {
       publish: boolean;
     }
   ) => {
+    const res = await fetchWithAuth(
+      "/motto",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          section_label: String(body.section_label ?? "").trim(),
+          title: String(body.title ?? "").trim(),
+          subtitle: String(body.subtitle ?? "").trim(),
+          quote: String(body.quote ?? "").trim(),
+          pillars: body.pillars,
+          publish: body.publish ? 1 : 0,
+        }),
+      },
+      token
+    );
     const res = await fetchWithAuth("/motto", {
       method: "POST",
       body: JSON.stringify({
@@ -1461,7 +1824,6 @@ export const visionMissionValuesApi = {
     const raw = await handleResponse<unknown>(res);
     const data = (raw as { data?: VisionMissionValuesSection }).data ?? (raw as VisionMissionValuesSection);
     if (data) {
-      // Compat lecture: certaines versions de l'API renvoient vision_text/mission_text/values_text
       const anyData = data as unknown as {
         vision_text?: string | null;
         mission_text?: string | null;
@@ -1487,19 +1849,22 @@ export const visionMissionValuesApi = {
       publish: boolean;
     }
   ) => {
-    const res = await fetchWithAuth("/vision-mission-values", {
-      method: "POST",
-      body: JSON.stringify({
-        section_label: String(body.section_label ?? "").trim(),
-        title: String(body.title ?? "").trim(),
-        subtitle: String(body.subtitle ?? "").trim(),
-        // L'API attend *_text : vision_text, mission_text, values_text
-        vision_text: String(body.vision ?? "").trim(),
-        mission_text: String(body.mission ?? "").trim(),
-        values_text: String(body.valeurs ?? "").trim(),
-        publish: body.publish ? 1 : 0,
-      }),
-    }, token);
+    const res = await fetchWithAuth(
+      "/vision-mission-values",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          section_label: String(body.section_label ?? "").trim(),
+          title: String(body.title ?? "").trim(),
+          subtitle: String(body.subtitle ?? "").trim(),
+          vision_text: String(body.vision ?? "").trim(),
+          mission_text: String(body.mission ?? "").trim(),
+          values_text: String(body.valeurs ?? "").trim(),
+          publish: body.publish ? 1 : 0,
+        }),
+      },
+      token
+    );
     return handleResponse<{ status: string; message: string; data?: VisionMissionValuesSection }>(res);
   },
 };
@@ -1523,7 +1888,6 @@ export interface OrganisationSection {
 
 export const organisationSectionApi = {
   get: async (token: string) => {
-    // L'API backend expose /organization (en anglais)
     const res = await fetchWithAuth("/organization", { method: "GET" }, token);
     const raw = await handleResponse<unknown>(res);
     const data = (raw as { data?: OrganisationSection }).data ?? (raw as OrganisationSection);
@@ -1542,16 +1906,20 @@ export const organisationSectionApi = {
       publish: boolean;
     }
   ) => {
-    const res = await fetchWithAuth("/organization", {
-      method: "POST",
-      body: JSON.stringify({
-        section_label: String(body.section_label ?? "").trim(),
-        title: String(body.title ?? "").trim(),
-        subtitle: String(body.subtitle ?? "").trim(),
-        cards: body.cards,
-        publish: body.publish ? 1 : 0,
-      }),
-    }, token);
+    const res = await fetchWithAuth(
+      "/organization",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          section_label: String(body.section_label ?? "").trim(),
+          title: String(body.title ?? "").trim(),
+          subtitle: String(body.subtitle ?? "").trim(),
+          cards: body.cards,
+          publish: body.publish ? 1 : 0,
+        }),
+      },
+      token
+    );
     return handleResponse<{ status: string; message: string; data?: OrganisationSection }>(res);
   },
 };

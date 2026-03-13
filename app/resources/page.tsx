@@ -8,9 +8,6 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function Page() {
-
-
-  // Update the state to include "Livre"
   const [activeTab, setActiveTab] = useState<"Audio" | "Vidéo" | "Texte">("Vidéo");
 
   const allContent = [
@@ -140,6 +137,142 @@ export default function Page() {
         subtitle="Nourrissez votre foi avec nos enseignements et méditations"
         background={heroImages.resources}
       />
+
+      {/* Prédications & Messages — première section */}
+      <AnimateSection className="relative py-24 sm:py-28 bg-white overflow-hidden px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <header className="text-center mb-12 sm:mb-14">
+            <div className="flex justify-center gap-2 mb-4">
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+              <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">ACEEPCI · Enseignements</p>
+              <span className="w-1 h-1 rounded-full bg-brand-primary" />
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground leading-tight uppercase tracking-tight">
+              Prédications &amp; <em className="not-italic italic text-brand-primary">Messages</em>
+            </h2>
+            <p className="text-foreground/85 mt-3 text-sm sm:text-base max-w-xl mx-auto">
+              Écoutez ou regardez les enseignements bibliques de nos pasteurs et prédicateurs invités.
+            </p>
+          </header>
+
+          {/* Filtres avec icônes */}
+          <div className="bg-white border border-border rounded-2xl p-4 sm:p-5 mb-8 shadow-[0_2px_16px_rgba(24,64,112,0.04)]">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl transition-all font-semibold border ${
+                  activeTab === "Vidéo"
+                    ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-transparent shadow-[0_4px_14px_rgba(24,64,112,0.28)]"
+                    : "bg-brand-subtle/50 border-border text-foreground hover:bg-brand-primary/10 hover:border-brand-primary/25"
+                }`}
+                onClick={() => setActiveTab("Vidéo")}
+              >
+                <Video className="w-5 h-5" />
+                Vidéo
+                <span className="ml-0.5 text-xs opacity-90">({allContent.filter(c => c.type === "Vidéo").length})</span>
+              </button>
+              <button
+                className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl transition-all font-semibold border ${
+                  activeTab === "Audio"
+                    ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-transparent shadow-[0_4px_14px_rgba(24,64,112,0.28)]"
+                    : "bg-brand-subtle/50 border-border text-foreground hover:bg-brand-primary/10 hover:border-brand-primary/25"
+                }`}
+                onClick={() => setActiveTab("Audio")}
+              >
+                <Headphones className="w-5 h-5" />
+                Audio
+                <span className="ml-0.5 text-xs opacity-90">({allContent.filter(c => c.type === "Audio").length})</span>
+              </button>
+              <button
+                className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl transition-all font-semibold border ${
+                  activeTab === "Texte"
+                    ? "bg-gradient-to-r from-brand-primary to-brand-accent text-white border-transparent shadow-[0_4px_14px_rgba(24,64,112,0.28)]"
+                    : "bg-brand-subtle/50 border-border text-foreground hover:bg-brand-primary/10 hover:border-brand-primary/25"
+                }`}
+                onClick={() => setActiveTab("Texte")}
+              >
+                <FileText className="w-5 h-5" />
+                Texte
+                <span className="ml-0.5 text-xs opacity-90">({allContent.filter(c => c.type === "Texte").length})</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Liste des contenus */}
+          <div className="space-y-5">
+            {filteredContent.map((item, index) => (
+              <div
+                key={index}
+                className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-brand-primary/25 hover:shadow-[0_16px_48px_rgba(24,64,112,0.12)] transition-all duration-300"
+              >
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-gradient-to-b from-brand-primary to-brand-accent opacity-90 group-hover:opacity-100 transition-opacity z-10" />
+                <div className="pl-6 sm:pl-7 flex flex-col sm:flex-row gap-0 sm:gap-6 p-5 sm:p-6">
+                  {/* Visuel */}
+                  {"image" in item ? (
+                    <div className="relative w-full sm:w-40 h-40 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 mb-4 sm:mb-0">
+                      <ImageWithFallback
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-brand-primary-dark/50 to-transparent" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                          {item.type === "Audio" ? (
+                            <Headphones className="w-7 h-7 text-white" />
+                          ) : (
+                            <Video className="w-7 h-7 text-white" />
+                          )}
+                        </span>
+                      </div>
+                      <span className="absolute top-3 left-3 px-2.5 py-1 bg-white/95 backdrop-blur-sm text-foreground text-[0.7rem] font-semibold rounded-lg shadow-sm">
+                        {item.type}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="relative w-full sm:w-40 h-40 sm:h-36 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent flex items-center justify-center flex-shrink-0 shadow-[0_8px_24px_rgba(24,64,112,0.25)] mb-4 sm:mb-0">
+                      <FileText className="w-14 h-14 text-white" />
+                      <span className="absolute top-3 left-3 px-2.5 py-1 bg-white/95 text-foreground text-[0.7rem] font-semibold rounded-lg shadow-sm">
+                        {item.type}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Contenu */}
+                  <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-1.5">{item.date}</p>
+                      <h3 className="font-serif text-lg sm:text-xl font-bold text-foreground mb-2 leading-snug line-clamp-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm font-medium text-foreground/85 mb-1">
+                        {item.speaker}
+                        {"duration" in item && (
+                          <span className="text-foreground/70 font-normal"> · {item.duration}</span>
+                        )}
+                      </p>
+                      {"excerpt" in item && (
+                        <p className="text-foreground/90 text-sm mt-2 line-clamp-2 leading-relaxed">
+                          {item.excerpt}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0">
+                      <Link
+                        href={`/sermons/${item.id}`}
+                        className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white rounded-xl font-semibold text-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:shadow-[0_6px_24px_rgba(24,64,112,0.35)] hover:-translate-y-0.5 transition-all"
+                      >
+                        {item.type === "Audio" ? <Headphones className="w-4 h-4" /> : item.type === "Vidéo" ? <Video className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                        {item.type === "Audio" ? "Écouter" : item.type === "Vidéo" ? "Regarder" : "Lire"}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimateSection>
+
       {/* Verse of the Day */}
       <AnimateSection className="relative py-24 bg-white overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-4xl mx-auto">
