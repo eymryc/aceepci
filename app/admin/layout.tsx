@@ -79,6 +79,10 @@ const settingsGroups = [
       { href: "/admin/settings/offer-types", label: "Types / Contrats d'offres" },
     ],
   },
+  {
+    title: "Contenu",
+    items: [{ href: "/admin/settings/news-categories", label: "Catégories d'articles" }],
+  },
 ];
 
 const settingsSubItemsFlat = settingsGroups.flatMap((g) => g.items);
