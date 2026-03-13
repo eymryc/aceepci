@@ -213,7 +213,7 @@ export default function Page() {
               <span className="hidden sm:inline">ACEEPCI</span>
             </div>
             <div className={`flex items-center gap-1 ${currentStep >= 5 ? "text-brand-primary" : "text-muted-foreground"}`}>
-              {currentStep > 5 ? <CheckCircle className="w-4 h-4" /> : <div className="w-4 h-4 border-2 border-current rounded-full" />}
+              {currentStep > 5 ? <CheckCircle className="w-4 h-4"/> : <div className="w-4 h-4 border-2 border-current rounded-full" />}
               <span className="hidden sm:inline">Spirituel</span>
             </div>
             <div className={`flex items-center gap-1 ${currentStep >= 6 ? "text-brand-primary" : "text-muted-foreground"}`}>
