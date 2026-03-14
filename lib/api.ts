@@ -413,6 +413,27 @@ export const workshopOptionsApi = createCrudApi<{
   display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
 }));
 
+// ─── Paramètres offres ─────────────────────────────────────────────────────
+
+export const offerCategoriesApi = createCrudApi<{ id: number; name: string; code?: string | null; display_order?: number | null }>(
+  "/offer-categories",
+  (d) => ({
+    name: String(d.name ?? "").trim(),
+    code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 20) || null,
+    display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+  })
+);
+
+export const offerTypesApi = createCrudApi<{ id: number; name: string; code?: string | null; offer_category_id?: number | null; display_order?: number | null }>(
+  "/offer-types",
+  (d) => ({
+    name: String(d.name ?? "").trim(),
+    code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+    offer_category_id: d.offer_category_id != null && d.offer_category_id !== "" ? Number(d.offer_category_id) : null,
+    display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+  })
+);
+
 export const publicOptionsApi = {
   memberTypes: (params?: Record<string, string | number | undefined>) =>
     fetchPublicOptions("/member-types", params),
@@ -1596,10 +1617,41 @@ export interface Event {
   expected_attendees?: string | null;
   location?: string | null;
   price?: string | null;
+  image_url?: string | null;
   is_published: boolean;
   registration_open: boolean;
   created_at?: string;
   updated_at?: string;
+}
+
+function buildEventFormData(body: Record<string, unknown>, imageFile?: File | null): FormData {
+  const fd = new FormData();
+  fd.append("name", String(body.name ?? "").trim());
+  fd.append("title", String(body.title ?? body.name ?? "").trim());
+  if (body.slug) fd.append("slug", String(body.slug).trim());
+  fd.append("event_category_id", String(Number(body.event_category_id) || 0));
+  fd.append("start_date", String(body.start_date ?? "").trim());
+  fd.append("end_date", String(body.end_date ?? "").trim());
+  fd.append("expected_attendees", body.expected_attendees ? String(body.expected_attendees).trim() : "");
+  fd.append("location", body.location ? String(body.location).trim() : "");
+  fd.append("price", body.price ? String(body.price).trim() : "");
+  fd.append("is_published", body.is_published ? "1" : "0");
+  fd.append("registration_open", body.registration_open ? "1" : "0");
+  if (imageFile) {
+    fd.append("image", imageFile, imageFile.name);
+  }
+  return fd;
+}
+
+function buildEventUpdateFormData(
+  body: Record<string, unknown>,
+  imageFile?: File | null,
+  removeImage?: boolean
+): FormData {
+  const fd = buildEventFormData(body, imageFile);
+  fd.append("_method", "PUT");
+  fd.append("remove_image", removeImage ? "1" : "0");
+  return fd;
 }
 
 export const eventsApi = {
@@ -1621,38 +1673,19 @@ export const eventsApi = {
     const raw = await handleResponse<{ data: Event } | Event>(res);
     return (typeof raw === "object" && raw !== null && "data" in raw ? (raw as { data: Event }).data : raw) as Event;
   },
-  create: async (token: string, data: Record<string, unknown>) => {
-    const body = {
-      name: String(data.name ?? "").trim(),
-      title: String(data.title ?? data.name ?? "").trim(),
-      slug: data.slug ? String(data.slug).trim() : undefined,
-      event_category_id: Number(data.event_category_id) || 0,
-      start_date: String(data.start_date ?? "").trim(),
-      end_date: String(data.end_date ?? "").trim(),
-      expected_attendees: data.expected_attendees ? String(data.expected_attendees).trim() : null,
-      location: data.location ? String(data.location).trim() : null,
-      price: data.price ? String(data.price).trim() : null,
-      is_published: Boolean(data.is_published),
-      registration_open: Boolean(data.registration_open),
-    };
-    const res = await fetchWithAuth("/events", { method: "POST", body: JSON.stringify(body) }, token);
+  create: async (token: string, data: Record<string, unknown>, imageFile?: File | null) => {
+    const fd = buildEventFormData(data, imageFile);
+    const res = await fetchWithAuthFormData("/events", fd, token, "POST");
     return handleResponse<{ status: string; message: string; data: Event }>(res);
   },
-  update: async (token: string, id: number, data: Record<string, unknown>) => {
-    const body = {
-      name: String(data.name ?? "").trim(),
-      title: String(data.title ?? data.name ?? "").trim(),
-      slug: data.slug ? String(data.slug).trim() : undefined,
-      event_category_id: Number(data.event_category_id) || 0,
-      start_date: String(data.start_date ?? "").trim(),
-      end_date: String(data.end_date ?? "").trim(),
-      expected_attendees: data.expected_attendees ? String(data.expected_attendees).trim() : null,
-      location: data.location ? String(data.location).trim() : null,
-      price: data.price ? String(data.price).trim() : null,
-      is_published: Boolean(data.is_published),
-      registration_open: Boolean(data.registration_open),
-    };
-    const res = await fetchWithAuth(`/events/${id}`, { method: "PUT", body: JSON.stringify(body) }, token);
+  update: async (
+    token: string,
+    id: number,
+    data: Record<string, unknown>,
+    options?: { imageFile?: File | null; removeImage?: boolean }
+  ) => {
+    const fd = buildEventUpdateFormData(data, options?.imageFile, options?.removeImage);
+    const res = await fetchWithAuthFormData(`/events/${id}`, fd, token, "POST");
     return handleResponse<{ status: string; message: string; data: Event }>(res);
   },
   delete: async (token: string, id: number) => {
@@ -1660,6 +1693,62 @@ export const eventsApi = {
     return handleResponse<{ status: string; message: string }>(res);
   },
 };
+
+// ─── Actualités (news) ─────────────────────────────────────────────────────
+
+export interface NewsArticle {
+  id: number;
+  title: string;
+  slug: string;
+  category?: string | null;
+  excerpt?: string | null;
+  content?: string | null;
+  image_url?: string | null;
+  author_name?: string | null;
+  author_role?: string | null;
+  author_avatar_url?: string | null;
+  reading_time?: string | null;
+  views_count?: number | null;
+  /** Date/heure de publication (ISO) */
+  published_at?: string | null;
+  linked_event_id?: number | null;
+  linked_event?: { id: number; name: string; title?: string | null } | null;
+  custom_cta_label?: string | null;
+  custom_cta_url?: string | null;
+  comments_enabled?: boolean | null;
+  reactions_enabled?: boolean | null;
+  gallery_images?: string[] | null;
+  is_published?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// ─── Offres (emploi, stage, bourse, bénévolat) ───────────────────────────────
+
+export type OfferCategory = "emploi" | "stage" | "bourse" | "benevolat";
+
+export interface Offer {
+  id: number;
+  title: string;
+  organization: string;
+  category: OfferCategory;
+  location: string;
+  type: string;
+  deadline: string;
+  description: string;
+  requirements: string[];
+  salary?: string | null;
+  duration?: string | null;
+  external_link: string | null;
+  created_at?: string;
+  updated_at?: string;
+  is_published?: boolean;
+  offer_category_id?: number | null;
+  offer_type_id?: number | null;
+  offer_category?: { id: number; name: string; code?: string | null };
+  offer_type?: { id: number; name: string; code?: string | null };
+}
+
 
 // ─── Membres ───────────────────────────────────────────────────────────────
 

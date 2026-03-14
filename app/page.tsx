@@ -448,99 +448,82 @@ export default function Page() {
 
 
 
-      <AnimateSection className="relative bg-white overflow-hidden py-24 sm:py-28 px-4 sm:px-6 lg:px-8">
+      <AnimateSection className="relative bg-white overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 max-w-7xl mx-auto">
-          <header className="text-center mb-14 sm:mb-16">
-            <div className="flex justify-center gap-2 mb-4">
+
+          {/* ── Eyebrow ── */}
+          <div className="flex justify-center mb-12">
+            <div className="flex items-center gap-2">
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
               <p className="text-[0.7rem] font-medium tracking-[0.22em] uppercase text-brand-primary">
                 Passez à l&apos;action
               </p>
               <span className="w-1 h-1 rounded-full bg-brand-primary" />
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-foreground uppercase tracking-tight max-w-2xl mx-auto">
-              Rejoignez, soutenez, participez
-            </h2>
-            <p className="text-muted-foreground mt-3 text-sm sm:text-base max-w-xl mx-auto">
-              Trois façons concrètes de vous engager avec l&apos;ACEEPCI
-            </p>
-          </header>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid md:grid-cols-2 gap-5">
+
             {/* ── Card 1 : Rejoignez-nous ── */}
-            <Link
-              href="/members"
-              className="group relative flex flex-col bg-white border border-border rounded-2xl p-8 sm:p-9 overflow-hidden hover:border-brand-primary/30 hover:shadow-[0_20px_50px_rgba(24,64,112,0.12)] hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="absolute top-6 right-6 font-serif text-5xl font-bold leading-none text-brand-primary/[0.07] select-none">01</span>
+            <div className="group relative bg-brand-subtle/80 border border-border rounded-2xl p-8 md:p-10 overflow-hidden hover:border-brand-primary/25 hover:shadow-lg transition-all duration-300">
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="absolute bottom-4 right-6 font-serif text-[7rem] font-bold leading-none text-brand-primary/[0.06] select-none pointer-events-none">01</span>
 
-              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-primary/15 to-brand-accent/10 border border-brand-primary/20 flex items-center justify-center mb-6 group-hover:from-brand-primary/25 group-hover:to-brand-accent/20 transition-colors">
-                <Users className="w-7 h-7 text-brand-primary" />
+              <div className="relative flex items-start gap-5">
+                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white shadow-sm border border-border flex items-center justify-center">
+                  <Users className="w-6 h-6 text-brand-primary" />
+                </div>
+
+                <div className="flex-1">
+                  <h3 className="font-serif text-2xl font-bold text-foreground mb-2 uppercase tracking-tight">
+                    Rejoignez-nous
+                  </h3>
+                  <div className="w-8 h-[2px] bg-brand-primary mb-4 transition-all duration-300 group-hover:w-14" />
+                  <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-6">
+                    Devenez membre de l&apos;ACEEPCI et faites partie d&apos;une communauté
+                    de plus de <span className="text-brand-primary font-medium">5 000 jeunes</span> engagés pour Christ.
+                  </p>
+                  <Link
+                    href="/members"
+                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group/btn"
+                  >
+                    Adhérer maintenant
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </div>
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground mb-2 uppercase tracking-tight">
-                Rejoignez-nous
-              </h3>
-              <div className="w-10 h-[2px] bg-brand-primary/60 mb-4 group-hover:w-14 transition-all duration-300" />
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
-                Devenez membre et faites partie d&apos;une communauté de plus de{" "}
-                <span className="text-brand-primary font-semibold">5 000 jeunes</span> engagés pour Christ.
-              </p>
-              <span className="inline-flex items-center gap-2 text-brand-primary font-semibold text-sm group-hover:gap-3 transition-all">
-                Adhérer maintenant
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            </Link>
+            </div>
 
             {/* ── Card 2 : Soutenez ── */}
-            <Link
-              href="/payments"
-              className="group relative flex flex-col bg-white border border-border rounded-2xl p-8 sm:p-9 overflow-hidden hover:border-brand-primary/30 hover:shadow-[0_20px_50px_rgba(24,64,112,0.12)] hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="absolute top-6 right-6 font-serif text-5xl font-bold leading-none text-brand-primary/[0.07] select-none">02</span>
+            <div className="group relative bg-brand-subtle/80 border border-border rounded-2xl p-8 md:p-10 overflow-hidden hover:border-brand-primary/25 hover:shadow-lg transition-all duration-300">
+              <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-brand-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="absolute bottom-4 right-6 font-serif text-[7rem] font-bold leading-none text-brand-primary/[0.06] select-none pointer-events-none">02</span>
 
-              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-primary/15 to-brand-accent/10 border border-brand-primary/20 flex items-center justify-center mb-6 group-hover:from-brand-primary/25 group-hover:to-brand-accent/20 transition-colors">
-                <Heart className="w-7 h-7 text-brand-primary" />
+              <div className="relative flex items-start gap-5">
+                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white shadow-sm border border-border flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-brand-primary" />
+                </div>
+
+                <div className="flex-1">
+                  <h3 className="font-serif text-2xl font-bold text-foreground mb-2 uppercase tracking-tight">
+                    Soutenez notre mission
+                  </h3>
+                  <div className="w-8 h-[2px] bg-brand-primary mb-4 transition-all duration-300 group-hover:w-14" />
+                  <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-6">
+                    Votre don aide à financer nos activités, nos camps bibliques
+                    et le soutien aux <span className="text-brand-primary font-medium">élèves défavorisés</span>.
+                  </p>
+                  <Link
+                    href="/payments"
+                    className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white text-sm font-medium rounded-sm shadow-[0_4px_16px_rgba(24,64,112,0.28)] hover:opacity-95 hover:-translate-y-0.5 transition-all group/btn"
+                  >
+                    Faire un don
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </div>
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground mb-2 uppercase tracking-tight">
-                Soutenez notre mission
-              </h3>
-              <div className="w-10 h-[2px] bg-brand-primary/60 mb-4 group-hover:w-14 transition-all duration-300" />
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
-                Votre don finance nos activités, camps bibliques et le soutien aux{" "}
-                <span className="text-brand-primary font-semibold">élèves défavorisés</span>.
-              </p>
-              <span className="inline-flex items-center gap-2 text-brand-primary font-semibold text-sm group-hover:gap-3 transition-all">
-                Faire un don
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            </Link>
+            </div>
 
-            {/* ── Card 3 : Participez aux activités ── */}
-            <Link
-              href="/activities"
-              className="group relative flex flex-col bg-white border border-border rounded-2xl p-8 sm:p-9 overflow-hidden hover:border-brand-primary/30 hover:shadow-[0_20px_50px_rgba(24,64,112,0.12)] hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-brand-primary via-brand-accent to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="absolute top-6 right-6 font-serif text-5xl font-bold leading-none text-brand-primary/[0.07] select-none">03</span>
-
-              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-primary/15 to-brand-accent/10 border border-brand-primary/20 flex items-center justify-center mb-6 group-hover:from-brand-primary/25 group-hover:to-brand-accent/20 transition-colors">
-                <Calendar className="w-7 h-7 text-brand-primary" />
-              </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground mb-2 uppercase tracking-tight">
-                Participez aux activités
-              </h3>
-              <div className="w-10 h-[2px] bg-brand-primary/60 mb-4 group-hover:w-14 transition-all duration-300" />
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
-                Découvrez nos <span className="text-brand-primary font-semibold">camps bibliques</span>, séminaires,
-                cultes et événements. Inscrivez-vous en ligne.
-              </p>
-              <span className="inline-flex items-center gap-2 text-brand-primary font-semibold text-sm group-hover:gap-3 transition-all">
-                Voir les activités
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            </Link>
           </div>
         </div>
       </AnimateSection>
