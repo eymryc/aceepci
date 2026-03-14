@@ -64,7 +64,7 @@ install: up
 
 En ligne
 
-php artisan migrate --force
+php artisan migrate --force 
 php artisan db:seed --force
 
 ou
