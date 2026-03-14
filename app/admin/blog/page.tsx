@@ -1,86 +1,621 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
-import { AdminPageHeader, AdminCard, AdminButton } from "@/components/admin";
+import { Plus, Search, Pencil, Trash2, Eye, RefreshCw, ChevronLeft, ChevronRight, Send, Ban, Tag, Columns, Check } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { AdminPageHeader, AdminCard, AdminBadge, AdminButton } from "@/components/admin";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { blogApi, eventsApi, type BlogArticle } from "@/lib/api";
 
-const mockPosts = [
-  { id: 1, title: "Comment Dieu a transformé ma vie universitaire", author: "Sarah Kouadio", category: "Témoignages", date: "28 Fév 2026", views: 1245 },
-  { id: 2, title: "L'importance de la communauté chrétienne à l'université", author: "Koffi Mensah", category: "Réflexions", date: "25 Fév 2026", views: 987 },
-  { id: 3, title: "Retour sur le Camp d'Été 2025 à Grand-Bassam", author: "Équipe Communication", category: "Événements", date: "20 Fév 2026", views: 2134 },
-  { id: 4, title: "5 clés pour une vie de prière efficace", author: "Pasteur Jean Koné", category: "Vie Spirituelle", date: "18 Fév 2026", views: 1567 },
+const STATUS_OPTIONS: { value: "all" | "published" | "draft"; label: string }[] = [
+  { value: "all", label: "Tous" },
+  { value: "published", label: "Publié" },
+  { value: "draft", label: "Brouillon" },
 ];
 
+const BLOG_TABLE_COLUMNS: { id: string; label: string; defaultVisible: boolean }[] = [
+  { id: "title", label: "Titre", defaultVisible: true },
+  { id: "slug", label: "Slug", defaultVisible: false },
+  { id: "category", label: "Catégorie", defaultVisible: true },
+  { id: "excerpt", label: "Extrait", defaultVisible: false },
+  { id: "published_at", label: "Publié le", defaultVisible: true },
+  { id: "views_count", label: "Vues", defaultVisible: true },
+  { id: "status", label: "Statut", defaultVisible: true },
+  { id: "author_name", label: "Auteur", defaultVisible: false },
+  { id: "author_role", label: "Rôle auteur", defaultVisible: false },
+  { id: "reading_time", label: "Temps de lecture", defaultVisible: false },
+  { id: "created_at", label: "Créé le", defaultVisible: false },
+  { id: "updated_at", label: "Modifié le", defaultVisible: false },
+  { id: "linked_event", label: "Événement lié", defaultVisible: false },
+  { id: "cta_label", label: "CTA libellé", defaultVisible: false },
+  { id: "cta_link", label: "CTA lien", defaultVisible: false },
+  { id: "comments_enabled", label: "Commentaires", defaultVisible: false },
+  { id: "reactions_enabled", label: "Réactions", defaultVisible: false },
+  { id: "actions", label: "Actions", defaultVisible: true },
+];
+
+const DEFAULT_VISIBLE_COLUMNS = BLOG_TABLE_COLUMNS.filter((c) => c.defaultVisible).map((c) => c.id);
+
+function formatDate(val: string | undefined | null): string {
+  if (!val) return "—";
+  const d = new Date(val);
+  return Number.isNaN(d.getTime())
+    ? val
+    : d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+}
+
 export default function AdminBlogPage() {
+  const { token } = useAuth();
+  const [items, setItems] = useState<BlogArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState<BlogArticle | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [publishTarget, setPublishTarget] = useState<{ article: BlogArticle; action: "publish" | "unpublish" } | null>(null);
+  const [publishLoading, setPublishLoading] = useState(false);
+  const [statusSearch, setStatusSearch] = useState("");
+  const [statusPopoverOpen, setStatusPopoverOpen] = useState(false);
+  const [visibleColumnIds, setVisibleColumnIds] = useState<string[]>(DEFAULT_VISIBLE_COLUMNS);
+  const [eventNamesMap, setEventNamesMap] = useState<Record<number, string>>({});
+
+  const fetchData = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await blogApi.list(token, {
+        page,
+        per_page: perPage,
+        search: search || undefined,
+        status:
+          statusFilter === "all"
+            ? "all"
+            : statusFilter === "published"
+              ? "published"
+              : "draft",
+      });
+      const data = Array.isArray(res.data) ? res.data : [];
+      const last = res.meta?.last_page ?? res.last_page ?? 1;
+      setItems(data);
+      setLastPage(last);
+      setTotal(res.meta?.total ?? res.total ?? (page === last ? (page - 1) * perPage + data.length : last * perPage));
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : "Erreur lors du chargement des articles.";
+      setError(msg);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, page, perPage, search, statusFilter]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (!token) return;
+    eventsApi
+      .list(token, { per_page: 500 })
+      .then((res) => {
+        const map: Record<number, string> = {};
+        (res.data ?? []).forEach((ev) => {
+          map[ev.id] = ev.name || ev.title || `Événement #${ev.id}`;
+        });
+        setEventNamesMap(map);
+      })
+      .catch(() => setEventNamesMap({}));
+  }, [token]);
+
+  const handleDeleteClick = (article: BlogArticle) => {
+    setDeleting(article);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleting || !token) return;
+    setDeleteLoading(true);
+    try {
+      await blogApi.delete(token, deleting.id);
+      toast.success("Article supprimé.");
+      setDeleteDialogOpen(false);
+      setDeleting(null);
+      fetchData();
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : "Erreur lors de la suppression.";
+      toast.error(msg);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handlePublishClick = (article: BlogArticle) => {
+    setPublishTarget({ article, action: "publish" });
+    setPublishDialogOpen(true);
+  };
+
+  const handleUnpublishClick = (article: BlogArticle) => {
+    setPublishTarget({ article, action: "unpublish" });
+    setPublishDialogOpen(true);
+  };
+
+  const filteredStatusOptions = useMemo(() => {
+    const q = statusSearch.trim().toLowerCase();
+    if (!q) return STATUS_OPTIONS;
+    return STATUS_OPTIONS.filter((o) => o.label.toLowerCase().includes(q));
+  }, [statusSearch]);
+
+  const orderedColumnIds = useMemo(() => {
+    const rest = visibleColumnIds.filter((id) => id !== "status" && id !== "actions");
+    const end: string[] = [];
+    if (visibleColumnIds.includes("status")) end.push("status");
+    if (visibleColumnIds.includes("actions")) end.push("actions");
+    return [...rest, ...end];
+  }, [visibleColumnIds]);
+
+  const toggleColumn = (id: string) => {
+    setVisibleColumnIds((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  };
+
+  const handlePublishConfirm = async () => {
+    if (!publishTarget || !token) return;
+    setPublishLoading(true);
+    try {
+      if (publishTarget.action === "publish") {
+        await blogApi.publish(token, publishTarget.article.id);
+        toast.success("Article publié.");
+      } else {
+        await blogApi.unpublish(token, publishTarget.article.id);
+        toast.success("Article dépublié.");
+      }
+      setPublishDialogOpen(false);
+      setPublishTarget(null);
+      fetchData();
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : publishTarget.action === "publish"
+            ? "Erreur lors de la publication."
+            : "Erreur lors de la dépublication.";
+      toast.error(msg);
+    } finally {
+      setPublishLoading(false);
+    }
+  };
 
   return (
     <div>
       <AdminPageHeader
         title="Blog"
-        description="Gérez les articles et témoignages"
-        action={
-          <AdminButton href="/admin/blog/new" icon={<Plus className="w-4 h-4" />}>
-            Nouvel article
-          </AdminButton>
-        }
+        description="Gérez les articles et témoignages du blog"
       />
 
       <AdminCard padding="none">
-        <div className="p-4 border-b border-border">
-          <div className="relative max-w-md">
+        <div className="p-4 border-b border-border flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+          <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Rechercher un article..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm"
+              aria-label="Rechercher un article"
             />
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <AdminButton href="/admin/blog/new" icon={<Plus className="w-4 h-4" />}>
+              Nouvel article
+            </AdminButton>
+            <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full border-2 border-dashed border-amber-200 bg-amber-50/80 text-amber-700 hover:bg-amber-100/80 transition-colors"
+                  aria-label="Filtrer par statut"
+                >
+                  <Tag className="w-4 h-4 text-amber-600" />
+                  Statut
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-0" align="start">
+                <div className="p-2 border-b border-border">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Statut"
+                      value={statusSearch}
+                      onChange={(e) => setStatusSearch(e.target.value)}
+                      className="w-full pl-8 pr-3 py-2 text-sm border border-border rounded-md focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      aria-label="Rechercher un statut"
+                    />
+                  </div>
+                </div>
+                <div className="max-h-48 overflow-y-auto py-1">
+                  {filteredStatusOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter(opt.value);
+                        setPage(1);
+                        setStatusSearch("");
+                        setStatusPopoverOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left rounded-none transition-colors ${
+                        statusFilter === opt.value
+                          ? "bg-amber-100 text-amber-800 font-medium"
+                          : "text-foreground hover:bg-slate-100"
+                      }`}
+                    >
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-amber-300">
+                        {statusFilter === opt.value ? (
+                          <Check className="w-3 h-3 text-amber-600" />
+                        ) : null}
+                      </span>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-white text-foreground hover:bg-slate-50 transition-colors"
+                  aria-label="Choisir les colonnes visibles"
+                >
+                  <Columns className="w-4 h-4 text-muted-foreground" />
+                  Colonnes
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0" align="start">
+                <div className="p-2 border-b border-border">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Colonnes visibles
+                  </p>
+                </div>
+                <div className="max-h-72 overflow-y-auto py-1">
+                  {BLOG_TABLE_COLUMNS.map((col) => (
+                    <button
+                      key={col.id}
+                      type="button"
+                      onClick={() => toggleColumn(col.id)}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-slate-50 transition-colors"
+                    >
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-border">
+                        {visibleColumnIds.includes(col.id) ? (
+                          <Check className="w-3 h-3 text-brand-primary" />
+                        ) : null}
+                      </span>
+                      {col.label}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+            <AdminButton
+              variant="outline"
+              icon={<RefreshCw className="w-4 h-4" />}
+              onClick={fetchData}
+              disabled={loading}
+            >
+              Actualiser
+            </AdminButton>
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
-            <thead>
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Titre</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Auteur</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Catégorie</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vues</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {mockPosts.map((item) => (
-                <tr key={item.id} className="hover:bg-brand-subtle/30 transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-foreground">{item.title}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">{item.author}</td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">{item.category}</td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">{item.date}</td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">{item.views.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href={`/blog/${item.id}`} target="_blank" className="p-2 text-muted-foreground hover:text-brand-primary hover:bg-brand-subtle rounded-lg transition-colors">
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                      <button className="p-2 text-muted-foreground hover:text-brand-primary hover:bg-brand-subtle rounded-lg transition-colors">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+
+        {error && (
+          <div className="p-4 bg-red-50 text-red-700 text-sm border-b border-border">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="p-12 text-center text-muted-foreground">Chargement...</div>
+        ) : items.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground">
+            Aucun article trouvé.
+            <Link
+              href="/admin/blog/new"
+              className="ml-2 text-brand-primary hover:underline font-medium"
+            >
+              Créer un article
+            </Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+              <thead>
+                <tr className="bg-slate-50/50">
+                  {orderedColumnIds.map((colId) => (
+                    <th
+                      key={colId}
+                      className={`px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider ${
+                        colId === "actions" ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {BLOG_TABLE_COLUMNS.find((c) => c.id === colId)?.label ?? colId}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {items.map((item) => {
+                  const isPublished = item.is_published ?? !!item.published_at;
+                  return (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-slate-50/50 transition-colors"
+                    >
+                      {orderedColumnIds.map((colId) => (
+                        <td
+                          key={colId}
+                          className={`px-6 py-4 text-sm ${colId === "actions" ? "text-right" : ""}`}
+                        >
+                          {colId === "title" && (
+                            <>
+                              <p className="font-medium text-foreground max-w-xs truncate">
+                                {item.title}
+                              </p>
+                              {item.slug && (
+                                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                                  {item.slug}
+                                </p>
+                              )}
+                            </>
+                          )}
+                          {colId === "slug" && (item.slug ?? "—")}
+                          {colId === "category" &&
+                            (typeof item.category === "object" && item.category !== null && "name" in item.category
+                              ? (item.category as { name?: string }).name ?? "—"
+                              : ((item.blog_category as { name?: string } | undefined)?.name ??
+                                  (item.news_category as { name?: string } | undefined)?.name ??
+                                  (item.category as string)) ||
+                                "—")}
+                          {colId === "excerpt" && (
+                            <span className="max-w-xs truncate block" title={item.excerpt ?? undefined}>
+                              {item.excerpt ?? "—"}
+                            </span>
+                          )}
+                          {colId === "published_at" &&
+                            formatDate(item.published_at ?? item.created_at)}
+                          {colId === "views_count" && (item.views_count ?? 0)}
+                          {colId === "status" && (
+                            <AdminBadge variant={isPublished ? "success" : "warning"}>
+                              {isPublished ? "Publié" : "Brouillon"}
+                            </AdminBadge>
+                          )}
+                          {colId === "author_name" && (item.author_name ?? "—")}
+                          {colId === "author_role" && (item.author_role ?? "—")}
+                          {colId === "reading_time" &&
+                            (item.reading_time ?? item.reading_time_minutes != null
+                              ? `${item.reading_time_minutes} min`
+                              : "—")}
+                          {colId === "created_at" && formatDate(item.created_at)}
+                          {colId === "updated_at" && formatDate(item.updated_at)}
+                          {colId === "linked_event" &&
+                            (() => {
+                              const ev = item.linked_event;
+                              const id = item.linked_event_id ?? item.event_id ?? ev?.id;
+                              const label =
+                                ev?.name ??
+                                ev?.title ??
+                                (id != null ? eventNamesMap[id] : undefined);
+                              if (label) return String(label);
+                              return id != null ? `Événement #${id}` : "—";
+                            })()}
+                          {colId === "cta_label" && (item.custom_cta_label ?? item.cta_label ?? "—")}
+                          {colId === "cta_link" && (
+                            <span className="max-w-xs truncate block" title={item.custom_cta_url ?? item.cta_link ?? undefined}>
+                              {item.custom_cta_url ?? item.cta_link ?? "—"}
+                            </span>
+                          )}
+                          {colId === "comments_enabled" && (item.comments_enabled ? "Oui" : "Non")}
+                          {colId === "reactions_enabled" && (item.reactions_enabled ? "Oui" : "Non")}
+                          {colId === "actions" && (
+                            <div className="flex items-center justify-end gap-1">
+                              {isPublished ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleUnpublishClick(item)}
+                                  disabled={publishLoading}
+                                  className="p-2 text-muted-foreground hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-50"
+                                  title="Dépublier"
+                                  aria-label="Dépublier l'article"
+                                >
+                                  <Ban className="w-4 h-4" />
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handlePublishClick(item)}
+                                  disabled={publishLoading}
+                                  className="p-2 text-muted-foreground hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                                  title="Publier"
+                                  aria-label="Publier l'article"
+                                >
+                                  <Send className="w-4 h-4" />
+                                </button>
+                              )}
+                              <Link
+                                href={`/blog/${item.slug || item.id}`}
+                                target="_blank"
+                                className="p-2 text-muted-foreground hover:text-brand-primary hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Voir"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Link>
+                              <Link
+                                href={`/admin/blog/${item.id}/edit`}
+                                className="p-2 text-muted-foreground hover:text-brand-primary hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Modifier"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteClick(item)}
+                                className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Supprimer"
+                                aria-label="Supprimer l'article"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {!loading && items.length > 0 && (
+          <div className="px-6 py-4 border-t border-border flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {total > 0 ? (
+                <>
+                  {(page - 1) * perPage + 1} à {Math.min(page * perPage, total)} sur {total}
+                </>
+              ) : (
+                `${items.length} article(s)`
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground flex items-center gap-2">
+                <span>Lignes par page</span>
+                <select
+                  value={perPage}
+                  onChange={(e) => {
+                    setPerPage(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  className="px-2 py-1.5 border border-border rounded-lg text-foreground bg-white"
+                  title="Lignes par page"
+                  aria-label="Lignes par page"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>
+                  Page {page} sur {lastPage}
+                </span>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                    className="p-2 rounded-lg border border-border hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Page précédente"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+                    disabled={page >= lastPage}
+                    className="p-2 rounded-lg border border-border hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Page suivante"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </AdminCard>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer l&apos;article ?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Vous êtes sur le point de supprimer &quot;{deleting?.title}&quot;. Cette action est
+            irréversible.
+          </p>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLoading}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleteLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteLoading ? "Suppression..." : "Supprimer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {publishTarget?.action === "publish" ? "Publier l'article ?" : "Dépublier l'article ?"}
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {publishTarget?.action === "publish"
+              ? `L'article "${publishTarget?.article.title}" sera visible sur le site.`
+              : `L'article "${publishTarget?.article.title}" ne sera plus visible sur le site.`}
+          </p>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={publishLoading}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handlePublishConfirm}
+              disabled={publishLoading}
+              className={publishTarget?.action === "unpublish" ? "bg-amber-600 hover:bg-amber-700" : undefined}
+            >
+              {publishLoading
+                ? "En cours..."
+                : publishTarget?.action === "publish"
+                  ? "Publier"
+                  : "Dépublier"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

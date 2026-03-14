@@ -7,19 +7,20 @@ import { ArrowLeft, Save, Eye, ImagePlus, User, Link2, MessageCircle } from "luc
 import { toast } from "sonner";
 import { AdminPageHeader, AdminCard, AdminButton } from "@/components/admin";
 import { useAuth } from "@/contexts/AuthContext";
-import { eventsApi, newsApi, NEWS_CATEGORIES, publicOptionsApi } from "@/lib/api";
+import { eventsApi, formatApiErrorMessage, newsApi, newsCategoriesApi, publicOptionsApi } from "@/lib/api";
 import { DatePicker } from "@/components/ui/date-picker";
 
 export default function AdminNewsNewPage() {
   const router = useRouter();
   const { token } = useAuth();
   const [eventOptions, setEventOptions] = useState<{ id: number; label: string }[]>([]);
-  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<{ id: number; name: string }[]>([]);
   const [status, setStatus] = useState<"draft" | "published">("draft");
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
-  const [category, setCategory] = useState<string>("");
+  /** ID de la catégorie (news_category_id), pas le nom */
+  const [categoryId, setCategoryId] = useState<string>("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -67,21 +68,38 @@ export default function AdminNewsNewPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const setOptions = (items: { id: number; name: string }[]) => {
+      if (cancelled) return;
+      setCategoryOptions(items.map((c) => ({ id: c.id, name: c.name || String(c.id) })));
+    };
     publicOptionsApi
       .newsCategories()
       .then((items) => {
-        if (cancelled) return;
-        const names = (items ?? []).map((c) => c.name).filter(Boolean);
-        setCategoryOptions(names);
+        const list = (items ?? []).map((c) => ({ id: c.id, name: c.name || String(c.id) }));
+        if (list.length > 0) {
+          setOptions(list);
+          return;
+        }
+        if (!token) return;
+        return newsCategoriesApi.list(token, { per_page: 100 }).then((res) => {
+          setOptions((res.data ?? []).map((c) => ({ id: c.id, name: c.name || String(c.id) })));
+        });
       })
       .catch(() => {
         if (cancelled) return;
-        setCategoryOptions([]);
+        if (token) {
+          newsCategoriesApi
+            .list(token, { per_page: 100 })
+            .then((res) => setOptions((res.data ?? []).map((c) => ({ id: c.id, name: c.name || String(c.id) }))))
+            .catch(() => setCategoryOptions([]));
+        } else {
+          setCategoryOptions([]);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [token]);
 
   const handleRemoveGalleryFile = (index: number) => {
     setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
@@ -104,7 +122,7 @@ export default function AdminNewsNewPage() {
         {
           title: title.trim(),
           slug: slug.trim() || undefined,
-          category: category || undefined,
+          news_category_id: categoryId && /^\d+$/.test(categoryId) ? categoryId : undefined,
           excerpt: excerpt.trim(),
           content: content.trim(),
           author_name: authorName.trim() || undefined,
@@ -128,11 +146,7 @@ export default function AdminNewsNewPage() {
       toast.success(res.message || (status === "published" ? "Actualité publiée." : "Brouillon enregistré."));
       router.push("/admin/news");
     } catch (err: unknown) {
-      const msg =
-        err && typeof err === "object" && "message" in err
-          ? String((err as { message: string }).message)
-          : "Erreur lors de l'enregistrement.";
-      toast.error(msg);
+      toast.error(formatApiErrorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -172,60 +186,75 @@ export default function AdminNewsNewPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Titre *</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-title">Titre *</label>
                   <input
+                    id="news-new-title"
                     type="text"
                     required
                     value={title}
                     onChange={(e) => handleTitleChange(e.target.value)}
                     placeholder="Ex: Lancement du Camp Biblique National 2026"
+                    title="Titre de l'actualité"
+                    aria-label="Titre de l'actualité"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Slug (URL)</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-slug">Slug (URL)</label>
                   <input
+                    id="news-new-slug"
                     type="text"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder="lancement-du-camp-biblique-national-2026"
+                    title="Slug ou URL de l'actualité"
+                    aria-label="Slug ou URL de l'actualité"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Catégorie</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-category">Catégorie</label>
                   <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                    id="news-new-category"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    title="Catégorie de l'actualité"
+                    aria-label="Catégorie de l'actualité"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white"
                   >
                     <option value="">Sélectionner une catégorie</option>
-                    {(categoryOptions.length ? categoryOptions : NEWS_CATEGORIES).map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                    {categoryOptions.map((cat) => (
+                      <option key={cat.id} value={String(cat.id)}>
+                        {cat.name}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Extrait *</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-excerpt">Extrait *</label>
                   <textarea
+                    id="news-new-excerpt"
                     rows={3}
                     required
                     value={excerpt}
                     onChange={(e) => setExcerpt(e.target.value)}
                     placeholder="Court résumé affiché dans la liste..."
+                    title="Extrait ou résumé de l'actualité"
+                    aria-label="Extrait ou résumé de l'actualité"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Contenu *</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-content">Contenu *</label>
                   <textarea
+                    id="news-new-content"
                     rows={10}
                     required
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Contenu complet de l'article..."
+                    title="Contenu de l'actualité"
+                    aria-label="Contenu de l'actualité"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
@@ -244,49 +273,67 @@ export default function AdminNewsNewPage() {
               </div>
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Nom de l&apos;auteur</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-author">Nom de l&apos;auteur</label>
                   <input
+                    id="news-new-author"
                     type="text"
                     value={authorName}
                     onChange={(e) => setAuthorName(e.target.value)}
+                    placeholder="Nom de l'auteur"
+                    title="Nom de l'auteur"
+                    aria-label="Nom de l'auteur"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Rôle / sous-titre</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-author-role">Rôle / sous-titre</label>
                   <input
+                    id="news-new-author-role"
                     type="text"
                     value={authorRole}
                     onChange={(e) => setAuthorRole(e.target.value)}
+                    placeholder="Rôle ou sous-titre"
+                    title="Rôle ou sous-titre de l'auteur"
+                    aria-label="Rôle ou sous-titre de l'auteur"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Temps de lecture</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-reading">Temps de lecture</label>
                   <input
+                    id="news-new-reading"
                     type="text"
                     value={readingTime}
                     onChange={(e) => setReadingTime(e.target.value)}
                     placeholder="Ex: 4 min"
+                    title="Temps de lecture"
+                    aria-label="Temps de lecture"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Vues initiales</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-views">Vues initiales</label>
                   <input
+                    id="news-new-views"
                     type="number"
                     min="0"
                     value={viewsCount}
                     onChange={(e) => setViewsCount(e.target.value)}
+                    placeholder="0"
+                    title="Nombre de vues initiales"
+                    aria-label="Nombre de vues initiales"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-foreground mb-2">Avatar auteur</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-avatar">Avatar auteur</label>
                   <input
+                    id="news-new-avatar"
                     type="file"
                     className="text-sm"
                     accept="image/*"
+                    title="Fichier image pour l'avatar de l'auteur"
+                    aria-label="Fichier image pour l'avatar de l'auteur"
                     onChange={(e) => setAuthorAvatarFile(e.target.files?.[0] ?? null)}
                   />
                   {authorAvatarFile && (
@@ -329,10 +376,14 @@ export default function AdminNewsNewPage() {
                   <p className="text-xs text-muted-foreground">
                     PNG, JPG ou WebP. Max 2 Mo.
                   </p>
+                  <label className="sr-only" htmlFor="news-new-cover">Image de couverture</label>
                   <input
+                    id="news-new-cover"
                     type="file"
                     className="mt-4 text-sm"
                     accept="image/*"
+                    title="Fichier image de couverture"
+                    aria-label="Fichier image de couverture"
                     onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                   />
                   {imageFile && (
@@ -355,11 +406,15 @@ export default function AdminNewsNewPage() {
                 </div>
               </div>
               <div className="p-6 space-y-3">
+                <label className="block text-sm font-medium text-foreground mb-1 sr-only" htmlFor="news-new-gallery">Galerie photos</label>
                 <input
+                  id="news-new-gallery"
                   type="file"
                   className="text-sm"
                   accept="image/*"
                   multiple
+                  title="Fichiers images pour la galerie"
+                  aria-label="Fichiers images pour la galerie"
                   onChange={(e) => setGalleryFiles(Array.from(e.target.files ?? []))}
                 />
                 {galleryFiles.length > 0 && (
@@ -413,6 +468,7 @@ export default function AdminNewsNewPage() {
                           checked={status === "draft"}
                           onChange={() => setStatus("draft")}
                           className="text-brand-primary"
+                          aria-label="Statut brouillon"
                         />
                         <span className="text-sm">Brouillon</span>
                       </label>
@@ -423,6 +479,7 @@ export default function AdminNewsNewPage() {
                           checked={status === "published"}
                           onChange={() => setStatus("published")}
                           className="text-brand-primary"
+                          aria-label="Statut publié"
                         />
                         <span className="text-sm">Publier</span>
                       </label>
@@ -450,6 +507,7 @@ export default function AdminNewsNewPage() {
                           checked={commentsEnabled}
                           onChange={(e) => setCommentsEnabled(e.target.checked)}
                           className="w-4 h-4 rounded border-border text-brand-primary focus:ring-brand-primary"
+                          aria-label="Autoriser les commentaires"
                         />
                         <span className="text-sm font-medium text-foreground">Autoriser les commentaires</span>
                       </label>
@@ -461,6 +519,7 @@ export default function AdminNewsNewPage() {
                           checked={reactionsEnabled}
                           onChange={(e) => setReactionsEnabled(e.target.checked)}
                           className="w-4 h-4 rounded border-border text-brand-primary focus:ring-brand-primary"
+                          aria-label="Autoriser les réactions"
                         />
                         <span className="text-sm font-medium text-foreground">Autoriser les réactions</span>
                       </label>
@@ -482,15 +541,18 @@ export default function AdminNewsNewPage() {
               </div>
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-foreground mb-2">Événement lié</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-event">Événement lié</label>
                   <select
+                    id="news-new-event"
                     value={linkedEventId}
                     onChange={(e) => setLinkedEventId(e.target.value)}
+                    title="Événement lié à l'actualité"
+                    aria-label="Événement lié à l'actualité"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white"
                   >
                     <option value="">Aucun événement lié</option>
                     {eventOptions.map((event) => (
-                      <option key={event.id} value={event.id}>
+                      <option key={event.id} value={String(event.id)}>
                         {event.label}
                       </option>
                     ))}
@@ -503,22 +565,28 @@ export default function AdminNewsNewPage() {
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Libellé CTA personnalisé</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-cta-label">Libellé CTA personnalisé</label>
                   <input
+                    id="news-new-cta-label"
                     type="text"
                     value={customCtaLabel}
                     onChange={(e) => setCustomCtaLabel(e.target.value)}
                     placeholder="Ex: S'inscrire au camp"
+                    title="Libellé du bouton d'appel à l'action"
+                    aria-label="Libellé du bouton d'appel à l'action"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Lien CTA personnalisé</label>
+                  <label className="block text-sm font-medium text-foreground mb-2" htmlFor="news-new-cta-link">Lien CTA personnalisé</label>
                   <input
+                    id="news-new-cta-link"
                     type="text"
                     value={customCtaUrl}
                     onChange={(e) => setCustomCtaUrl(e.target.value)}
                     placeholder="/payments"
+                    title="URL du lien d'appel à l'action"
+                    aria-label="URL du lien d'appel à l'action"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                   />
                 </div>

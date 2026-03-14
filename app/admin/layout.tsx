@@ -13,6 +13,7 @@ import {
   Briefcase,
   Calendar,
   Users,
+  Mail,
   Settings,
   Menu,
   X,
@@ -29,6 +30,12 @@ import {
 } from "lucide-react";
 
 const settingsGroups = [
+  {
+    title: "Site",
+    items: [
+      { href: "/admin/settings/contact-info", label: "Informations de contact" },
+    ],
+  },
   {
     title: "Géographie",
     items: [
@@ -81,7 +88,11 @@ const settingsGroups = [
   },
   {
     title: "Contenu",
-    items: [{ href: "/admin/settings/news-categories", label: "Catégories d'articles" }],
+    items: [
+      { href: "/admin/settings/news-categories", label: "Catégories d'articles" },
+      { href: "/admin/settings/devotional-categories", label: "Catégories de dévotionnels" },
+      { href: "/admin/settings/gallery-categories", label: "Catégories de la galerie" },
+    ],
   },
 ];
 
@@ -116,6 +127,7 @@ const navGroups = [
       { href: "/admin/offers", label: "Offres d'emplois", icon: Briefcase },
       { href: "/admin/events", label: "Événements", icon: Calendar },
       { href: "/admin/members", label: "Adhésions", icon: Users },
+      { href: "/admin/contact", label: "Contact", icon: Mail },
     ],
   },
   {

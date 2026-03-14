@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Documentation
+*.md
+!README.md
+
+# Tests
+tests
+phpunit.xml
+.phpunit.result.cache
+coverage
+
+# Node (Sail gère npm dans le conteneur)
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build assets (optionnel, Sail rebuild si nécessaire)
+public/build
+public/hot
+
+# Logs et cache local
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/logs/.gitignore
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore
+
+# Environnement local (ne pas copier les secrets)
+.env
+.env.backup
+.env.production
+
+# Docker (garder Dockerfile et compose.yaml pour le build)
+.docker

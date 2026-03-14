@@ -7,6 +7,12 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 
 const settingsGroups = [
   {
+    title: "Site",
+    items: [
+      { href: "/admin/settings/contact-info", label: "Informations de contact" },
+    ],
+  },
+  {
     title: "Géographie",
     items: [
       { href: "/admin/settings/cities", label: "Villes" },
@@ -51,7 +57,11 @@ const settingsGroups = [
   },
   {
     title: "Contenu",
-    items: [{ href: "/admin/settings/news-categories", label: "Catégories d'articles" }],
+    items: [
+      { href: "/admin/settings/news-categories", label: "Catégories d'articles" },
+      { href: "/admin/settings/devotional-categories", label: "Catégories de dévotionnels" },
+      { href: "/admin/settings/gallery-categories", label: "Catégories de la galerie" },
+    ],
   },
   {
     title: "Offres",

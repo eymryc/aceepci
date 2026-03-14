@@ -54,6 +54,25 @@ export interface ApiError {
   errors?: Record<string, string[]>;
 }
 
+/** Formate le message d’erreur API + détails de validation pour affichage (toast, etc.) */
+export function formatApiErrorMessage(err: unknown): string {
+  if (!err || typeof err !== "object" || !("message" in err)) {
+    return "Une erreur est survenue.";
+  }
+  const apiErr = err as ApiError;
+  const message = String(apiErr.message ?? "Une erreur est survenue").trim();
+  if (!apiErr.errors || Object.keys(apiErr.errors).length === 0) {
+    return message;
+  }
+  const details = Object.entries(apiErr.errors)
+    .map(([field, messages]) => {
+      const msgs = Array.isArray(messages) ? messages : [String(messages)];
+      return `${field}: ${msgs.join(", ")}`;
+    })
+    .join(" ; ");
+  return `${message} — ${details}`;
+}
+
 async function handleResponse<T>(res: Response): Promise<T> {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -431,6 +450,8 @@ export const publicOptionsApi = {
     fetchPublicOptions("/offer-types", params),
   newsCategories: (params?: Record<string, string | number | undefined>) =>
     fetchPublicOptions("/news-categories", params),
+  blogCategories: (params?: Record<string, string | number | undefined>) =>
+    fetchPublicOptions("/blog-categories", params),
 };
 
 // ─── Paramètres offres & actualités ────────────────────────────────────────
@@ -469,6 +490,55 @@ export const newsCategoriesApi = createCrudApi<{
   code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
   display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
 }));
+
+export const blogCategoriesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  sort_order?: number | null;
+}>("/blog-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  sort_order: d.sort_order != null && d.sort_order !== "" ? Number(d.sort_order) : 0,
+}));
+
+export const devotionalCategoriesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  display_order?: number | null;
+}>("/devotional-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+export const galleryMediaCategoriesApi = createCrudApi<{
+  id: number;
+  name: string;
+  code?: string | null;
+  display_order?: number | null;
+}>("/gallery-media-categories", (d) => ({
+  name: String(d.name ?? "").trim(),
+  code: d.code == null || d.code === "" ? null : String(d.code).trim().slice(0, 50) || null,
+  display_order: d.display_order != null && d.display_order !== "" ? Number(d.display_order) : 0,
+}));
+
+/** Options des catégories galerie (public, pour les formulaires) */
+export async function fetchGalleryMediaCategoryOptions(): Promise<{ id: number; name: string }[]> {
+  try {
+    const res = await fetch(apiUrl("/gallery-media-categories/options"), {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    const raw = await res.json();
+    const data = (raw as { data?: { id: number; name: string }[] }).data;
+    const arr = Array.isArray(data) ? data : [];
+    return arr.map((x) => ({ id: Number(x.id), name: String(x.name ?? "") }));
+  } catch {
+    return [];
+  }
+}
 
 // ─── Offres (emploi, stage, bourse, bénévolat) ─────────────────────────────
 
@@ -605,24 +675,39 @@ export interface NewsArticle {
   id: number;
   title: string;
   slug: string;
-  category?: string | null;
+  /** ID de la catégorie (API) */
+  news_category_id?: number | null;
+  /** Nom ou objet catégorie (selon API) */
+  category?: string | { id: number; name: string; code?: string | null } | null;
+  news_category?: { id: number; name: string; code?: string | null } | null;
   excerpt?: string | null;
   content?: string | null;
   image_url?: string | null;
+  cover_image_path?: string | null;
+  cover_image_url?: string | null;
   author_name?: string | null;
   author_role?: string | null;
+  author_avatar_path?: string | null;
   author_avatar_url?: string | null;
   reading_time?: string | null;
+  reading_time_minutes?: number | null;
   views_count?: number | null;
   /** Date/heure de publication (ISO) */
   published_at?: string | null;
+  /** ID de l’événement lié (certaines API renvoient event_id) */
   linked_event_id?: number | null;
-  linked_event?: { id: number; name: string; title?: string | null } | null;
+  event_id?: number | null;
+  linked_event?: { id: number; name?: string; title?: string | null; label?: string | null } | null;
+  event?: { id: number; name?: string; title?: string | null; label?: string | null } | null;
   custom_cta_label?: string | null;
   custom_cta_url?: string | null;
+  cta_label?: string | null;
+  cta_link?: string | null;
   comments_enabled?: boolean | null;
   reactions_enabled?: boolean | null;
   gallery_images?: string[] | null;
+  gallery?: string[] | null;
+  gallery_urls?: string[] | null;
   is_published?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -651,21 +736,34 @@ function buildNewsFormData(
   if (methodOverride) fd.append("_method", methodOverride);
   fd.append("title", String(body.title ?? "").trim());
   if (body.slug) fd.append("slug", String(body.slug).trim());
-  if (body.category) fd.append("category", String(body.category).trim());
+  // Catégorie : uniquement l’ID entier (évite validation.integer)
+  const categoryId = body.news_category_id != null && body.news_category_id !== ""
+    ? String(body.news_category_id).trim()
+    : (typeof body.category === "string" ? body.category.trim() : "");
+  if (categoryId && /^\d+$/.test(categoryId)) {
+    fd.append("news_category_id", categoryId);
+  }
   fd.append("excerpt", String(body.excerpt ?? "").trim());
   fd.append("content", String(body.content ?? "").trim());
   if (body.author_name) fd.append("author_name", String(body.author_name).trim());
   if (body.author_role) fd.append("author_role", String(body.author_role).trim());
-  if (body.reading_time) fd.append("reading_time", String(body.reading_time).trim());
-  if (body.views_count != null && body.views_count !== "") fd.append("views_count", String(body.views_count));
+  // Temps de lecture (en minutes) : toujours envoyé pour enregistrement / null
+  const rawReading = String(body.reading_time ?? "").trim();
+  const readingMatch = rawReading.match(/\d+/);
+  fd.append("reading_time_minutes", readingMatch ? readingMatch[0] : "");
+  // Vues initiales
+  if (body.views_count != null && body.views_count !== "") {
+    fd.append("initial_views", String(body.views_count));
+  }
   if (body.published_at) {
     fd.append("published_at", String(body.published_at).trim());
   }
   if (body.linked_event_id != null && body.linked_event_id !== "") {
-    fd.append("linked_event_id", String(body.linked_event_id));
+    const eventId = String(body.linked_event_id);
+    fd.append("event_id", eventId);
   }
-  if (body.custom_cta_label) fd.append("custom_cta_label", String(body.custom_cta_label).trim());
-  if (body.custom_cta_url) fd.append("custom_cta_url", String(body.custom_cta_url).trim());
+  fd.append("cta_label", String(body.custom_cta_label ?? "").trim());
+  fd.append("cta_link", String(body.custom_cta_url ?? "").trim());
   if (body.comments_enabled != null) {
     fd.append("comments_enabled", body.comments_enabled ? "1" : "0");
   }
@@ -673,10 +771,10 @@ function buildNewsFormData(
     fd.append("reactions_enabled", body.reactions_enabled ? "1" : "0");
   }
   if (body.publish != null) {
-    fd.append("publish", body.publish ? "1" : "0");
+    fd.append("is_published", body.publish ? "1" : "0");
   }
   if (options?.imageFile) {
-    fd.append("image", options.imageFile, options.imageFile.name);
+    fd.append("cover_image", options.imageFile, options.imageFile.name);
   }
   if (options?.authorAvatarFile) {
     fd.append("author_avatar", options.authorAvatarFile, options.authorAvatarFile.name);
@@ -690,17 +788,24 @@ function buildNewsFormData(
 }
 
 export const newsApi = {
+  /** Liste admin : GET /news/admin — renvoie toutes les actualités (publiées + dépubliées). */
   list: async (
     token: string,
-    params?: { page?: number; per_page?: number; search?: string; status?: "published" | "draft" }
+    params?: {
+      page?: number;
+      per_page?: number;
+      search?: string;
+      /** published | draft pour filtrer ; undefined ou "all" = toutes */
+      status?: "published" | "draft" | "all";
+    }
   ) => {
     const sp = new URLSearchParams();
     if (params?.page) sp.set("page", String(params.page));
     if (params?.per_page) sp.set("per_page", String(params.per_page));
     if (params?.search) sp.set("search", params.search);
-    if (params?.status) sp.set("status", params.status);
+    if (params?.status && params.status !== "all") sp.set("status", params.status);
     const q = sp.toString();
-    const res = await fetchWithAuth(`/news${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    const res = await fetchWithAuth(`/news/admin${q ? `?${q}` : ""}`, { method: "GET" }, token);
     return handleResponse<{
       data: NewsArticle[];
       meta?: { total?: number; last_page?: number };
@@ -720,6 +825,8 @@ export const newsApi = {
     body: {
       title: string;
       slug?: string;
+      /** ID de la catégorie (entier), pas le nom */
+      news_category_id?: string;
       category?: string;
       excerpt: string;
       content: string;
@@ -751,6 +858,7 @@ export const newsApi = {
     body: {
       title: string;
       slug?: string;
+      news_category_id?: string;
       category?: string;
       excerpt: string;
       content: string;
@@ -780,7 +888,699 @@ export const newsApi = {
     const res = await fetchWithAuth(`/news/${id}`, { method: "DELETE" }, token);
     return handleResponse<{ status: string; message: string }>(res);
   },
+  /** Publication d'une actualité (admin) - POST /news/{id}/publish */
+  publish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/news/${id}/publish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: unknown }>(res);
+  },
+  /** Dépublication d'une actualité (admin) - POST /news/{id}/unpublish */
+  unpublish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/news/${id}/unpublish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: unknown }>(res);
+  },
 };
+
+// ─── Blog (même champs et fonctionnalités que les actualités) ─────────────────
+
+export interface BlogArticle {
+  id: number;
+  title: string;
+  slug: string;
+  blog_category_id?: number | null;
+  news_category_id?: number | null;
+  category?: string | { id: number; name: string; code?: string | null } | null;
+  blog_category?: { id: number; name: string; code?: string | null } | null;
+  news_category?: { id: number; name: string; code?: string | null } | null;
+  excerpt?: string | null;
+  content?: string | null;
+  image_url?: string | null;
+  cover_image_path?: string | null;
+  cover_image_url?: string | null;
+  author_name?: string | null;
+  author_role?: string | null;
+  author_avatar_path?: string | null;
+  author_avatar_url?: string | null;
+  reading_time?: string | null;
+  reading_time_minutes?: number | null;
+  views_count?: number | null;
+  published_at?: string | null;
+  linked_event_id?: number | null;
+  event_id?: number | null;
+  linked_event?: { id: number; name: string; title?: string | null } | null;
+  custom_cta_label?: string | null;
+  custom_cta_url?: string | null;
+  cta_label?: string | null;
+  cta_link?: string | null;
+  comments_enabled?: boolean | null;
+  reactions_enabled?: boolean | null;
+  gallery_images?: string[] | null;
+  gallery?: string[] | null;
+  gallery_urls?: string[] | null;
+  is_published?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+function buildBlogFormData(
+  body: Record<string, unknown>,
+  options?: {
+    imageFile?: File | null;
+    authorAvatarFile?: File | null;
+    galleryFiles?: File[];
+  },
+  methodOverride?: "PUT"
+): FormData {
+  const fd = new FormData();
+  if (methodOverride) fd.append("_method", methodOverride);
+  fd.append("title", String(body.title ?? "").trim());
+  if (body.slug) fd.append("slug", String(body.slug).trim());
+  const blogCat =
+    body.blog_category_id != null && body.blog_category_id !== ""
+      ? String(body.blog_category_id).trim()
+      : "";
+  const newsCat =
+    body.news_category_id != null && body.news_category_id !== ""
+      ? String(body.news_category_id).trim()
+      : "";
+  if (blogCat && /^\d+$/.test(blogCat)) {
+    fd.append("blog_category_id", blogCat);
+    fd.append("news_category_id", "");
+  } else if (newsCat && /^\d+$/.test(newsCat)) {
+    fd.append("news_category_id", newsCat);
+    fd.append("blog_category_id", "");
+  } else {
+    if (Object.prototype.hasOwnProperty.call(body, "blog_category_id")) {
+      fd.append("blog_category_id", blogCat || "");
+    }
+    if (Object.prototype.hasOwnProperty.call(body, "news_category_id")) {
+      fd.append("news_category_id", newsCat || "");
+    }
+  }
+  fd.append("excerpt", String(body.excerpt ?? "").trim());
+  fd.append("content", String(body.content ?? "").trim());
+  if (body.author_name) fd.append("author_name", String(body.author_name).trim());
+  if (body.author_role) fd.append("author_role", String(body.author_role).trim());
+  const rawReading = String(body.reading_time ?? "").trim();
+  const readingMatch = rawReading.match(/\d+/);
+  fd.append("reading_time_minutes", readingMatch ? readingMatch[0] : "");
+  if (body.views_count != null && body.views_count !== "") {
+    fd.append("initial_views", String(body.views_count));
+  }
+  if (body.published_at) {
+    fd.append("published_at", String(body.published_at).trim());
+  }
+  if (body.linked_event_id != null && body.linked_event_id !== "") {
+    fd.append("event_id", String(body.linked_event_id));
+  }
+  fd.append("cta_label", String(body.custom_cta_label ?? "").trim());
+  fd.append("cta_link", String(body.custom_cta_url ?? "").trim());
+  if (body.comments_enabled != null) {
+    fd.append("comments_enabled", body.comments_enabled ? "1" : "0");
+  }
+  if (body.reactions_enabled != null) {
+    fd.append("reactions_enabled", body.reactions_enabled ? "1" : "0");
+  }
+  if (body.publish != null) {
+    fd.append("is_published", body.publish ? "1" : "0");
+  }
+  if (options?.imageFile) {
+    fd.append("cover_image", options.imageFile, options.imageFile.name);
+  }
+  if (options?.authorAvatarFile) {
+    fd.append("author_avatar", options.authorAvatarFile, options.authorAvatarFile.name);
+  }
+  if (options?.galleryFiles?.length) {
+    options.galleryFiles.forEach((file) => {
+      fd.append("gallery[]", file, file.name);
+    });
+  }
+  return fd;
+}
+
+export const blogApi = {
+  list: async (
+    token: string,
+    params?: { page?: number; per_page?: number; search?: string; status?: "all" | "published" | "draft" }
+  ) => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.search) sp.set("search", params.search ?? "");
+    if (params?.status && params.status !== "all") sp.set("status", params.status);
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/blogs/admin${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{
+      data: BlogArticle[];
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
+  },
+  get: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/blogs/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: BlogArticle } | BlogArticle>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw
+      ? (raw as { data: BlogArticle }).data
+      : raw) as BlogArticle;
+  },
+  create: async (
+    token: string,
+    body: {
+      title: string;
+      slug?: string;
+      news_category_id?: string;
+      excerpt: string;
+      content: string;
+      author_name?: string;
+      author_role?: string;
+      reading_time?: string;
+      views_count?: number | "";
+      published_at?: string;
+      linked_event_id?: number | "";
+      custom_cta_label?: string;
+      custom_cta_url?: string;
+      comments_enabled?: boolean;
+      reactions_enabled?: boolean;
+      publish: boolean;
+    },
+    options?: {
+      imageFile?: File | null;
+      authorAvatarFile?: File | null;
+      galleryFiles?: File[];
+    }
+  ) => {
+    const fd = buildBlogFormData(body, options);
+    const res = await fetchWithAuthFormData("/blogs", fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: BlogArticle }>(res);
+  },
+  update: async (
+    token: string,
+    id: number,
+    body: {
+      title: string;
+      slug?: string;
+      news_category_id?: string;
+      excerpt: string;
+      content: string;
+      author_name?: string;
+      author_role?: string;
+      reading_time?: string;
+      views_count?: number | "";
+      published_at?: string;
+      linked_event_id?: number | "";
+      custom_cta_label?: string;
+      custom_cta_url?: string;
+      comments_enabled?: boolean;
+      reactions_enabled?: boolean;
+      publish: boolean;
+    },
+    options?: {
+      imageFile?: File | null;
+      authorAvatarFile?: File | null;
+      galleryFiles?: File[];
+    }
+  ) => {
+    const fd = buildBlogFormData(body, options, "PUT");
+    const res = await fetchWithAuthFormData(`/blogs/${id}`, fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: BlogArticle }>(res);
+  },
+  delete: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/blogs/${id}`, { method: "DELETE" }, token);
+    return handleResponse<{ status: string; message: string }>(res);
+  },
+  publish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/blogs/${id}/publish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: BlogArticle }>(res);
+  },
+  unpublish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/blogs/${id}/unpublish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: BlogArticle }>(res);
+  },
+};
+
+// ─── Dévotionnels ────────────────────────────────────────────────────────────
+
+export interface Devotional {
+  id: number;
+  title: string;
+  slug: string;
+  devotional_category_id?: number | null;
+  category?: { id: number; name: string; code?: string | null } | null;
+  scripture_reference?: string | null;
+  verse_text?: string | null;
+  excerpt?: string | null;
+  content: string;
+  practical_application?: string | null;
+  reflection_questions?: string | null;
+  prayer?: string | null;
+  cover_image_path?: string | null;
+  cover_image_url?: string | null;
+  reading_time?: string | null;
+  is_published?: boolean;
+  published_at?: string | null;
+  comments_enabled?: boolean;
+  reactions_enabled?: boolean;
+  views_count?: number;
+  amen_count?: number;
+  beni_count?: number;
+  edifiant_count?: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+function buildDevotionalFormData(
+  body: Record<string, unknown>,
+  options?: { imageFile?: File | null },
+  methodOverride?: "PUT"
+): FormData {
+  const fd = new FormData();
+  if (methodOverride) fd.append("_method", methodOverride);
+  fd.append("title", String(body.title ?? "").trim());
+  if (body.slug) fd.append("slug", String(body.slug).trim());
+  if (body.devotional_category_id != null && body.devotional_category_id !== "") {
+    fd.append("devotional_category_id", String(body.devotional_category_id));
+  } else {
+    fd.append("devotional_category_id", "");
+  }
+  if (body.scripture_reference) fd.append("scripture_reference", String(body.scripture_reference).trim());
+  if (body.verse_text) fd.append("verse_text", String(body.verse_text).trim());
+  fd.append("excerpt", String(body.excerpt ?? "").trim());
+  fd.append("content", String(body.content ?? "").trim());
+  if (body.practical_application) fd.append("practical_application", String(body.practical_application).trim());
+  if (body.reflection_questions) fd.append("reflection_questions", String(body.reflection_questions).trim());
+  if (body.prayer) fd.append("prayer", String(body.prayer).trim());
+  if (body.reading_time) fd.append("reading_time", String(body.reading_time ?? "").trim());
+  if (body.published_at) fd.append("published_at", String(body.published_at).trim());
+  if (body.is_published != null) fd.append("is_published", body.is_published ? "1" : "0");
+  if (body.comments_enabled != null) fd.append("comments_enabled", body.comments_enabled ? "1" : "0");
+  if (body.reactions_enabled != null) fd.append("reactions_enabled", body.reactions_enabled ? "1" : "0");
+  if (body.remove_cover_image) fd.append("remove_cover_image", "1");
+  if (options?.imageFile) {
+    fd.append("cover_image", options.imageFile, options.imageFile.name);
+  }
+  return fd;
+}
+
+export const devotionalsApi = {
+  list: async (
+    token: string,
+    params?: { page?: number; per_page?: number; search?: string; status?: "all" | "published" | "draft" }
+  ) => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.search) sp.set("search", params.search ?? "");
+    if (params?.status && params.status !== "all") sp.set("status", params.status);
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/devotionals/admin${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{
+      data: Devotional[];
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
+  },
+  get: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/devotionals/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: Devotional } | Devotional>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw
+      ? (raw as { data: Devotional }).data
+      : raw) as Devotional;
+  },
+  create: async (
+    token: string,
+    body: Record<string, unknown>,
+    options?: { imageFile?: File | null }
+  ) => {
+    const fd = buildDevotionalFormData(body, options);
+    const res = await fetchWithAuthFormData("/devotionals", fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: Devotional }>(res);
+  },
+  update: async (
+    token: string,
+    id: number,
+    body: Record<string, unknown>,
+    options?: { imageFile?: File | null; remove_cover_image?: boolean }
+  ) => {
+    const fd = buildDevotionalFormData(
+      { ...body, remove_cover_image: options?.remove_cover_image },
+      options,
+      "PUT"
+    );
+    const res = await fetchWithAuthFormData(`/devotionals/${id}`, fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: Devotional }>(res);
+  },
+  delete: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/devotionals/${id}`, { method: "DELETE" }, token);
+    return handleResponse<{ status: string; message: string }>(res);
+  },
+  publish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/devotionals/${id}/publish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: Devotional }>(res);
+  },
+  unpublish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/devotionals/${id}/unpublish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: Devotional }>(res);
+  },
+};
+
+// ─── Sermons (même modèle que dévotionnel + type, speaker, video_url, audio_url) ───
+
+export interface Sermon {
+  id: number;
+  title: string;
+  slug: string;
+  type: "video" | "audio" | "text";
+  speaker?: string | null;
+  scripture_reference?: string | null;
+  verse_text?: string | null;
+  excerpt?: string | null;
+  content?: string | null;
+  cover_image_path?: string | null;
+  cover_image_url?: string | null;
+  reading_time?: string | null;
+  video_url?: string | null;
+  audio_url?: string | null;
+  is_published?: boolean;
+  published_at?: string | null;
+  comments_enabled?: boolean;
+  reactions_enabled?: boolean;
+  views_count?: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+function buildSermonFormData(
+  body: Record<string, unknown>,
+  options?: { imageFile?: File | null },
+  methodOverride?: "PUT"
+): FormData {
+  const fd = new FormData();
+  if (methodOverride) fd.append("_method", methodOverride);
+  fd.append("title", String(body.title ?? "").trim());
+  fd.append("type", String(body.type ?? "text"));
+  if (body.slug) fd.append("slug", String(body.slug).trim());
+  if (body.speaker != null) fd.append("speaker", String(body.speaker).trim());
+  if (body.scripture_reference) fd.append("scripture_reference", String(body.scripture_reference).trim());
+  if (body.verse_text) fd.append("verse_text", String(body.verse_text ?? "").trim());
+  if (body.excerpt != null) fd.append("excerpt", String(body.excerpt).trim());
+  if (body.content != null) fd.append("content", String(body.content).trim());
+  if (body.reading_time) fd.append("reading_time", String(body.reading_time ?? "").trim());
+  if (body.video_url != null) fd.append("video_url", String(body.video_url).trim());
+  if (body.audio_url != null) fd.append("audio_url", String(body.audio_url).trim());
+  if (body.published_at) fd.append("published_at", String(body.published_at).trim());
+  if (body.is_published != null) fd.append("is_published", body.is_published ? "1" : "0");
+  if (body.comments_enabled != null) fd.append("comments_enabled", body.comments_enabled ? "1" : "0");
+  if (body.reactions_enabled != null) fd.append("reactions_enabled", body.reactions_enabled ? "1" : "0");
+  if (body.remove_cover_image) fd.append("remove_cover_image", "1");
+  if (options?.imageFile) {
+    fd.append("cover_image", options.imageFile, options.imageFile.name);
+  }
+  return fd;
+}
+
+export const sermonsApi = {
+  list: async (
+    token: string,
+    params?: { page?: number; per_page?: number; search?: string; type?: string; status?: "all" | "published" | "draft" }
+  ) => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.search) sp.set("search", params.search ?? "");
+    if (params?.type) sp.set("type", params.type);
+    if (params?.status && params.status !== "all") sp.set("status", params.status);
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/sermons/admin${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    return handleResponse<{
+      data: Sermon[];
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
+  },
+  get: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/sermons/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: Sermon } | Sermon>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw
+      ? (raw as { data: Sermon }).data
+      : raw) as Sermon;
+  },
+  create: async (
+    token: string,
+    body: Record<string, unknown>,
+    options?: { imageFile?: File | null }
+  ) => {
+    const fd = buildSermonFormData(body, options);
+    const res = await fetchWithAuthFormData("/sermons", fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: Sermon }>(res);
+  },
+  update: async (
+    token: string,
+    id: number,
+    body: Record<string, unknown>,
+    options?: { imageFile?: File | null; remove_cover_image?: boolean }
+  ) => {
+    const fd = buildSermonFormData(
+      { ...body, remove_cover_image: options?.remove_cover_image },
+      options,
+      "PUT"
+    );
+    const res = await fetchWithAuthFormData(`/sermons/${id}`, fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: Sermon }>(res);
+  },
+  delete: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/sermons/${id}`, { method: "DELETE" }, token);
+    return handleResponse<{ status: string; message: string }>(res);
+  },
+  publish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/sermons/${id}/publish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: Sermon }>(res);
+  },
+  unpublish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/sermons/${id}/unpublish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: Sermon }>(res);
+  },
+};
+
+// ─── Galerie média (photos page d'accueil / galerie) ─────────────────────────
+
+export interface GalleryMediaItem {
+  id: number;
+  title: string;
+  category?: string | null;
+  image_path?: string | null;
+  image_url?: string | null;
+  display_order?: number;
+  order?: number;
+  is_published?: boolean;
+  published_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+function buildGalleryMediaFormData(
+  body: { title: string; category?: string; display_order?: number },
+  imageFile?: File | null,
+  methodOverride?: "PUT" | "PATCH"
+): FormData {
+  const fd = new FormData();
+  if (methodOverride) fd.append("_method", methodOverride);
+  fd.append("title", String(body.title ?? "").trim());
+  fd.append("category", String(body.category ?? "").trim() || "");
+  fd.append("display_order", String(Math.max(0, Number(body.display_order ?? 0))));
+  if (imageFile) fd.append("image", imageFile, imageFile.name);
+  return fd;
+}
+
+export const galleryMediaApi = {
+  list: async (
+    token: string,
+    params?: { page?: number; per_page?: number; search?: string; status?: "all" | "published" | "draft" }
+  ) => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.search) sp.set("search", params.search ?? "");
+    if (params?.status && params.status !== "all") sp.set("status", params.status);
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/gallery-media${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    const raw = await handleResponse<{
+      data?: GalleryMediaItem[] | { data?: GalleryMediaItem[]; meta?: { total?: number; last_page?: number } };
+      meta?: { total?: number; last_page?: number };
+      total?: number;
+      last_page?: number;
+    }>(res);
+    const payload = raw.data;
+    const list = Array.isArray(payload) ? payload : (payload && typeof payload === "object" && Array.isArray(payload.data) ? payload.data : []);
+    const meta = (payload && typeof payload === "object" && "meta" in payload ? (payload as { meta?: { total?: number; last_page?: number } }).meta : raw.meta) ?? {};
+    const total = meta.total ?? (raw as { total?: number }).total;
+    const lastPage = meta.last_page ?? (raw as { last_page?: number }).last_page ?? 1;
+    return { data: list, meta: { total, last_page: lastPage }, total, last_page: lastPage };
+  },
+  get: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/gallery-media/${id}`, { method: "GET" }, token);
+    const raw = await handleResponse<{ data: GalleryMediaItem } | GalleryMediaItem>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw ? (raw as { data: GalleryMediaItem }).data : raw) as GalleryMediaItem;
+  },
+  create: async (
+    token: string,
+    body: { title: string; category?: string; display_order?: number },
+    imageFile?: File | null
+  ) => {
+    const fd = buildGalleryMediaFormData(body, imageFile);
+    const res = await fetchWithAuthFormData("/gallery-media", fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: GalleryMediaItem }>(res);
+  },
+  update: async (
+    token: string,
+    id: number,
+    body: { title: string; category?: string; display_order?: number; remove_image?: boolean },
+    imageFile?: File | null
+  ) => {
+    const fd = buildGalleryMediaFormData(body, imageFile, "PUT");
+    if (body.remove_image) fd.append("remove_image", "1");
+    const res = await fetchWithAuthFormData(`/gallery-media/${id}`, fd, token, "POST");
+    return handleResponse<{ status: string; message: string; data: GalleryMediaItem }>(res);
+  },
+  delete: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/gallery-media/${id}`, { method: "DELETE" }, token);
+    return handleResponse<{ status: string; message: string }>(res);
+  },
+  publish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/gallery-media/${id}/publish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: GalleryMediaItem }>(res);
+  },
+  unpublish: async (token: string, id: number) => {
+    const res = await fetchWithAuth(`/gallery-media/${id}/unpublish`, { method: "POST" }, token);
+    return handleResponse<{ status: string; message: string; data?: GalleryMediaItem }>(res);
+  },
+};
+
+/** Liste publique des photos galerie (sans auth) — page d'accueil, section galerie */
+export async function fetchGalleryMediaPublished(limit?: number): Promise<GalleryMediaItem[]> {
+  try {
+    const url = limit != null ? apiUrl(`/gallery-media/published?limit=${limit}`) : apiUrl("/gallery-media/published");
+    const res = await fetch(url, { method: "GET", headers: { Accept: "application/json" } });
+    if (!res.ok) return [];
+    const raw = await res.json();
+    const data = (raw as { data?: GalleryMediaItem[] }).data;
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Commentaire dévotionnel (site public) */
+export interface DevotionalSiteComment {
+  id: number;
+  author_name: string;
+  author_avatar_url?: string | null;
+  content: string;
+  created_at?: string;
+}
+
+/** API publique dévotionnels (site, sans auth) : détail, commentaires, réactions */
+export const devotionalsSiteApi = {
+  getBySlugOrId: async (slugOrId: string): Promise<Devotional> => {
+    const res = await fetch(apiUrl(`/devotionals/site/${encodeURIComponent(slugOrId)}`), {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    const raw = await handleResponse<{ data: Devotional } | Devotional>(res);
+    return (typeof raw === "object" && raw !== null && "data" in raw
+      ? (raw as { data: Devotional }).data
+      : raw) as Devotional;
+  },
+
+  getComments: async (
+    slugOrId: string,
+    params?: { page?: number; per_page?: number }
+  ): Promise<{ data: DevotionalSiteComment[]; meta?: { total?: number; current_page?: number; last_page?: number } }> => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    const q = sp.toString();
+    const res = await fetch(apiUrl(`/devotionals/site/${encodeURIComponent(slugOrId)}/comments${q ? `?${q}` : ""}`), {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    const payload = await handleResponse<{ data: DevotionalSiteComment[]; meta?: { total?: number; current_page?: number; last_page?: number } }>(res);
+    return {
+      data: Array.isArray(payload.data) ? payload.data : [],
+      meta: payload.meta,
+    };
+  },
+
+  addComment: async (
+    slugOrId: string,
+    body: { author_name: string; author_avatar_url?: string | null; content: string; captcha_token: string }
+  ) => {
+    const res = await fetch(apiUrl(`/devotionals/site/${encodeURIComponent(slugOrId)}/comments`), {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return handleResponse<{ status: string; message: string; data: DevotionalSiteComment }>(res);
+  },
+
+  react: async (slugOrId: string, body: { type: "amen" | "beni" | "edifiant" }): Promise<Devotional> => {
+    const res = await fetch(apiUrl(`/devotionals/site/${encodeURIComponent(slugOrId)}/react`), {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const raw = await handleResponse<{ status: string; data: Devotional }>(res);
+    return (raw as { data: Devotional }).data;
+  },
+};
+
+// ─── Actualités (site) : commentaires publics ────────────────────────────────
+
+export interface NewsSiteComment {
+  id: number;
+  author_name: string;
+  author_avatar_url?: string | null;
+  content: string;
+  created_at?: string;
+}
+
+type NewsCommentsListPayload = { data: NewsSiteComment[] } | NewsSiteComment[];
+
+/** Liste des commentaires publics pour une actualité (endpoint site, sans auth admin) */
+export async function fetchNewsSiteComments(slugOrId: string): Promise<NewsSiteComment[]> {
+  if (!slugOrId) return [];
+  const res = await fetch(apiUrl(`/news/site/${encodeURIComponent(slugOrId)}/comments`), {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  const payload = await handleResponse<NewsCommentsListPayload>(res);
+  if (Array.isArray(payload)) return payload;
+  return Array.isArray(payload.data) ? payload.data : [];
+}
+
+/** Ajout d'un commentaire public sur une actualité (endpoint site, avec CAPTCHA) */
+export async function createNewsSiteComment(
+  slugOrId: string,
+  body: {
+    author_name: string;
+    content: string;
+    captcha_token: string;
+    author_avatar_url?: string | null;
+  }
+): Promise<{ status: string; message: string; data: NewsSiteComment }> {
+  const res = await fetch(apiUrl(`/news/site/${encodeURIComponent(slugOrId)}/comments`), {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return handleResponse<{ status: string; message: string; data: NewsSiteComment }>(res);
+}
 
 // ─── Événements ────────────────────────────────────────────────────────────
 
@@ -1767,6 +2567,134 @@ export async function fetchDailyVerse(): Promise<(DailyVerse & { text: string; r
     return null;
   }
 }
+
+// ——— Formulaire de contact (public) ———
+
+export interface ContactMessagePayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+}
+
+export interface ContactMessage {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  subject: string;
+  message: string;
+  read_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Envoi d'un message depuis le formulaire de contact (public, sans auth) */
+export async function submitContactMessage(payload: ContactMessagePayload): Promise<{ status: string; message: string; data?: ContactMessage }> {
+  const res = await fetch(apiUrl("/contact"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse<{ status: string; message: string; data?: ContactMessage }>(res);
+}
+
+/** API admin : messages du formulaire de contact */
+export const contactMessagesApi = {
+  list: async (
+    token: string,
+    params?: { page?: number; per_page?: number; unread_only?: boolean }
+  ): Promise<{ data: ContactMessage[]; meta?: { total?: number; current_page?: number; last_page?: number } }> => {
+    const sp = new URLSearchParams();
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.per_page) sp.set("per_page", String(params.per_page));
+    if (params?.unread_only) sp.set("unread_only", "1");
+    const q = sp.toString();
+    const res = await fetchWithAuth(`/contact-messages${q ? `?${q}` : ""}`, { method: "GET" }, token);
+    const raw = await res.json();
+    if (!res.ok) throw (raw as ApiError);
+    const payload = (raw as { data?: { data?: ContactMessage[]; meta?: { total?: number; current_page?: number; last_page?: number } } }).data;
+    const list = Array.isArray(payload?.data) ? payload.data : [];
+    const meta = payload?.meta;
+    return { data: list, meta };
+  },
+  get: async (token: string, id: number): Promise<ContactMessage> => {
+    const res = await fetchWithAuth(`/contact-messages/${id}`, { method: "GET" }, token);
+    const raw = await res.json();
+    if (!res.ok) throw (raw as ApiError);
+    const body = raw as { data?: ContactMessage };
+    return body.data ?? (raw as ContactMessage);
+  },
+  markRead: async (token: string, id: number): Promise<ContactMessage> => {
+    const res = await fetchWithAuth(`/contact-messages/${id}/read`, { method: "PATCH" }, token);
+    const raw = await res.json();
+    if (!res.ok) throw (raw as ApiError);
+    const body = raw as { data?: ContactMessage };
+    return body.data ?? (raw as ContactMessage);
+  },
+};
+
+// ——— Informations de contact (page contact) ———
+
+export interface ContactInfoRegional {
+  region: string;
+  contact?: string;
+  email?: string;
+}
+
+export interface ContactInfo {
+  id: number;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  map_embed_url: string | null;
+  hours_mon_fri: string | null;
+  hours_saturday: string | null;
+  hours_sunday: string | null;
+  regional_contacts: ContactInfoRegional[];
+  facebook_url: string | null;
+  instagram_url: string | null;
+  youtube_url: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/** Informations de contact publiées (public, pour la page contact) */
+export async function fetchContactInfoPublished(): Promise<ContactInfo | null> {
+  try {
+    const res = await fetch(apiUrl("/contact-info/published"), { method: "GET", headers: { Accept: "application/json" } });
+    const raw = await res.json();
+    if (!res.ok) return null;
+    const data = (raw as { data?: ContactInfo }).data ?? (raw as ContactInfo);
+    return data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** API admin : informations de contact (édition) */
+export const contactInfoApi = {
+  get: async (token: string): Promise<ContactInfo> => {
+    const res = await fetchWithAuth("/contact-info", { method: "GET" }, token);
+    const raw = await res.json();
+    if (!res.ok) throw (raw as ApiError);
+    const body = raw as { data?: ContactInfo };
+    return body.data ?? (raw as ContactInfo);
+  },
+  save: async (token: string, data: Partial<ContactInfo>): Promise<ContactInfo> => {
+    const res = await fetchWithAuth("/contact-info", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }, token);
+    const raw = await res.json();
+    if (!res.ok) throw (raw as ApiError);
+    const body = raw as { data?: ContactInfo };
+    return body.data ?? (raw as ContactInfo);
+  },
+};
 
 /** Handler pour rafraîchir le token en cas de 401. Retourne le nouveau token ou null. */
 let refreshTokenHandler: (() => Promise<string | null>) | null = null;

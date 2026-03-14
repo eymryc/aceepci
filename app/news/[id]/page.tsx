@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { 
@@ -21,14 +21,13 @@ import {
   MapPin,
   Eye
 } from "lucide-react";
+import { 
+  createNewsSiteComment, 
+  fetchNewsSiteComments, 
+  type NewsSiteComment 
+} from "@/lib/api";
 
-interface Comment {
-  id: number;
-  author: string;
-  date: string;
-  content: string;
-  avatar: string;
-}
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 interface Reaction {
   id: string;
@@ -38,46 +37,87 @@ interface Reaction {
   active: boolean;
 }
 
+function formatViews(views: number): string {
+  if (!Number.isFinite(views)) return "0";
+  const str = String(Math.floor(views));
+  return str.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
 export default function Page() {
-  const { id } = useParams();
+  const params = useParams();
+  const slugOrId = Array.isArray(params.id) ? params.id[0] : (params.id as string | undefined);
   const [reactions, setReactions] = useState<Reaction[]>([
     { id: "like", icon: ThumbsUp, label: "J'aime", count: 67, active: false },
     { id: "love", icon: Heart, label: "J'adore", count: 43, active: false },
     { id: "insightful", icon: Lightbulb, label: "Intéressant", count: 21, active: false },
   ]);
 
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: 1,
-      author: "Patricia Koné",
-      date: "3 Mars 2026",
-      content: "Quelle excellente nouvelle ! J'ai hâte de participer au camp cette année. Le thème 'Marcher par la foi' est exactement ce dont nous avons besoin.",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
-    },
-    {
-      id: 2,
-      author: "Jean-Marc Yao",
-      date: "2 Mars 2026",
-      content: "Je viens de m'inscrire ! Ce sera mon 5ème camp et j'encourage tous les jeunes à y participer. C'est toujours une expérience transformatrice.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
-    },
-    {
-      id: 3,
-      author: "Fatoumata Diallo",
-      date: "2 Mars 2026",
-      content: "Merci pour cette information. Y a-t-il des possibilités d'aide financière pour les étudiants qui ont des difficultés à payer les frais d'inscription ?",
-      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100",
-    },
-    {
-      id: 4,
-      author: "David Kouassi",
-      date: "2 Mars 2026",
-      content: "Grand-Bassam en juillet, c'est le timing parfait ! J'espère que nous aurons encore les enseignements puissants comme l'année dernière.",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
-    },
-  ]);
-
+  const [comments, setComments] = useState<NewsSiteComment[]>([]);
   const [commentText, setCommentText] = useState("");
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!slugOrId) return;
+    let cancelled = false;
+    setLoadingComments(true);
+    fetchNewsSiteComments(slugOrId)
+      .then((data) => {
+        if (!cancelled) {
+          setComments(data);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError("Impossible de charger les commentaires pour le moment.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingComments(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slugOrId]);
+
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY) return;
+    if (typeof window === "undefined") return;
+    if (document.querySelector('script[data-recaptcha="true"]')) return;
+
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    script.defer = true;
+    script.dataset.recaptcha = "true";
+    document.head.appendChild(script);
+
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, []);
+
+  const getRecaptchaToken = async (): Promise<string | null> => {
+    if (!RECAPTCHA_SITE_KEY) return null;
+    if (typeof window === "undefined") return null;
+    const grecaptcha = (window as any).grecaptcha;
+    if (!grecaptcha || typeof grecaptcha.ready !== "function") return null;
+
+    return new Promise((resolve, reject) => {
+      grecaptcha.ready(() => {
+        grecaptcha
+          .execute(RECAPTCHA_SITE_KEY, { action: "comment" })
+          .then((token: string) => resolve(token))
+          .catch((err: unknown) => reject(err));
+      });
+    });
+  };
 
   // Données de l'actualité (normalement récupérées via l'API avec l'ID)
   const news = {
@@ -226,18 +266,45 @@ export default function Page() {
     ));
   };
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (commentText.trim()) {
-      const newComment: Comment = {
-        id: comments.length + 1,
-        author: "Vous",
-        date: "À l'instant",
-        content: commentText,
-        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
-      };
-      setComments([newComment, ...comments]);
-      setCommentText("");
+    if (!commentText.trim() || !slugOrId) return;
+
+    setError(null);
+    setCaptchaError(null);
+    setSubmitting(true);
+
+    try {
+      const captchaToken = await getRecaptchaToken();
+      if (!captchaToken) {
+        setCaptchaError("Vérification CAPTCHA indisponible. Merci de réessayer plus tard.");
+        return;
+      }
+
+      const response = await createNewsSiteComment(slugOrId, {
+        author_name: "Visiteur du site",
+        content: commentText.trim(),
+        captcha_token: captchaToken,
+      });
+
+      if (response?.data) {
+        setComments((prev) => [response.data, ...prev]);
+        setCommentText("");
+      }
+    } catch (err: any) {
+      if (err?.errors?.captcha || err?.errors?.captcha_token) {
+        setCaptchaError(
+          err?.errors?.captcha?.[0] ||
+            err?.errors?.captcha_token?.[0] ||
+            "Vérification CAPTCHA échouée. Merci de réessayer."
+        );
+      } else if (err?.message) {
+        setError(err.message);
+      } else {
+        setError("Impossible d'envoyer votre commentaire pour le moment.");
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -346,7 +413,7 @@ export default function Page() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Eye className="w-4 h-4" />
-                      <span>{news.views.toLocaleString()} vues</span>
+                      <span>{formatViews(news.views)} vues</span>
                     </div>
                   </div>
                 </div>
@@ -480,14 +547,20 @@ export default function Page() {
                         className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary resize-none"
                         rows={3}
                       />
+                      {captchaError && (
+                        <p className="mt-2 text-sm text-red-600">{captchaError}</p>
+                      )}
+                      {error && !captchaError && (
+                        <p className="mt-2 text-sm text-red-600">{error}</p>
+                      )}
                       <div className="flex justify-end mt-3">
                         <button
                           type="submit"
                           className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-lg hover:opacity-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={!commentText.trim()}
+                          disabled={!commentText.trim() || submitting}
                         >
                           <Send className="w-4 h-4" />
-                          Publier
+                          {submitting ? "Publication..." : "Publier"}
                         </button>
                       </div>
                     </div>
@@ -495,30 +568,44 @@ export default function Page() {
                 </form>
 
                 {/* Comments List */}
-                <div className="space-y-6">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="flex gap-4">
-                      <img
-                        src={comment.avatar}
-                        alt={comment.author}
-                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <div className="bg-brand-subtle rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-foreground">{comment.author}</h4>
-                            <span className="text-xs text-muted-foreground">{comment.date}</span>
-                          </div>
-                          <p className="text-foreground">{comment.content}</p>
+                {loadingComments ? (
+                  <p className="text-sm text-muted-foreground">Chargement des commentaires...</p>
+                ) : comments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Soyez le premier à commenter cette actualité.
+                  </p>
+                ) : (
+                  <div className="space-y-6">
+                    {comments.map((comment) => (
+                      <div key={comment.id} className="flex gap-4">
+                        <div className="w-10 h-10 rounded-full bg-brand-subtle flex items-center justify-center flex-shrink-0">
+                          <User className="w-5 h-5 text-brand-primary" />
                         </div>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                          <button className="hover:text-brand-primary transition-colors">Répondre</button>
-                          <button className="hover:text-brand-primary transition-colors">J'aime</button>
+                        <div className="flex-1">
+                          <div className="bg-brand-subtle rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold text-foreground">
+                                {comment.author_name || "Visiteur"}
+                              </h4>
+                              {comment.created_at && (
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(comment.created_at).toLocaleString("fr-FR", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-foreground whitespace-pre-line">{comment.content}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </article>
